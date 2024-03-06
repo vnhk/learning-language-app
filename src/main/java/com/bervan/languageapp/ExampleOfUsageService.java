@@ -57,6 +57,22 @@ public class ExampleOfUsageService {
             }
         }
 
+        if (exampleSentences.size() == 0) {
+            exampleSentences = document.select(".hiddenAdditionalSentences > p[lang='en']");
+            for (Element exampleSentence : exampleSentences) {
+                examples.add(exampleSentence.text().trim());
+            }
+        }
+
+        if (examples.size() > 5) {
+            List<String> fiveExamples = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                fiveExamples.add(examples.get(i));
+            }
+
+            return fiveExamples;
+        }
+
         return examples;
     }
 }
