@@ -1,10 +1,7 @@
 package com.bervan.languageapp.component;
 
 
-import com.bervan.languageapp.ExampleOfUsageService;
-import com.bervan.languageapp.TextToSpeechService;
-import com.bervan.languageapp.TranslationRecord;
-import com.bervan.languageapp.TranslatorService;
+import com.bervan.languageapp.*;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
@@ -25,6 +22,7 @@ public class Form extends VerticalLayout {
     private final ExampleOfUsageService exampleOfUsageService;
     private final TextToSpeechService textToSpeechService;
     private final TranslatorService translatorService;
+    private final TranslationRecordService translationRecordService;
     private final int minHeight = 200;
     private final int width = 500;
     private String sourceLanguage = "ES";
@@ -32,10 +30,11 @@ public class Form extends VerticalLayout {
     private TranslationRecord newTranslationRecord = new TranslationRecord();
     private List<TranslationRecord> translations;
 
-    public Form(ExampleOfUsageService exampleOfUsageService, TextToSpeechService textToSpeechService, TranslatorService translatorService, TranslationTable translationTable, List<TranslationRecord> translations) {
+    public Form(ExampleOfUsageService exampleOfUsageService, TextToSpeechService textToSpeechService, TranslatorService translatorService, TranslationTable translationTable, TranslationRecordService translationRecordService, List<TranslationRecord> translations) {
         this.exampleOfUsageService = exampleOfUsageService;
         this.textToSpeechService = textToSpeechService;
         this.translatorService = translatorService;
+        this.translationRecordService = translationRecordService;
         this.translations = translations;
         CheckboxGroup<Checkbox> saveOptions = new CheckboxGroup<>();
         Checkbox saveSpeech = new Checkbox("Save sound as file", false);
@@ -95,7 +94,7 @@ public class Form extends VerticalLayout {
                     }
                 }
 
-                TranslationRecord newOne = this.translatorService.add(newTranslationRecord);
+                TranslationRecord newOne = this.translationRecordService.add(newTranslationRecord);
 
                 this.translations.add(newOne);
                 newTranslationRecord = new TranslationRecord();

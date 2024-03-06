@@ -1,7 +1,6 @@
 package com.bervan.languageapp;
 
 import com.bervan.languageapp.component.ComponentCommonUtils;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
@@ -16,13 +15,13 @@ import java.util.Random;
 
 @Route("learning")
 public class LearningView extends VerticalLayout {
-    private final TranslatorService translatorService;
+    private final TranslationRecordService translationRecordService;
     private List<Integer> learned = new ArrayList<>();
     private Div toLearn;
     private Button nextTranslation = new Button("Next Card");
     private Button showAnswerButton = new Button("<->");
 
-    public LearningView(TranslatorService translatorService) {
+    public LearningView(TranslationRecordService translationRecordService) {
         toLearn = new Div();
         toLearn.add(showAnswerButton);
         toLearn.add(nextTranslation);
@@ -31,9 +30,8 @@ public class LearningView extends VerticalLayout {
         toLearn.add(new Hr());
         toLearn.add(new Span());
         toLearn.add(new Div());
-        this.translatorService = translatorService;
-        translatorService.loadAll();
-        List<TranslationRecord> all = translatorService.getAll();
+        this.translationRecordService = translationRecordService;
+        List<TranslationRecord> all = translationRecordService.getAll();
         setNextToLearn(all);
 
         Button translationsButton = new Button("Back to Translations");
@@ -58,9 +56,9 @@ public class LearningView extends VerticalLayout {
         }
 
         ((Span) toLearn.getComponentAt(3)).setText(all.get(r).getSourceText());
-        ComponentCommonUtils.addAudioIfExist(((Span) toLearn.getComponentAt(3)), all.get(r).getTextPronunciationPath());
+        ComponentCommonUtils.addAudioIfExist(((Span) toLearn.getComponentAt(3)), all.get(r).getTextSound());
         ((Span) toLearn.getComponentAt(5)).setText(all.get(r).getInSentence());
-        ComponentCommonUtils.addAudioIfExist(((Span) toLearn.getComponentAt(5)), all.get(r).getInSentencePronunciationPath());
+        ComponentCommonUtils.addAudioIfExist(((Span) toLearn.getComponentAt(5)), all.get(r).getInSentenceSound());
         toLearn.getComponentAt(0).setVisible(true);
         toLearn.getComponentAt(1).setVisible(false);
         int finalR = r;

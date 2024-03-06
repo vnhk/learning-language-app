@@ -1,26 +1,22 @@
 package com.bervan.languageapp.component;
 
 import com.bervan.languageapp.AudioPlayer;
-import com.bervan.languageapp.TextToSpeechService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import io.micrometer.common.util.StringUtils;
-
-import java.nio.file.Path;
 
 public class ComponentCommonUtils {
-    public static void addAudio(Span span, String path) {
+    private static void addAudio(Span span, String audioInBase64) {
         AudioPlayer textAudioPlayer = new AudioPlayer();
         textAudioPlayer.setVisible(true);
-        textAudioPlayer.setSource(Path.of(TextToSpeechService.path, path).toString());
+        textAudioPlayer.setSource(audioInBase64);
         span.add(new Div());
         span.add(textAudioPlayer);
     }
 
-    public static void addAudioIfExist(Span span, String path) {
-        boolean isAvailable = StringUtils.isNotBlank(path);
+    public static void addAudioIfExist(Span span, String audio) {
+        boolean isAvailable = audio != null && audio.length() > 0;
         if (isAvailable) {
-            ComponentCommonUtils.addAudio(span, path);
+            ComponentCommonUtils.addAudio(span, audio);
         }
     }
 }

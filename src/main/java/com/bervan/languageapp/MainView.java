@@ -9,21 +9,22 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @Route("")
 public class MainView extends VerticalLayout {
-    private final TranslatorService translatorService;
+    private final TranslationRecordService translatorRecordService;
     private List<TranslationRecord> translations;
 
-    public MainView(TranslatorService translatorService,
+    public MainView(TranslationRecordService translatorRecordService,
                     ExampleOfUsageService exampleOfUsageService,
-                    TextToSpeechService textToSpeechService) {
-        this.translatorService = translatorService;
-        this.translatorService.loadAll();
-        translations = translatorService.getAll();
+                    TextToSpeechService textToSpeechService,
+                    TranslatorService translationService) {
+        this.translatorRecordService = translatorRecordService;
+        translations = translatorRecordService.getAll();
         TranslationTable translationTable = new TranslationTable(translations);
-        Form form = new Form(exampleOfUsageService, textToSpeechService, translatorService, translationTable, translations);
+        Form form = new Form(exampleOfUsageService, textToSpeechService, translationService, translationTable, translatorRecordService, translations);
 
         Button learnButtonPage = new Button("Learning");
         learnButtonPage.addClickListener(buttonClickEvent -> {
@@ -34,8 +35,8 @@ public class MainView extends VerticalLayout {
 
         for (Button deleteButton : translationTable.getDeleteButtons()) {
             deleteButton.addClickListener(e -> {
-                translatorService.delete(deleteButton.getElement().getAttribute("uuid"));
-                translations = translatorService.getAll();
+                translatorRecordService.delete(UUID.fromString(deleteButton.getElement().getAttribute("uuid")));
+                translations = translatorRecordService.getAll();
                 translationTable.refresh(translations);
             });
         }

@@ -57,13 +57,13 @@ public class TranslationTable extends VerticalLayout {
     private final SerializableBiConsumer<Span, TranslationRecord> sourceTextUpdater = (
             span, translationRecord) -> {
         span.add(translationRecord.getSourceText());
-        addAudioIfExist(span, translationRecord.getTextPronunciationPath());
+        addAudioIfExist(span, translationRecord.getTextSound());
     };
 
     private final SerializableBiConsumer<Span, TranslationRecord> inSentenceTextUpdater = (
             span, translationRecord) -> {
         span.add(translationRecord.getInSentence());
-        addAudioIfExist(span, translationRecord.getInSentencePronunciationPath());
+        addAudioIfExist(span, translationRecord.getInSentenceSound());
     };
 
     private final SerializableBiConsumer<Span, TranslationRecord> actionsComponentUpdater = (

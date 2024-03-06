@@ -3,36 +3,29 @@ package com.bervan.languageapp;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TranslationRecordService {
-    private final TranslationRecordFileRepository translationRecordRepository;
+    private final TranslationRecordRepository translationRecordRepository;
 
-    public TranslationRecordService(TranslationRecordFileRepository translationRecordRepository) {
+    public TranslationRecordService(TranslationRecordRepository translationRecordRepository) {
         this.translationRecordRepository = translationRecordRepository;
     }
 
     public TranslationRecord add(TranslationRecord record) {
-        TranslationRecord add = translationRecordRepository.add(record);
-        saveAll();
-        return add;
+        return translationRecordRepository.save(record);
     }
 
     public List<TranslationRecord> getAll() {
-        return translationRecordRepository.getAll();
+        return translationRecordRepository.findAll();
     }
 
     public void delete(TranslationRecord record) {
         translationRecordRepository.delete(record);
-        saveAll();
-        loadAll();
     }
 
-    public void saveAll() {
-        translationRecordRepository.saveAll();
-    }
-
-    public void loadAll() {
-        translationRecordRepository.loadAll();
+    public void delete(UUID uuid) {
+        translationRecordRepository.deleteById(uuid);
     }
 }
