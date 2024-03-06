@@ -62,8 +62,8 @@ public class TranslationRecordFileRepository {
         row.createCell(1).setCellValue(translation.getTextTranslation());
         row.createCell(2).setCellValue(translation.getInSentence());
         row.createCell(3).setCellValue(translation.getInSentenceTranslation());
-        row.createCell(4).setCellValue(translation.getTextPronunciationPath());
-        row.createCell(5).setCellValue(translation.getInSentencePronunciationPath());
+//        row.createCell(4).setCellValue(translation.getTextPronunciationPath());
+//        row.createCell(5).setCellValue(translation.getInSentencePronunciationPath());
         row.createCell(6).setCellValue(String.valueOf(translation.getUuid()));
     }
 
@@ -103,8 +103,8 @@ public class TranslationRecordFileRepository {
                         .textTranslation(row.getCell(1).getStringCellValue())
                         .inSentence(row.getCell(2).getStringCellValue())
                         .inSentenceTranslation(row.getCell(3).getStringCellValue())
-                        .textPronunciationPath(row.getCell(4).getStringCellValue())
-                        .inSentencePronunciationPath(row.getCell(5).getStringCellValue())
+//                        .textPronunciationPath(row.getCell(4).getStringCellValue())
+//                        .inSentencePronunciationPath(row.getCell(5).getStringCellValue())
                         .uuid(getUUID(row))
                         .build();
                 translations.add(t);
