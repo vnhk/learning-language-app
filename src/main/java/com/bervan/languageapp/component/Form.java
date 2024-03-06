@@ -88,9 +88,9 @@ public class Form extends VerticalLayout {
                 newTranslationRecord.setInSentenceTranslation(inSentenceTargetLanguageInput.getValue());
 
                 if (saveSpeech.getValue()) {
-                    newTranslationRecord.setTextPronunciationPath(this.textToSpeechService.getTextSpeech(newTranslationRecord.getSourceText()).toString());
+                    newTranslationRecord.setTextSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getSourceText()));
                     if (StringUtils.isNotBlank(newTranslationRecord.getInSentence())) {
-                        newTranslationRecord.setInSentencePronunciationPath(this.textToSpeechService.getTextSpeech(newTranslationRecord.getInSentence()).toString());
+                        newTranslationRecord.setInSentenceSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getInSentence()));
                     }
                 }
 

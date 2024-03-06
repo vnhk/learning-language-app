@@ -32,8 +32,6 @@ public class TranslationRecord {
     private String textSound;
     @Size(max = 1000000000)
     private String inSentenceSound;
-    private String textPronunciationPath;
-    private String inSentencePronunciationPath;
 
     public TranslationRecord(TranslationRecord old) {
         this.sourceText = old.getSourceText();
@@ -41,8 +39,6 @@ public class TranslationRecord {
         this.type = old.getType();
         this.inSentence = old.getInSentence();
         this.inSentenceTranslation = old.getInSentenceTranslation();
-        this.textPronunciationPath = old.getTextPronunciationPath();
         this.uuid = old.getUuid();
-        this.inSentencePronunciationPath = old.getInSentencePronunciationPath();
     }
 }
