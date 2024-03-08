@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.bervan.languageapp.component.ComponentCommonUtils.addAudioIfExist;
+import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAddAudioIfExist;
 
 @Component
 public class TranslationTable extends VerticalLayout {
@@ -97,13 +97,13 @@ public class TranslationTable extends VerticalLayout {
     private final SerializableBiConsumer<Span, TranslationRecord> sourceTextUpdater = (
             span, translationRecord) -> {
         span.add(translationRecord.getSourceText());
-        addAudioIfExist(span, translationRecord.getTextSound());
+        optimizedAddAudioIfExist(span, translationRecord.getTextSound());
     };
 
     private final SerializableBiConsumer<Span, TranslationRecord> inSentenceTextUpdater = (
             span, translationRecord) -> {
         span.add(translationRecord.getInSentence());
-        addAudioIfExist(span, translationRecord.getInSentenceSound());
+        optimizedAddAudioIfExist(span, translationRecord.getInSentenceSound());
     };
 
     private final SerializableBiConsumer<Span, TranslationRecord> actionsComponentUpdater = (

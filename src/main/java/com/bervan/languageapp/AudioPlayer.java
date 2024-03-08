@@ -1,8 +1,11 @@
 package com.bervan.languageapp;
 
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.shared.Registration;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
@@ -15,6 +18,11 @@ public class AudioPlayer extends Component {
     public AudioPlayer() {
         this.getStyle().setWidth("15px");
         getElement().setAttribute("controls", true);
+    }
+
+    public Registration addClickListener(
+            ComponentEventListener listener) {
+        return this.addListener(ClickEvent.class, listener);
     }
 
     public void setSource(String audioInBase64) {
