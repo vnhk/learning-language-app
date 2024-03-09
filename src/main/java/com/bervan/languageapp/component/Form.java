@@ -37,7 +37,7 @@ public class Form extends VerticalLayout {
         this.translationRecordService = translationRecordService;
         this.translations = translations;
         CheckboxGroup<Checkbox> saveOptions = new CheckboxGroup<>();
-        Checkbox saveSpeech = new Checkbox("Save sound as file", false);
+        Checkbox saveSpeech = new Checkbox("Save sound as file", true);
         saveSpeech.setWidth("200px");
         saveOptions.add(saveSpeech);
 

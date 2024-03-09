@@ -1,9 +1,11 @@
 package com.bervan.languageapp.component;
 
 import com.bervan.languageapp.TranslationRecord;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -25,6 +27,7 @@ public class TranslationTable extends VerticalLayout {
     private final List<Button> deleteButtons = new ArrayList<>();
     private Map<UUID, String> recordsWithSearchValues;
     private List<TranslationRecord> data;
+    private Text text;
 
     public TranslationTable(List<TranslationRecord> data) {
         refresh(data);
@@ -59,6 +62,8 @@ public class TranslationTable extends VerticalLayout {
         grid.getColumns().forEach(column -> column.setHeader(new Span(column.getHeaderText())));
 
         add(searchLayout);
+        add(new Hr());
+        add(text);
         add(grid);
     }
 
@@ -130,6 +135,7 @@ public class TranslationTable extends VerticalLayout {
     }
 
     public void refresh(List<TranslationRecord> data) {
+        text = new Text("All Items: " + data.size());
         this.data = data;
         grid.setItems(data);
         this.recordsWithSearchValues = buildRecordsWithSearchValues(data);
