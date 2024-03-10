@@ -50,7 +50,7 @@ public class MainView extends VerticalLayout {
 
     private void buildHelpfulPagesLinks() {
         for (Map.Entry<String, String> stringStringEntry : helpfulLinks.entrySet()) {
-            Anchor a = new Anchor(stringStringEntry.getKey(), "-" + stringStringEntry.getValue() + "(" + stringStringEntry.getKey() + ")");
+            Anchor a = new Anchor(stringStringEntry.getKey(), "-" + stringStringEntry.getValue() + " (" + stringStringEntry.getKey() + ")");
             add(a);
         }
     }
