@@ -78,6 +78,13 @@ public class Form extends VerticalLayout {
             );
         });
 
+        Button navigateToUsageInSentenceOnYoutube = new Button("Open in youglish.com");
+        navigateToUsageInSentenceOnYoutube.addClickListener(click -> {
+            String hrefFormat = "https://youglish.com/pronounce/%s/english?";
+            String href = String.format(hrefFormat, sourceLanguageInput.getValue());
+            getUI().get().getPage().open(href);
+        });
+
 
         Button addButton = new Button("Add");
         addButton.addClickListener(click -> {
@@ -111,6 +118,7 @@ public class Form extends VerticalLayout {
         VerticalLayout sourceLanguageLayout = getSourceLanguageLayout(sourceLanguageInput, "Text");
         VerticalLayout inSentenceSourceLanguageLayout = getSourceLanguageLayout(inSentenceSourceLanguageInput, "In sentence");
         inSentenceSourceLanguageLayout.add(findUsageInSentence);
+        inSentenceSourceLanguageLayout.add(navigateToUsageInSentenceOnYoutube);
         VerticalLayout targetLanguageLayout = getTargetLanguageLayout(targetLanguageInput, textAutoTranslateButton, "Translation");
         VerticalLayout inSentenceTargetLanguageLayout = getTargetLanguageLayout(inSentenceTargetLanguageInput, inSentenceAutoTranslateButton, "In sentence translation");
         VerticalLayout saveOptionsLayout = getSaveOptionsLayout(saveOptions);
