@@ -96,8 +96,9 @@ public class LearningView extends VerticalLayout {
             TranslationRecord translationRecord = all.stream().filter(e -> e.getUuid().equals(UUID.fromString(getUUIDComponent().getValue())))
                     .findFirst().get();
             translationRecordService.delete(translationRecord);
-            all.remove(translationRecord);
-            setNextToLearn(all);
+            all.removeAll(all);
+            all.addAll(translationRecordService.getAll());
+            UI.getCurrent().getPage().reload();
         });
     }
 
