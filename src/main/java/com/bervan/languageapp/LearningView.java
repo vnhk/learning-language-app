@@ -11,10 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Route("learning")
 public class LearningView extends VerticalLayout {
@@ -93,12 +90,15 @@ public class LearningView extends VerticalLayout {
         });
 
         confirmDialog.addConfirmListener(confirmEvent -> {
-            TranslationRecord translationRecord = all.stream().filter(e -> e.getUuid().equals(UUID.fromString(getUUIDComponent().getValue())))
-                    .findFirst().get();
-            translationRecordService.delete(translationRecord);
-            all.removeAll(all);
-            all.addAll(translationRecordService.getAll());
-            UI.getCurrent().getPage().reload();
+            Optional<TranslationRecord> first = all.stream().filter(e -> e.getUuid().equals(UUID.fromString(getUUIDComponent().getValue())))
+                    .findFirst();
+            if (first.isPresent()) {
+                TranslationRecord translationRecord = first.get();
+                translationRecordService.delete(translationRecord);
+                all.removeAll(all);
+                all.addAll(translationRecordService.getAll());
+                UI.getCurrent().getPage().reload();
+            }
         });
     }
 
