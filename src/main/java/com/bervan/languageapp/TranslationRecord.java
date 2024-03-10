@@ -19,6 +19,7 @@ public class TranslationRecord {
     @Id
     @GeneratedValue
     private UUID uuid;
+    private Boolean deleted;
     @Size(max = 2000)
     private String sourceText;
     @Size(max = 2000)
@@ -40,5 +41,6 @@ public class TranslationRecord {
         this.inSentence = old.getInSentence();
         this.inSentenceTranslation = old.getInSentenceTranslation();
         this.uuid = old.getUuid();
+        this.deleted = old.getDeleted();
     }
 }

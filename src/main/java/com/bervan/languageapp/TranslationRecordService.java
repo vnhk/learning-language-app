@@ -19,16 +19,19 @@ public class TranslationRecordService {
     }
 
     public List<TranslationRecord> getAll() {
-        List<TranslationRecord> all = translationRecordRepository.findAll();
+        List<TranslationRecord> all = translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNull();
         all.sort(Comparator.comparing(TranslationRecord::getSourceText));
         return all;
     }
 
     public void delete(TranslationRecord record) {
-        translationRecordRepository.delete(record);
+        record.setDeleted(true);
+        translationRecordRepository.save(record);
     }
 
     public void delete(UUID uuid) {
-        translationRecordRepository.deleteById(uuid);
+        TranslationRecord translationRecord = translationRecordRepository.findById(uuid).get();
+        translationRecord.setDeleted(true);
+        translationRecordRepository.save(translationRecord);
     }
 }
