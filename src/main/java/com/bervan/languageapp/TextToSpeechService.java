@@ -2,14 +2,12 @@ package com.bervan.languageapp;
 
 import com.google.cloud.texttospeech.v1.*;
 import com.google.protobuf.ByteString;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Base64;
 
 @Service
-@Slf4j
 public class TextToSpeechService {
     public static String path = "src/main/resources/db";
 
@@ -40,7 +38,6 @@ public class TextToSpeechService {
             return Base64.getEncoder().encodeToString(audioContents.toByteArray());
 
         } catch (IOException e) {
-            log.error("Failed to load and save audio!", e);
             throw new RuntimeException("Failed to load and save audio!");
         }
     }

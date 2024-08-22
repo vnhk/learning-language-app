@@ -1,6 +1,5 @@
 package com.bervan.languageapp;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Slf4j
 public class ExampleOfUsageService {
     private final String url = "https://www.diki.pl/slownik-angielskiego?q=";
 
@@ -25,7 +23,7 @@ public class ExampleOfUsageService {
         try {
             return find(sourceText);
         } catch (Exception e) {
-            log.error("Failed to find example of usage!", e);
+            e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -44,7 +42,7 @@ public class ExampleOfUsageService {
                     String val = exampleSentence.text().replace(exampleSentenceTranslationToBeRemoved, "").trim();
                     examples.add(val);
                 } catch (Exception e) {
-                    log.error(e.getMessage(), e);
+                    e.printStackTrace();
                 }
             }
         } else {

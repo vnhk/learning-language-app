@@ -12,7 +12,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
-import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -23,11 +22,14 @@ import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAdd
 @Component
 public class TranslationTable extends VerticalLayout {
     private final Grid<TranslationRecord> grid = new Grid<>();
-    @Getter
     private final List<Button> deleteButtons = new ArrayList<>();
     private Map<UUID, String> recordsWithSearchValues;
     private List<TranslationRecord> data;
     private Text text;
+
+    public List<Button> getDeleteButtons() {
+        return deleteButtons;
+    }
 
     public TranslationTable(List<TranslationRecord> data) {
         refresh(data);

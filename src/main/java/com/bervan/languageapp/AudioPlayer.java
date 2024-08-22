@@ -6,13 +6,11 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
 
 @Tag("audio")
-@Slf4j
 public class AudioPlayer extends Component {
 
     public AudioPlayer() {

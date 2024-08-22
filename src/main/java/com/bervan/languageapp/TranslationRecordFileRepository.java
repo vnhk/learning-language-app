@@ -1,6 +1,5 @@
 package com.bervan.languageapp;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -16,7 +15,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-@Slf4j
 public class TranslationRecordFileRepository {
     private String path = "src/main/resources/db";
     private String fileName = "translation-base.xlsx";
@@ -52,7 +50,7 @@ public class TranslationRecordFileRepository {
             workbook.write(outputStream);
             workbook.close();
         } catch (Exception e) {
-            log.error("Failed to save to excel file!", e);
+            throw new RuntimeException("Failed to save to excel file!", e);
         }
     }
 
@@ -98,19 +96,19 @@ public class TranslationRecordFileRepository {
             int lastRowNum = sheet.getLastRowNum();
             for (int i = 1; i <= lastRowNum; i++) {
                 Row row = sheet.getRow(i);
-                TranslationRecord t = TranslationRecord.builder()
-                        .sourceText(row.getCell(0).getStringCellValue())
-                        .textTranslation(row.getCell(1).getStringCellValue())
-                        .inSentence(row.getCell(2).getStringCellValue())
-                        .inSentenceTranslation(row.getCell(3).getStringCellValue())
+                TranslationRecord t = TranslationRecord.TranslationRecordBuilder.aTranslationRecord()
+                        .withSourceText(row.getCell(0).getStringCellValue())
+                        .withTextTranslation(row.getCell(1).getStringCellValue())
+                        .withInSentence(row.getCell(2).getStringCellValue())
+                        .withInSentenceTranslation(row.getCell(3).getStringCellValue())
 //                        .textPronunciationPath(row.getCell(4).getStringCellValue())
 //                        .inSentencePronunciationPath(row.getCell(5).getStringCellValue())
-                        .uuid(getUUID(row))
+                        .withUuid(getUUID(row))
                         .build();
                 translations.add(t);
             }
         } catch (Exception e) {
-            log.error("Failed to save to excel file!", e);
+            throw new RuntimeException("Failed to save to excel file!", e);
         }
     }
 
