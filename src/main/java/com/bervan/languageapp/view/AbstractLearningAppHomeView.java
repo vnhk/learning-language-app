@@ -1,30 +1,33 @@
-package com.bervan.languageapp;
+package com.bervan.languageapp.view;
 
+import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.Form;
 import com.bervan.languageapp.component.TranslationTable;
+import com.bervan.languageapp.service.ExampleOfUsageService;
+import com.bervan.languageapp.service.TextToSpeechService;
+import com.bervan.languageapp.service.TranslationRecordService;
+import com.bervan.languageapp.service.TranslatorService;
 import com.google.common.collect.ImmutableMap;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.Route;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-
-@Route("")
-public class MainView extends VerticalLayout {
+public abstract class AbstractLearningAppHomeView extends VerticalLayout {
+    public static final String ROUTE_NAME = "learning-english-app/home";
     private final TranslationRecordService translatorRecordService;
     private List<TranslationRecord> translations;
     private Map<String, String> helpfulLinks = ImmutableMap.of("https://youglish.com", "The page that fins words in youtube videos");
 
-    public MainView(TranslationRecordService translatorRecordService,
-                    ExampleOfUsageService exampleOfUsageService,
-                    TextToSpeechService textToSpeechService,
-                    TranslatorService translationService) {
+    public AbstractLearningAppHomeView(TranslationRecordService translatorRecordService,
+                                       ExampleOfUsageService exampleOfUsageService,
+                                       TextToSpeechService textToSpeechService,
+                                       TranslatorService translationService) {
         this.translatorRecordService = translatorRecordService;
         translations = translatorRecordService.getAll();
         TranslationTable translationTable = new TranslationTable(translations);
@@ -32,7 +35,7 @@ public class MainView extends VerticalLayout {
 
         Button learnButtonPage = new Button("Learning");
         learnButtonPage.addClickListener(buttonClickEvent -> {
-            UI.getCurrent().navigate("learning");
+            UI.getCurrent().navigate(AbstractLearningView.ROUTE_NAME);
         });
 
         buildHelpfulPagesLinks();

@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAddAudioIfExist;
 
-@Component
 public class TranslationTable extends VerticalLayout {
     private final Grid<TranslationRecord> grid = new Grid<>();
     private final List<Button> deleteButtons = new ArrayList<>();
@@ -76,7 +75,7 @@ public class TranslationTable extends VerticalLayout {
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toSet());
 
-            Set<TranslationRecord> filteredValue = data.stream().filter(e -> matches.contains(e.getUuid()))
+            Set<TranslationRecord> filteredValue = data.stream().filter(e -> matches.contains(e.getId()))
                     .collect(Collectors.toSet());
             grid.setItems(filteredValue);
         }
@@ -86,7 +85,7 @@ public class TranslationTable extends VerticalLayout {
         Map<UUID, String> recordWithSearchValues = new HashMap<>();
         for (TranslationRecord d : data) {
             String search = Arrays.asList(d.getSourceText(), d.getTextTranslation(), d.getInSentence(), d.getInSentenceTranslation()).toString();
-            recordWithSearchValues.put(d.getUuid(), search.toLowerCase());
+            recordWithSearchValues.put(d.getId(), search.toLowerCase());
         }
 
         return recordWithSearchValues;
@@ -96,7 +95,7 @@ public class TranslationTable extends VerticalLayout {
         for (TranslationRecord translationRecord : data) {
             Button button = new Button("Delete");
             button.addClassName("delete-button");
-            button.getElement().setAttribute("uuid", String.valueOf(translationRecord.getUuid()));
+            button.getElement().setAttribute("uuid", String.valueOf(translationRecord.getId()));
             deleteButtons.add(button);
         }
     }
@@ -116,7 +115,7 @@ public class TranslationTable extends VerticalLayout {
     private final SerializableBiConsumer<Span, TranslationRecord> actionsComponentUpdater = (
             span, translationRecord) -> {
         for (Button deleteButton : getDeleteButtons()) {
-            if (translationRecord.getUuid().equals(UUID.fromString(deleteButton.getElement().getAttribute("uuid")))) {
+            if (translationRecord.getId().equals(UUID.fromString(deleteButton.getElement().getAttribute("uuid")))) {
                 span.add(deleteButton);
                 break;
             }

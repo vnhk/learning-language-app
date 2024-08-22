@@ -1,4 +1,4 @@
-package com.bervan.languageapp;
+package com.bervan.languageapp.service;
 
 import com.google.cloud.texttospeech.v1.*;
 import com.google.protobuf.ByteString;

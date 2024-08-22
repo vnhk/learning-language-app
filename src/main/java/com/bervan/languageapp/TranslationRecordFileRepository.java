@@ -62,7 +62,7 @@ public class TranslationRecordFileRepository {
         row.createCell(3).setCellValue(translation.getInSentenceTranslation());
 //        row.createCell(4).setCellValue(translation.getTextPronunciationPath());
 //        row.createCell(5).setCellValue(translation.getInSentencePronunciationPath());
-        row.createCell(6).setCellValue(String.valueOf(translation.getUuid()));
+        row.createCell(6).setCellValue(String.valueOf(translation.getId()));
     }
 
     private void createHeaders(Sheet sheet) {
@@ -103,7 +103,7 @@ public class TranslationRecordFileRepository {
                         .withInSentenceTranslation(row.getCell(3).getStringCellValue())
 //                        .textPronunciationPath(row.getCell(4).getStringCellValue())
 //                        .inSentencePronunciationPath(row.getCell(5).getStringCellValue())
-                        .withUuid(getUUID(row))
+                        .withId(getUUID(row))
                         .build();
                 translations.add(t);
             }

@@ -1,18 +1,20 @@
 package com.bervan.languageapp;
 
+import com.bervan.history.model.AbstractBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-public class TranslationRecord {
+public class TranslationRecord implements AbstractBaseEntity<UUID> {
     @Id
     @GeneratedValue
-    private UUID uuid;
+    private UUID id;
     private Boolean deleted;
     @Size(max = 2000)
     private String sourceText;
@@ -29,14 +31,6 @@ public class TranslationRecord {
     private String inSentenceSound;
 
     public TranslationRecord() {
-    }
-
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        this.uuid = uuid;
     }
 
     public Boolean getDeleted() {
@@ -109,7 +103,7 @@ public class TranslationRecord {
         this.type = old.getType();
         this.inSentence = old.getInSentence();
         this.inSentenceTranslation = old.getInSentenceTranslation();
-        this.uuid = old.getUuid();
+        this.id = old.getId();
         this.deleted = old.getDeleted();
     }
 
@@ -117,17 +111,37 @@ public class TranslationRecord {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TranslationRecord that)) return false;
-        return Objects.equals(uuid, that.uuid) && Objects.equals(deleted, that.deleted) && Objects.equals(sourceText, that.sourceText) && Objects.equals(textTranslation, that.textTranslation) && Objects.equals(type, that.type) && Objects.equals(inSentence, that.inSentence) && Objects.equals(inSentenceTranslation, that.inSentenceTranslation) && Objects.equals(textSound, that.textSound) && Objects.equals(inSentenceSound, that.inSentenceSound);
+        return Objects.equals(id, that.id) && Objects.equals(deleted, that.deleted) && Objects.equals(sourceText, that.sourceText) && Objects.equals(textTranslation, that.textTranslation) && Objects.equals(type, that.type) && Objects.equals(inSentence, that.inSentence) && Objects.equals(inSentenceTranslation, that.inSentenceTranslation) && Objects.equals(textSound, that.textSound) && Objects.equals(inSentenceSound, that.inSentenceSound);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uuid, deleted, sourceText, textTranslation, type, inSentence, inSentenceTranslation, textSound, inSentenceSound);
+        return Objects.hash(id, deleted, sourceText, textTranslation, type, inSentence, inSentenceTranslation, textSound, inSentenceSound);
+    }
+
+    @Override
+    public LocalDateTime getModificationDate() {
+        return null;
+    }
+
+    @Override
+    public void setModificationDate(LocalDateTime modificationDate) {
+
+    }
+
+    @Override
+    public UUID getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(UUID id) {
+        this.id = id;
     }
 
 
     public static final class TranslationRecordBuilder {
-        private UUID uuid;
+        private UUID id;
         private Boolean deleted;
         private @Size(max = 2000) String sourceText;
         private @Size(max = 2000) String textTranslation;
@@ -141,7 +155,7 @@ public class TranslationRecord {
         }
 
         public TranslationRecordBuilder(TranslationRecord other) {
-            this.uuid = other.uuid;
+            this.id = other.id;
             this.deleted = other.deleted;
             this.sourceText = other.sourceText;
             this.textTranslation = other.textTranslation;
@@ -156,8 +170,8 @@ public class TranslationRecord {
             return new TranslationRecordBuilder();
         }
 
-        public TranslationRecordBuilder withUuid(UUID uuid) {
-            this.uuid = uuid;
+        public TranslationRecordBuilder withId(UUID id) {
+            this.id = id;
             return this;
         }
 
@@ -203,7 +217,7 @@ public class TranslationRecord {
 
         public TranslationRecord build() {
             TranslationRecord translationRecord = new TranslationRecord();
-            translationRecord.setUuid(uuid);
+            translationRecord.setId(id);
             translationRecord.setDeleted(deleted);
             translationRecord.setSourceText(sourceText);
             translationRecord.setTextTranslation(textTranslation);

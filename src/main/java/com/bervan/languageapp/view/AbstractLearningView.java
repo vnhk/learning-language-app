@@ -1,6 +1,8 @@
-package com.bervan.languageapp;
+package com.bervan.languageapp.view;
 
+import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.ComponentCommonUtils;
+import com.bervan.languageapp.service.TranslationRecordService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
@@ -9,12 +11,11 @@ import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.Route;
 
 import java.util.*;
 
-@Route("learning")
-public class LearningView extends VerticalLayout {
+public abstract class AbstractLearningView extends VerticalLayout {
+    public static final String ROUTE_NAME = "learning-english-app/learning-view";
     private final TranslationRecordService translationRecordService;
     private List<Integer> learned = new ArrayList<>();
     private Div toLearn;
@@ -23,7 +24,7 @@ public class LearningView extends VerticalLayout {
     private final ConfirmDialog confirmDialog = new ConfirmDialog();
     private Button deleteOne = new Button("I know it, delete it.");
 
-    public LearningView(TranslationRecordService translationRecordService) {
+    public AbstractLearningView(TranslationRecordService translationRecordService) {
         confirmDialog.setText("Are you sure you want to delete it?");
         confirmDialog.setHeader("Deleting");
         confirmDialog.setCancelable(true);
@@ -54,7 +55,7 @@ public class LearningView extends VerticalLayout {
 
         Button translationsButton = new Button("Back to Translations");
         translationsButton.addClickListener(buttonClickEvent -> {
-            UI.getCurrent().navigate("");
+            UI.getCurrent().navigate(AbstractLearningAppHomeView.ROUTE_NAME);
         });
 
         nextTranslation.addClickListener(buttonClickEvent -> {
@@ -65,6 +66,10 @@ public class LearningView extends VerticalLayout {
     }
 
     private void setNextToLearn(List<TranslationRecord> all) {
+        if (all.size() == 0) {
+            return;
+        }
+
         Random random = new Random();
         if (learned.size() == all.size()) {
             learned = new ArrayList<>();
@@ -74,7 +79,7 @@ public class LearningView extends VerticalLayout {
         }
 
         TextField uuid = getUUIDComponent();
-        uuid.setValue(String.valueOf(all.get(r).getUuid()));
+        uuid.setValue(String.valueOf(all.get(r).getId()));
         ((Span) toLearn.getComponentAt(3)).setText(all.get(r).getSourceText());
         ComponentCommonUtils.addAudioIfExist(((Span) toLearn.getComponentAt(3)), all.get(r).getTextSound());
         ((Span) toLearn.getComponentAt(5)).setText(all.get(r).getInSentence());
@@ -90,7 +95,7 @@ public class LearningView extends VerticalLayout {
         });
 
         confirmDialog.addConfirmListener(confirmEvent -> {
-            Optional<TranslationRecord> first = all.stream().filter(e -> e.getUuid().equals(UUID.fromString(getUUIDComponent().getValue())))
+            Optional<TranslationRecord> first = all.stream().filter(e -> e.getId().equals(UUID.fromString(getUUIDComponent().getValue())))
                     .findFirst();
             if (first.isPresent()) {
                 TranslationRecord translationRecord = first.get();

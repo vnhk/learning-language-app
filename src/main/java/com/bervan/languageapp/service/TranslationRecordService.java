@@ -1,5 +1,7 @@
-package com.bervan.languageapp;
+package com.bervan.languageapp.service;
 
+import com.bervan.languageapp.TranslationRecord;
+import com.bervan.languageapp.TranslationRecordRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;

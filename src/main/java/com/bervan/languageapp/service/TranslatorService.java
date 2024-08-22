@@ -1,4 +1,4 @@
-package com.bervan.languageapp;
+package com.bervan.languageapp.service;
 
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;

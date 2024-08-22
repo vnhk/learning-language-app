@@ -1,6 +1,5 @@
 package com.bervan.languageapp.component;
 
-import com.bervan.languageapp.AudioPlayer;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 

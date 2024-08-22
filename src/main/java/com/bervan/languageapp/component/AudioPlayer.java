@@ -1,4 +1,4 @@
-package com.bervan.languageapp;
+package com.bervan.languageapp.component;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;

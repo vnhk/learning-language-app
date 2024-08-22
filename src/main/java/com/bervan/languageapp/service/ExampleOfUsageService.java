@@ -1,4 +1,4 @@
-package com.bervan.languageapp;
+package com.bervan.languageapp.service;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;

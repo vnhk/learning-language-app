@@ -2,6 +2,10 @@ package com.bervan.languageapp.component;
 
 
 import com.bervan.languageapp.*;
+import com.bervan.languageapp.service.ExampleOfUsageService;
+import com.bervan.languageapp.service.TextToSpeechService;
+import com.bervan.languageapp.service.TranslationRecordService;
+import com.bervan.languageapp.service.TranslatorService;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
@@ -13,11 +17,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import io.micrometer.common.util.StringUtils;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
 public class Form extends VerticalLayout {
     private final ExampleOfUsageService exampleOfUsageService;
     private final TextToSpeechService textToSpeechService;
