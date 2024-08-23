@@ -33,8 +33,8 @@ public class TranslationRecordService {
         return all;
     }
 
-    public void updateNextLearningDate(String uuid, String score) {
-        TranslationRecord translationRecord = translationRecordRepository.findById(UUID.fromString(uuid)).get();
+    public void updateNextLearningDate(UUID uuid, String score) {
+        TranslationRecord translationRecord = translationRecordRepository.findById(uuid).get();
 
         if (translationRecord.getFactor() == null || translationRecord.getFactor() < 1) {
             translationRecord.setFactor(1);
