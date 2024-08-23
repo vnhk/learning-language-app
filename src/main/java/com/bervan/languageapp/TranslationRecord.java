@@ -29,6 +29,16 @@ public class TranslationRecord implements AbstractBaseEntity<UUID> {
     private String textSound;
     @Size(max = 1000000000)
     private String inSentenceSound;
+    private Integer factor = 1;
+    private LocalDateTime nextRepeatTime;
+
+    public LocalDateTime getNextRepeatTime() {
+        return nextRepeatTime;
+    }
+
+    public void setNextRepeatTime(LocalDateTime nextRepeatTime) {
+        this.nextRepeatTime = nextRepeatTime;
+    }
 
     public TranslationRecord() {
     }
@@ -139,6 +149,14 @@ public class TranslationRecord implements AbstractBaseEntity<UUID> {
         this.id = id;
     }
 
+    public Integer getFactor() {
+        return factor;
+    }
+
+    public void setFactor(Integer interval) {
+        this.factor = interval;
+    }
+
 
     public static final class TranslationRecordBuilder {
         private UUID id;
@@ -150,6 +168,7 @@ public class TranslationRecord implements AbstractBaseEntity<UUID> {
         private @Size(max = 2000) String inSentenceTranslation;
         private @Size(max = 1000000000) String textSound;
         private @Size(max = 1000000000) String inSentenceSound;
+        private LocalDateTime nextRepeatTime;
 
         public TranslationRecordBuilder() {
         }
@@ -164,6 +183,7 @@ public class TranslationRecord implements AbstractBaseEntity<UUID> {
             this.inSentenceTranslation = other.inSentenceTranslation;
             this.textSound = other.textSound;
             this.inSentenceSound = other.inSentenceSound;
+            this.nextRepeatTime = other.nextRepeatTime;
         }
 
         public static TranslationRecordBuilder aTranslationRecord() {
@@ -215,6 +235,11 @@ public class TranslationRecord implements AbstractBaseEntity<UUID> {
             return this;
         }
 
+        public TranslationRecordBuilder withNextRepeatTime(LocalDateTime nextRepeatTime) {
+            this.nextRepeatTime = nextRepeatTime;
+            return this;
+        }
+
         public TranslationRecord build() {
             TranslationRecord translationRecord = new TranslationRecord();
             translationRecord.setId(id);
@@ -226,6 +251,7 @@ public class TranslationRecord implements AbstractBaseEntity<UUID> {
             translationRecord.setInSentenceTranslation(inSentenceTranslation);
             translationRecord.setTextSound(textSound);
             translationRecord.setInSentenceSound(inSentenceSound);
+            translationRecord.nextRepeatTime = this.nextRepeatTime;
             return translationRecord;
         }
     }
