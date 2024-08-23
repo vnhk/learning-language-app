@@ -26,7 +26,7 @@ public class Form extends VerticalLayout {
     private final TranslatorService translatorService;
     private final TranslationRecordService translationRecordService;
     private final int minHeight = 200;
-    private final int width = 500;
+    private final int width = 250;
     private String sourceLanguage = "ES";
     private String targetLanguage = "PL";
     private TranslationRecord newTranslationRecord = new TranslationRecord();
