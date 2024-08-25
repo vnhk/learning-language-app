@@ -1,5 +1,6 @@
 package com.bervan.languageapp.service;
 
+import com.bervan.common.model.BervanLogger;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -14,16 +15,17 @@ import java.util.List;
 @Service
 public class ExampleOfUsageService {
     private final String url = "https://www.diki.pl/slownik-angielskiego?q=";
+    private final BervanLogger logger;
 
-    public ExampleOfUsageService() {
-
+    public ExampleOfUsageService(BervanLogger logger) {
+        this.logger = logger;
     }
 
     public List<String> createExampleOfUsage(String sourceText) {
         try {
             return find(sourceText);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.logError("Could not create example of usage!", e);
         }
         return new ArrayList<>();
     }
@@ -42,7 +44,7 @@ public class ExampleOfUsageService {
                     String val = exampleSentence.text().replace(exampleSentenceTranslationToBeRemoved, "").trim();
                     examples.add(val);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.logError("Could not create example of usage!", e);
                 }
             }
         } else {
