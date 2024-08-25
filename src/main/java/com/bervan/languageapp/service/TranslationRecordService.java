@@ -40,26 +40,34 @@ public class TranslationRecordService {
             translationRecord.setFactor(1);
         }
 
+        int nextFactor = getNextFactor(score, translationRecord.getFactor());
+        translationRecord.setNextRepeatTime(
+                getNextRepeatTime(nextFactor)
+        );
+        translationRecordRepository.save(translationRecord);
+    }
+
+    public static LocalDateTime getNextRepeatTime(Integer factor) {
+        return LocalDateTime.now().plusHours(getHoursUntilNextRepeatTime(factor));
+    }
+
+    public static int getHoursUntilNextRepeatTime(Integer factor) {
+        return factor * 4;
+    }
+
+    public static int getNextFactor(String score, Integer factor) {
         switch (score) {
             case "AGAIN":
-                translationRecord.setFactor(1);
-                break;
+                return 1;
             case "HARD":
-                translationRecord.setFactor((int) Math.max(1, translationRecord.getFactor() * 0.6));
-                break;
+                return (int) Math.max(1, factor * 0.6);
             case "GOOD":
-                translationRecord.setFactor(translationRecord.getFactor() * 2);
-                break;
+                return factor * 2;
             case "EASY":
-                translationRecord.setFactor(translationRecord.getFactor() * 4);
-                break;
+                return factor * 4;
             default:
                 throw new IllegalArgumentException("Invalid grade");
         }
-        translationRecord.setNextRepeatTime(
-                LocalDateTime.now().plusHours(translationRecord.getFactor() * 4)
-        );
-        translationRecordRepository.save(translationRecord);
     }
 
     public void delete(TranslationRecord record) {
@@ -71,5 +79,10 @@ public class TranslationRecordService {
         TranslationRecord translationRecord = translationRecordRepository.findById(uuid).get();
         translationRecord.setDeleted(true);
         translationRecordRepository.save(translationRecord);
+    }
+
+    public Integer getFactor(UUID uuid) {
+        TranslationRecord translationRecord = translationRecordRepository.findById(uuid).get();
+        return translationRecord.getFactor();
     }
 }
