@@ -20,13 +20,9 @@ public class TranslatorService {
         translate = TranslateOptions.newBuilder()
                 .setApiKey(API_KEY)
                 .build().getService();
-
-        logger.logDebug("TRANSLATE_API_KEY:" + API_KEY);
     }
 
     public String translate(String value, String sourceLanguage, String targetLanguage) {
-        logger.logDebug("TRANSLATE_API_KEY:" + API_KEY);
-
         Translation translation = translate.translate(value,
                 Translate.TranslateOption.sourceLanguage(sourceLanguage),
                 Translate.TranslateOption.targetLanguage(targetLanguage));
