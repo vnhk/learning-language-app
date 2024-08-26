@@ -1,7 +1,7 @@
 package com.bervan.languageapp.component;
 
 
-import com.bervan.languageapp.*;
+import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.ExampleOfUsageService;
 import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
@@ -27,8 +27,6 @@ public class Form extends VerticalLayout {
     private final TranslationRecordService translationRecordService;
     private final int minHeight = 200;
     private final int width = 250;
-    private String sourceLanguage = "ES";
-    private String targetLanguage = "PL";
     private TranslationRecord newTranslationRecord = new TranslationRecord();
     private List<TranslationRecord> translations;
 
@@ -54,7 +52,7 @@ public class Form extends VerticalLayout {
 
         Button textAutoTranslateButton = new Button("Auto translate");
         textAutoTranslateButton.addClickListener(click -> {
-            targetLanguageInput.setValue(this.translatorService.translate(sourceLanguageInput.getValue(), sourceLanguage, targetLanguage));
+            targetLanguageInput.setValue(this.translatorService.translate(sourceLanguageInput.getValue()));
         });
 
 
@@ -69,7 +67,7 @@ public class Form extends VerticalLayout {
 
         Button inSentenceAutoTranslateButton = new Button("Auto translate");
         inSentenceAutoTranslateButton.addClickListener(click -> {
-            inSentenceTargetLanguageInput.setValue(this.translatorService.translate(inSentenceSourceLanguageInput.getValue(), sourceLanguage, targetLanguage));
+            inSentenceTargetLanguageInput.setValue(this.translatorService.translate(inSentenceSourceLanguageInput.getValue()));
         });
 
         Button findUsageInSentence = new Button("Generate example sentence");
@@ -113,6 +111,7 @@ public class Form extends VerticalLayout {
                 targetLanguageInput.setValue("");
                 inSentenceSourceLanguageInput.setValue("");
                 inSentenceTargetLanguageInput.setValue("");
+                saveSpeech.setValue(false);
             }
         });
         addButton.addClickShortcut(Key.ENTER);

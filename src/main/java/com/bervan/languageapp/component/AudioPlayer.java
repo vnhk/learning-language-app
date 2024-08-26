@@ -4,18 +4,42 @@ import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
 
-@Tag("audio")
+@Tag("Div")
 public class AudioPlayer extends Component {
 
+    private AudioElement audioElement;
+
     public AudioPlayer() {
-        this.getStyle().setWidth("15px");
-        getElement().setAttribute("controls", true);
+        audioElement = new AudioElement();
+        audioElement.getElement().setAttribute("style", "display: none;");
+        getElement().appendChild(audioElement.getElement());
+
+        Icon speakerIcon = new Icon(VaadinIcon.VOLUME_UP);
+        speakerIcon.getStyle().set("cursor", "pointer");
+        speakerIcon.addClickListener(event -> toggleAudio());
+
+        getElement().appendChild(speakerIcon.getElement());
+    }
+
+    public void setSource(String audioInBase64) {
+        StreamResource audioResource = new StreamResource(
+                "audio.mp3",
+                () -> new ByteArrayInputStream(Base64.getDecoder().decode(audioInBase64))
+        );
+
+        audioElement.getElement().setAttribute("src", audioResource);
+    }
+
+    public void toggleAudio() {
+        getElement().executeJs("const audio = this.querySelector('audio'); if (audio.paused) { audio.play(); } else { audio.pause(); }");
     }
 
     public Registration addClickListener(
@@ -23,11 +47,10 @@ public class AudioPlayer extends Component {
         return this.addListener(ClickEvent.class, listener);
     }
 
-    public void setSource(String audioInBase64) {
-        StreamResource audioResource = new StreamResource("audio.mp3",
-                () -> new ByteArrayInputStream(Base64.getDecoder().decode(audioInBase64)));
-
-        getElement().setAttribute("src", audioResource);
+    @Tag("audio")
+    private static class AudioElement extends Component {
+        public AudioElement() {
+        }
     }
 }
 

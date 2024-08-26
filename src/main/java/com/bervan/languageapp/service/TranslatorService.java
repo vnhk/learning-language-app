@@ -13,6 +13,8 @@ public class TranslatorService {
     private String API_KEY;
     private Translate translate;
     private final BervanLogger logger;
+    private String sourceLanguage = "ES";
+    private String targetLanguage = "PL";
 
     public TranslatorService(BervanLogger logger) {
         this.logger = logger;
@@ -22,7 +24,11 @@ public class TranslatorService {
                 .build().getService();
     }
 
-    public String translate(String value, String sourceLanguage, String targetLanguage) {
+    public String translate(String value) {
+        if (value.length() > 250) {
+            throw new RuntimeException("To long value to be translated!");
+        }
+
         Translation translation = translate.translate(value,
                 Translate.TranslateOption.sourceLanguage(sourceLanguage),
                 Translate.TranslateOption.targetLanguage(targetLanguage));
