@@ -41,6 +41,7 @@ public class TranslationRecordService {
         }
 
         int nextFactor = getNextFactor(score, translationRecord.getFactor());
+        translationRecord.setFactor(nextFactor);
         translationRecord.setNextRepeatTime(
                 getNextRepeatTime(nextFactor)
         );
