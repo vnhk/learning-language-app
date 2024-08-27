@@ -29,6 +29,10 @@ public abstract class AbstractLearningView extends VerticalLayout {
     public AbstractLearningView(TranslationRecordService translationRecordService) {
         super();
         add(new LearningEnglishLayout(ROUTE_NAME));
+        againButton.addClassName("option-button");
+        hardButton.addClassName("option-button");
+        goodButton.addClassName("option-button");
+        easyButton.addClassName("option-button");
         buttonsLayout.add(againButton);
         buttonsLayout.add(hardButton);
         buttonsLayout.add(goodButton);
