@@ -12,6 +12,7 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,6 +20,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import io.micrometer.common.util.StringUtils;
 
 import java.util.List;
+import java.util.Set;
 
 public class Form extends VerticalLayout {
     private final ExampleOfUsageService exampleOfUsageService;
@@ -28,9 +30,9 @@ public class Form extends VerticalLayout {
     private final int minHeight = 200;
     private final int width = 250;
     private TranslationRecord newTranslationRecord = new TranslationRecord();
-    private List<TranslationRecord> translations;
+    private Set<TranslationRecord> translations;
 
-    public Form(ExampleOfUsageService exampleOfUsageService, TextToSpeechService textToSpeechService, TranslatorService translatorService, TranslationTable translationTable, TranslationRecordService translationRecordService, List<TranslationRecord> translations) {
+    public Form(ExampleOfUsageService exampleOfUsageService, TextToSpeechService textToSpeechService, TranslatorService translatorService, TranslationRecordService translationRecordService, Grid<TranslationRecord> grid, Set<TranslationRecord> translations) {
         this.exampleOfUsageService = exampleOfUsageService;
         this.textToSpeechService = textToSpeechService;
         this.translatorService = translatorService;
@@ -101,11 +103,11 @@ public class Form extends VerticalLayout {
                     }
                 }
 
-                TranslationRecord newOne = this.translationRecordService.add(newTranslationRecord);
+                TranslationRecord newOne = this.translationRecordService.save(newTranslationRecord);
 
                 this.translations.add(newOne);
                 newTranslationRecord = new TranslationRecord();
-                translationTable.refresh(this.translations);
+                grid.getDataProvider().refreshAll();
 
                 sourceLanguageInput.setValue("");
                 targetLanguageInput.setValue("");

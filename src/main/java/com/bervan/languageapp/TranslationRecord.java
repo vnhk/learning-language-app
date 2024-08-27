@@ -1,5 +1,6 @@
 package com.bervan.languageapp;
 
+import com.bervan.common.model.PersistableTableData;
 import com.bervan.history.model.AbstractBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +12,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-public class TranslationRecord implements AbstractBaseEntity<UUID> {
+public class TranslationRecord implements AbstractBaseEntity<UUID>, PersistableTableData {
     @Id
     @GeneratedValue
     private UUID id;
@@ -155,6 +156,11 @@ public class TranslationRecord implements AbstractBaseEntity<UUID> {
 
     public void setFactor(Integer factor) {
         this.factor = factor;
+    }
+
+    @Override
+    public String getName() {
+        return sourceText;
     }
 
 

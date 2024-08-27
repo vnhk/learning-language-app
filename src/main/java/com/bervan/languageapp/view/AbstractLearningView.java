@@ -3,7 +3,6 @@ package com.bervan.languageapp.view;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.Flashcard;
 import com.bervan.languageapp.service.TranslationRecordService;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.notification.Notification;
@@ -11,7 +10,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public abstract class AbstractLearningView extends VerticalLayout {
@@ -28,6 +27,8 @@ public abstract class AbstractLearningView extends VerticalLayout {
 
 
     public AbstractLearningView(TranslationRecordService translationRecordService) {
+        super();
+        add(new LearningEnglishLayout(ROUTE_NAME));
         buttonsLayout.add(againButton);
         buttonsLayout.add(hardButton);
         buttonsLayout.add(goodButton);
@@ -38,12 +39,7 @@ public abstract class AbstractLearningView extends VerticalLayout {
         uuid.setId("uuid");
         uuid.setVisible(false);
         this.translationRecordService = translationRecordService;
-        List<TranslationRecord> all = translationRecordService.getAllForLearning();
-
-        Button translationsButton = new Button("Back to Translations");
-        translationsButton.addClickListener(buttonClickEvent -> {
-            UI.getCurrent().navigate(AbstractLearningAppHomeView.ROUTE_NAME);
-        });
+        Set<TranslationRecord> all = translationRecordService.getAllForLearning();
 
         againButton.addClickListener(buttonClickEvent -> {
             postButtonClickActions(translationRecordService, "AGAIN", all);
@@ -61,18 +57,18 @@ public abstract class AbstractLearningView extends VerticalLayout {
             postButtonClickActions(translationRecordService, "EASY", all);
         });
 
-        add(translationsButton, new Hr());
         setNextToLearn(all);
     }
 
-    private void postButtonClickActions(TranslationRecordService translationRecordService, String button, List<TranslationRecord> all) {
+    private void postButtonClickActions(TranslationRecordService translationRecordService, String button, Set<TranslationRecord> all) {
         translationRecordService.updateNextLearningDate(currentCardId, button);
         buttonsLayout.setVisible(false);
         remove(currentFlashCard);
 
         for (int i = 0; i < all.size(); i++) {
-            if (all.get(i).getId().equals(currentCardId)) {
-                all.remove(i);
+            TranslationRecord next = all.iterator().next();
+            if (next.getId().equals(currentCardId)) {
+                all.remove(next);
                 break;
             }
         }
@@ -80,13 +76,13 @@ public abstract class AbstractLearningView extends VerticalLayout {
         setNextToLearn(all);
     }
 
-    private void setNextToLearn(List<TranslationRecord> all) {
+    private void setNextToLearn(Set<TranslationRecord> all) {
         if (all.size() == 0) {
             Notification.show("No flashcards for that moment. Come back later!");
             return;
         }
 
-        TranslationRecord translationRecord = all.get(0);
+        TranslationRecord translationRecord = all.iterator().next();
         currentCardId = translationRecord.getId();
 
         currentFlashCard = new Flashcard(translationRecord, buttonsLayout);

@@ -20,6 +20,9 @@ public class ComponentCommonUtils {
                 textAudioPlayer.setSource(audioInBase64);
             }
         });
+        textAudioPlayer.getElement().executeJs(
+                "this.addEventListener('click', function(event) { event.stopPropagation(); });"
+        );
         span.add(new Div());
         span.add(textAudioPlayer);
     }

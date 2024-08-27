@@ -1,36 +1,33 @@
 package com.bervan.languageapp.service;
 
+import com.bervan.common.service.BaseService;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.TranslationRecordRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
-public class TranslationRecordService {
+public class TranslationRecordService implements BaseService<TranslationRecord> {
     private final TranslationRecordRepository translationRecordRepository;
 
     public TranslationRecordService(TranslationRecordRepository translationRecordRepository) {
         this.translationRecordRepository = translationRecordRepository;
     }
 
-    public TranslationRecord add(TranslationRecord record) {
+    public TranslationRecord save(TranslationRecord record) {
         return translationRecordRepository.save(record);
     }
 
-    public List<TranslationRecord> getAll() {
-        List<TranslationRecord> all = translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNull();
-        all.sort(Comparator.comparing(TranslationRecord::getSourceText));
-        return all;
+    public Set<TranslationRecord> load() {
+        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNull();
     }
 
-    public List<TranslationRecord> getAllForLearning() {
-        List<TranslationRecord> all = translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndNextRepeatTimeNullOrNextRepeatTimeBefore(LocalDateTime.now());
-        all.sort(Comparator.comparing(TranslationRecord::getSourceText));
-        return all;
+    public Set<TranslationRecord> getAllForLearning() {
+        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndNextRepeatTimeNullOrNextRepeatTimeBefore(LocalDateTime.now());
     }
 
     public void updateNextLearningDate(UUID uuid, String score) {
@@ -85,5 +82,12 @@ public class TranslationRecordService {
     public Integer getFactor(UUID uuid) {
         TranslationRecord translationRecord = translationRecordRepository.findById(uuid).get();
         return translationRecord.getFactor();
+    }
+
+    @Override
+    public void save(List<TranslationRecord> data) {
+        for (TranslationRecord datum : data) {
+            save(datum);
+        }
     }
 }
