@@ -13,6 +13,9 @@ public class Flashcard extends VerticalLayout {
     private Boolean isAnswerVisible = Boolean.FALSE;
 
     public Flashcard(TranslationRecord translationRecord, HorizontalLayout buttonsLayout) {
+        sourcePlayer = new AudioPlayer();
+        inSentencePlayer = new AudioPlayer();
+
         this.addClassName("flashcard-layout");
         Div flashcardDiv = new Div();
         flashcardDiv.addClassName("flashcard");
@@ -23,7 +26,6 @@ public class Flashcard extends VerticalLayout {
         Div questionDiv = new Div();
 
         if (translationRecord.getTextSound() != null) {
-            sourcePlayer = new AudioPlayer();
             sourcePlayer.setSource(translationRecord.getTextSound());
             questionDiv.add(sourceTextLabel, sourcePlayer);
             sourcePlayer.getElement().executeJs(
@@ -38,7 +40,6 @@ public class Flashcard extends VerticalLayout {
         if (translationRecord.getInSentence() != null) {
             questionDiv.add(new Hr());
             if (translationRecord.getInSentenceSound() != null) {
-                inSentencePlayer = new AudioPlayer();
                 inSentencePlayer.setSource(translationRecord.getInSentenceSound());
                 inSentenceDiv.add(inSentenceLabel, inSentencePlayer);
                 inSentencePlayer.getElement().executeJs(
@@ -59,6 +60,13 @@ public class Flashcard extends VerticalLayout {
                 sourcePlayer.setVisible(false);
                 inSentencePlayer.setVisible(false);
                 isAnswerVisible = true;
+            } else {
+                sourceTextLabel.setText(translationRecord.getSourceText());
+                inSentenceLabel.setText(translationRecord.getInSentence());
+                buttonsLayout.setVisible(false);
+                sourcePlayer.setVisible(true);
+                inSentencePlayer.setVisible(true);
+                isAnswerVisible = false;
             }
         });
 
