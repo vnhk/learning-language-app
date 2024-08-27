@@ -153,8 +153,8 @@ public class TranslationRecord implements AbstractBaseEntity<UUID> {
         return factor;
     }
 
-    public void setFactor(Integer interval) {
-        this.factor = interval;
+    public void setFactor(Integer factor) {
+        this.factor = factor;
     }
 
 

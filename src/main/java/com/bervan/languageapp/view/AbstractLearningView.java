@@ -92,9 +92,9 @@ public abstract class AbstractLearningView extends VerticalLayout {
         currentFlashCard = new Flashcard(translationRecord, buttonsLayout);
         add(currentFlashCard);
 
-        againButton.setTooltipText("< " + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("AGAIN", translationRecordService.getFactor(currentCardId))) + "h");
-        hardButton.setTooltipText("< " + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("HARD", translationRecordService.getFactor(currentCardId))) + "h");
-        goodButton.setTooltipText("< " + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("GOOD", translationRecordService.getFactor(currentCardId))) + "h");
-        easyButton.setTooltipText("< " + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("EASY", translationRecordService.getFactor(currentCardId))) + "h");
+        againButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("AGAIN", translationRecordService.getFactor(currentCardId))) + "h");
+        hardButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("HARD", translationRecordService.getFactor(currentCardId))) + "h");
+        goodButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("GOOD", translationRecordService.getFactor(currentCardId))) + "h");
+        easyButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("EASY", translationRecordService.getFactor(currentCardId))) + "h");
     }
 }
