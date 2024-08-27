@@ -7,6 +7,7 @@ import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.google.common.collect.ImmutableMap;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -81,6 +82,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
 
         TextArea sourceTranslationField = getTextFormComponent("Translation");
         Button sourceTextAutoTranslateButton = getFormButton("Auto translate");
+        sourceTextAutoTranslateButton.addClassName("option-button");
         sourceTextAutoTranslateButton.addClickListener(click -> {
             sourceTranslationField.setValue(translate(sourceTextField));
         });
@@ -88,6 +90,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
 
         TextArea examplesTextField = getTextFormComponent("Examples");
         Button findExamplesButton = getFormButton("Generate example sentence");
+        findExamplesButton.addClassName("option-button");
         findExamplesButton.addClickListener(click -> {
             List<String> examplesOfUsage = this.exampleOfUsageService.createExampleOfUsage(sourceTextField.getValue());
             examplesTextField.setValue(
@@ -98,12 +101,14 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
 
         TextArea examplesTranslationField = getTextFormComponent("Translation");
         Button examplesTextAutoTranslateButton = getFormButton("Auto translate");
+        examplesTextAutoTranslateButton.addClassName("option-button");
         examplesTextAutoTranslateButton.addClickListener(click -> {
             examplesTranslationField.setValue(translate(examplesTextField));
         });
         HorizontalLayout row4Layout = new HorizontalLayout(examplesTranslationField, examplesTextAutoTranslateButton);
 
         Button navigateToUsageInSentenceOnYoutube = new Button("Open in youglish.com");
+        navigateToUsageInSentenceOnYoutube.addClassName("option-button");
         navigateToUsageInSentenceOnYoutube.addClickListener(click -> {
             String hrefFormat = "https://youglish.com/pronounce/%s/english?";
             String href = String.format(hrefFormat, sourceTextField.getValue());
@@ -115,7 +120,10 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
         saveSpeech.setWidth("200px");
         saveOptions.add(saveSpeech);
 
-        addButton.addClickListener(click -> {
+        Button saveButton = new Button("Save");
+        saveButton.addClassName("option-button");
+
+        saveButton.addClickListener(click -> {
             TranslationRecord newTranslationRecord = new TranslationRecord();
             if (StringUtils.isNotBlank(sourceTextField.getValue()) && StringUtils.isNotBlank(sourceTranslationField.getValue())) {
                 newTranslationRecord.setSourceText(sourceTextField.getValue());
@@ -145,7 +153,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
             }
         });
 
-        dialogLayout.add(headerLayout, row1Layout, row2Layout, row3Layout, row4Layout, saveOptions, addButton);
+        dialogLayout.add(headerLayout, row1Layout, row2Layout, row3Layout, row4Layout, saveOptions, saveButton);
     }
 
     private String translate(TextArea textArea) {
