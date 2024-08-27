@@ -7,7 +7,6 @@ import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.google.common.collect.ImmutableMap;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -56,6 +55,8 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
         grid.addColumn(TranslationRecord::getTextTranslation).setHeader("Translation");
         grid.addColumn(createInSentenceTextWithSoundComponent()).setHeader("In Sentence");
         grid.addColumn(TranslationRecord::getInSentenceTranslation).setHeader("In Sentence Translation");
+        grid.addColumn(TranslationRecord::getFactor).setHeader("Factor");
+        grid.addColumn(TranslationRecord::getNextRepeatTime).setHeader("Next Date");
 
         grid.getElement().getStyle().set("--lumo-size-m", 100 + "px");
 
