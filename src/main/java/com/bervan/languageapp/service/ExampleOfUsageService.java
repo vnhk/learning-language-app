@@ -1,6 +1,6 @@
 package com.bervan.languageapp.service;
 
-import com.bervan.common.model.BervanLogger;
+import com.bervan.core.model.BervanLogger;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -25,7 +25,7 @@ public class ExampleOfUsageService {
         try {
             return find(sourceText);
         } catch (Exception e) {
-            logger.logError("Could not create example of usage!", e);
+            logger.error("Could not create example of usage!", e);
         }
         return new ArrayList<>();
     }
@@ -44,7 +44,7 @@ public class ExampleOfUsageService {
                     String val = exampleSentence.text().replace(exampleSentenceTranslationToBeRemoved, "").trim();
                     examples.add(val);
                 } catch (Exception e) {
-                    logger.logError("Could not create example of usage!", e);
+                    logger.error("Could not create example of usage!", e);
                 }
             }
         } else {

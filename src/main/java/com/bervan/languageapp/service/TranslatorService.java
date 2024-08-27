@@ -1,6 +1,6 @@
 package com.bervan.languageapp.service;
 
-import com.bervan.common.model.BervanLogger;
+import com.bervan.core.model.BervanLogger;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
