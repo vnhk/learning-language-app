@@ -30,7 +30,7 @@ public class TranslationRecord implements AbstractBaseEntity<UUID>, PersistableT
     private String textSound;
     @Size(max = 1000000000)
     private String inSentenceSound;
-    private Integer factor = 1;
+    private Integer factor;
     private LocalDateTime nextRepeatTime;
 
     public LocalDateTime getNextRepeatTime() {
