@@ -9,9 +9,12 @@ import java.util.Base64;
 
 @Service
 public class TextToSpeechService {
-    public static String path = "src/main/resources/db";
 
     public String getTextSpeech(String text) {
+        if (text.length() > 250) {
+            throw new RuntimeException("Text is too long for creating sound!");
+        }
+
         try (TextToSpeechClient textToSpeechClient = TextToSpeechClient.create()) {
             // Set the text input to be synthesized
             SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();

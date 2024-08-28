@@ -8,6 +8,7 @@ import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.google.common.collect.ImmutableMap;
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -106,8 +107,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
         });
 
         CheckboxGroup<Checkbox> saveOptions = new CheckboxGroup<>();
-        Checkbox saveSpeech = new Checkbox("Save sound as file", false);
-        saveSpeech.setWidth("200px");
+        Checkbox saveSpeech = getSaveSpeech();
         saveOptions.add(saveSpeech);
 
         Button saveButton = new Button("Save");
@@ -146,6 +146,12 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
         dialogLayout.add(headerLayout, row1Layout, row2Layout, row3Layout, row4Layout, saveOptions, saveButton);
     }
 
+    private Checkbox getSaveSpeech() {
+        Checkbox saveSpeech = new Checkbox("Save sound as file", false);
+        saveSpeech.setWidth("200px");
+        return saveSpeech;
+    }
+
     private String translate(TextArea textArea) {
         try {
             return this.translationService.translate(textArea.getValue());
@@ -171,6 +177,38 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
         for (Map.Entry<String, String> stringStringEntry : helpfulLinks.entrySet()) {
             Anchor a = new Anchor(stringStringEntry.getKey(), "-" + stringStringEntry.getValue() + " (" + stringStringEntry.getKey() + ")");
             add(a);
+        }
+    }
+
+    @Override
+    protected void customizeSaving(Field field, VerticalLayout layoutForField, String clickedColumn, TranslationRecord item) {
+        if (clickedColumn.equals(TranslationRecord.TranslationRecord_sourceText_columnName)) {
+            item.setTextSound(null);
+            Checkbox checkboxSound = (Checkbox) layoutForField.getComponentAt(1);
+            if (checkboxSound.getValue()) {
+                item.setTextSound(textToSpeechService.getTextSpeech(item.getSourceText()));
+            }
+        } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
+            item.setInSentenceSound(null);
+            Checkbox checkboxSound = (Checkbox) layoutForField.getComponentAt(1);
+            if (checkboxSound.getValue()) {
+                item.setInSentenceSound(textToSpeechService.getTextSpeech(item.getInSentence()));
+            }
+        }
+    }
+
+    @Override
+    protected void customFieldLayout(VerticalLayout layoutForField, AbstractField componentWithValue, String clickedColumn, TranslationRecord item) {
+        super.customFieldLayout(layoutForField, componentWithValue, clickedColumn, item);
+
+        if (clickedColumn.equals(TranslationRecord.TranslationRecord_sourceText_columnName)) {
+            Checkbox saveSpeech = getSaveSpeech();
+            saveSpeech.setValue(item.getTextSound() != null);
+            layoutForField.add(saveSpeech);
+        } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
+            Checkbox saveSpeech = getSaveSpeech();
+            saveSpeech.setValue(item.getInSentenceSound() != null);
+            layoutForField.add(saveSpeech);
         }
     }
 }
