@@ -1,6 +1,7 @@
 package com.bervan.languageapp;
 
 import com.bervan.common.model.PersistableTableData;
+import com.bervan.common.model.VaadinTableColumn;
 import com.bervan.history.model.AbstractBaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,24 +14,37 @@ import java.util.UUID;
 
 @Entity
 public class TranslationRecord implements AbstractBaseEntity<UUID>, PersistableTableData {
+    public static final String TranslationRecord_sourceText_columnName = "sourceText";
+    public static final String TranslationRecord_textTranslation_columnName = "textTranslation";
+    public static final String TranslationRecord_inSentence_columnName = "inSentence";
+    public static final String TranslationRecord_inSentenceTranslation_columnName = "inSentenceTranslation";
+    public static final String TranslationRecord_factor_columnName = "factor";
+    public static final String TranslationRecord_nextRepeatTime_columnName = "nextRepeatTime";
+
     @Id
     @GeneratedValue
     private UUID id;
     private Boolean deleted;
     @Size(max = 2000)
+    @VaadinTableColumn(displayName = "Text", internalName = TranslationRecord_sourceText_columnName)
     private String sourceText;
     @Size(max = 2000)
+    @VaadinTableColumn(displayName = "Translation", internalName = TranslationRecord_textTranslation_columnName)
     private String textTranslation;
     private String type;
     @Size(max = 2000)
+    @VaadinTableColumn(displayName = "Examples", internalName = TranslationRecord_inSentence_columnName)
     private String inSentence;
     @Size(max = 2000)
+    @VaadinTableColumn(displayName = "Translation", internalName = TranslationRecord_inSentenceTranslation_columnName)
     private String inSentenceTranslation;
     @Size(max = 1000000000)
     private String textSound;
     @Size(max = 1000000000)
     private String inSentenceSound;
+    @VaadinTableColumn(displayName = "Factor", internalName = TranslationRecord_factor_columnName)
     private Integer factor;
+    @VaadinTableColumn(displayName = "Next Repetition Time", internalName = TranslationRecord_nextRepeatTime_columnName)
     private LocalDateTime nextRepeatTime;
 
     public LocalDateTime getNextRepeatTime() {

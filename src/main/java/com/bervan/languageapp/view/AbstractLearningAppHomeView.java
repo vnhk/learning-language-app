@@ -1,6 +1,7 @@
 package com.bervan.languageapp.view;
 
 import com.bervan.common.AbstractTableView;
+import com.bervan.core.model.BervanLogger;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.ExampleOfUsageService;
 import com.bervan.languageapp.service.TextToSpeechService;
@@ -18,10 +19,9 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.function.SerializableBiConsumer;
 import io.micrometer.common.util.StringUtils;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -38,8 +38,8 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
     public AbstractLearningAppHomeView(TranslationRecordService translatorRecordService,
                                        ExampleOfUsageService exampleOfUsageService,
                                        TextToSpeechService textToSpeechService,
-                                       TranslatorService translationService) {
-        super(new LearningEnglishLayout(ROUTE_NAME), translatorRecordService, "Learning Home");
+                                       TranslatorService translationService, BervanLogger log) {
+        super(new LearningEnglishLayout(ROUTE_NAME), translatorRecordService, "Learning Home", log);
         this.translatorRecordService = translatorRecordService;
         this.exampleOfUsageService = exampleOfUsageService;
         this.textToSpeechService = textToSpeechService;
@@ -51,29 +51,18 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
     @Override
     protected Grid<TranslationRecord> getGrid() {
         Grid<TranslationRecord> grid = new Grid<>(TranslationRecord.class, false);
-        grid.addColumn(createSourceTextWithSoundComponent()).setHeader("Text").setKey("source").setResizable(true).setSortable(true);
-        grid.addColumn(TranslationRecord::getTextTranslation).setHeader("Translation");
-        grid.addColumn(createInSentenceTextWithSoundComponent()).setHeader("In Sentence");
-        grid.addColumn(TranslationRecord::getInSentenceTranslation).setHeader("In Sentence Translation");
-        grid.addColumn(TranslationRecord::getFactor).setHeader("Factor");
-        grid.addColumn(TranslationRecord::getNextRepeatTime).setHeader("Next Date");
-
-        grid.getElement().getStyle().set("--lumo-size-m", 100 + "px");
-
+        buildGridAutomatically(grid);
         return grid;
     }
 
-    private ComponentRenderer<Span, TranslationRecord> createSourceTextWithSoundComponent() {
-        return new ComponentRenderer<>(Span::new, sourceTextUpdater);
-    }
-
-    private ComponentRenderer<Span, TranslationRecord> createInSentenceTextWithSoundComponent() {
-        return new ComponentRenderer<>(Span::new, inSentenceTextUpdater);
-    }
-
     @Override
-    protected void buildOnColumnClickDialogContent(Dialog dialog, VerticalLayout dialogLayout, HorizontalLayout headerLayout, String clickedColumn, TranslationRecord item) {
-
+    protected void customizeTextColumnUpdater(Span span, TranslationRecord record, Field f) {
+        super.customizeTextColumnUpdater(span, record, f);
+        if (f.getName().equals(TranslationRecord.TranslationRecord_sourceText_columnName)) {
+            optimizedAddAudioIfExist(span, record.getTextSound());
+        } else if (f.getName().equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
+            optimizedAddAudioIfExist(span, record.getInSentenceSound());
+        }
     }
 
     @Override
@@ -184,16 +173,4 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
             add(a);
         }
     }
-
-    private final SerializableBiConsumer<Span, TranslationRecord> sourceTextUpdater = (
-            span, translationRecord) -> {
-        span.add(translationRecord.getSourceText());
-        optimizedAddAudioIfExist(span, translationRecord.getTextSound());
-    };
-
-    private final SerializableBiConsumer<Span, TranslationRecord> inSentenceTextUpdater = (
-            span, translationRecord) -> {
-        span.add(translationRecord.getInSentence());
-        optimizedAddAudioIfExist(span, translationRecord.getInSentenceSound());
-    };
 }
