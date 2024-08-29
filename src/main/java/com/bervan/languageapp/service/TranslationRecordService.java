@@ -54,6 +54,9 @@ public class TranslationRecordService implements BaseService<TranslationRecord> 
     }
 
     public static int getNextFactor(String score, Integer factor) {
+        if (factor == null) {
+            return 1;
+        }
         switch (score) {
             case "AGAIN":
                 return 1;
