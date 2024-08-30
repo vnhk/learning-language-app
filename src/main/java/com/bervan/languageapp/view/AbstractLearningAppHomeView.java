@@ -12,7 +12,6 @@ import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
@@ -30,18 +29,17 @@ import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAdd
 
 public abstract class AbstractLearningAppHomeView extends AbstractTableView<TranslationRecord> {
     public static final String ROUTE_NAME = "learning-english-app/home";
-    private final TranslationRecordService translatorRecordService;
     private final ExampleOfUsageService exampleOfUsageService;
     private final TextToSpeechService textToSpeechService;
     private final TranslatorService translationService;
+    private Checkbox saveSpeech;
     private Map<String, String> helpfulLinks = ImmutableMap.of("https://youglish.com", "The page that finds words in youtube videos");
 
     public AbstractLearningAppHomeView(TranslationRecordService translatorRecordService,
                                        ExampleOfUsageService exampleOfUsageService,
                                        TextToSpeechService textToSpeechService,
                                        TranslatorService translationService, BervanLogger log) {
-        super(new LearningEnglishLayout(ROUTE_NAME), translatorRecordService, "Learning Home", log);
-        this.translatorRecordService = translatorRecordService;
+        super(new LearningEnglishLayout(ROUTE_NAME), translatorRecordService, "Learning Home", log, TranslationRecord.class);
         this.exampleOfUsageService = exampleOfUsageService;
         this.textToSpeechService = textToSpeechService;
         this.translationService = translationService;
@@ -67,36 +65,56 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
     }
 
     @Override
-    protected void buildNewItemDialogContent(Dialog dialog, VerticalLayout dialogLayout, HorizontalLayout headerLayout) {
-        TextArea sourceTextField = getTextFormComponent("Source Text");
-        HorizontalLayout row1Layout = new HorizontalLayout(sourceTextField);
+    protected void customFieldInCreateLayout(Map<Field, AbstractField> fieldsHolder, Map<Field, VerticalLayout> fieldsLayoutHolder, VerticalLayout formLayout) {
+        Map.Entry<Field, AbstractField> sourceTextField = fieldsHolder.entrySet().stream().filter(e -> e.getKey().getName().equals(TranslationRecord.TranslationRecord_sourceText_columnName))
+                .findFirst().get();
 
-        TextArea sourceTranslationField = getTextFormComponent("Translation");
-        Button sourceTextAutoTranslateButton = getFormButton("Auto translate");
-        sourceTextAutoTranslateButton.addClassName("option-button");
-        sourceTextAutoTranslateButton.addClickListener(click -> {
-            sourceTranslationField.setValue(translate(sourceTextField));
-        });
-        HorizontalLayout row2Layout = new HorizontalLayout(sourceTranslationField, sourceTextAutoTranslateButton);
+        for (Map.Entry<Field, AbstractField> fieldMap : fieldsHolder.entrySet()) {
+            HorizontalLayout horizontalLayout = new HorizontalLayout(JustifyContentMode.BETWEEN);
+            horizontalLayout.setWidthFull();
+            horizontalLayout.getThemeList().remove("spacing");
+            horizontalLayout.getThemeList().remove("padding");
+            Field field = fieldMap.getKey();
+            AbstractField formField = fieldMap.getValue();
+            if (field.getName().equals(TranslationRecord.TranslationRecord_textTranslation_columnName)) {
+                VerticalLayout verticalFieldLayout = fieldsLayoutHolder.get(field);
+                Button sourceTextAutoTranslateButton = getFormButton("Auto translate");
+                sourceTextAutoTranslateButton.addClassName("option-button");
 
-        TextArea examplesTextField = getTextFormComponent("Examples");
-        Button findExamplesButton = getFormButton("Generate example sentence");
-        findExamplesButton.addClassName("option-button");
-        findExamplesButton.addClickListener(click -> {
-            List<String> examplesOfUsage = this.exampleOfUsageService.createExampleOfUsage(sourceTextField.getValue());
-            examplesTextField.setValue(
-                    examplesOfUsage.toString().replace("[", "").replace("]", "")
-            );
-        });
-        HorizontalLayout row3Layout = new HorizontalLayout(examplesTextField, findExamplesButton);
+                sourceTextAutoTranslateButton.addClickListener(click -> {
+                    formField.setValue(translate(((TextArea) sourceTextField.getValue())));
+                });
 
-        TextArea examplesTranslationField = getTextFormComponent("Translation");
-        Button examplesTextAutoTranslateButton = getFormButton("Auto translate");
-        examplesTextAutoTranslateButton.addClassName("option-button");
-        examplesTextAutoTranslateButton.addClickListener(click -> {
-            examplesTranslationField.setValue(translate(examplesTextField));
-        });
-        HorizontalLayout row4Layout = new HorizontalLayout(examplesTranslationField, examplesTextAutoTranslateButton);
+                horizontalLayout.add(sourceTextAutoTranslateButton);
+                verticalFieldLayout.add(horizontalLayout);
+            } else if (field.getName().equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
+                Button findExamplesButton = getFormButton("Generate example sentence");
+                findExamplesButton.addClassName("option-button");
+                VerticalLayout verticalFieldLayout = fieldsLayoutHolder.get(field);
+
+                findExamplesButton.addClickListener(click -> {
+                    List<String> examplesOfUsage = this.exampleOfUsageService.createExampleOfUsage(String.valueOf(sourceTextField.getValue().getValue()));
+                    formField.setValue(
+                            examplesOfUsage.toString().replace("[", "").replace("]", "")
+                    );
+                });
+                horizontalLayout.add(findExamplesButton);
+                verticalFieldLayout.add(horizontalLayout);
+            } else if (field.getName().equals(TranslationRecord.TranslationRecord_inSentenceTranslation_columnName)) {
+                Button examplesTextAutoTranslateButton = getFormButton("Auto translate");
+                examplesTextAutoTranslateButton.addClassName("option-button");
+                VerticalLayout verticalFieldLayout = fieldsLayoutHolder.get(field);
+
+                Map.Entry<Field, AbstractField> examplesTextField = fieldsHolder.entrySet().stream().filter(e -> e.getKey().getName().equals(TranslationRecord.TranslationRecord_inSentence_columnName))
+                        .findFirst().get();
+
+                examplesTextAutoTranslateButton.addClickListener(click -> {
+                    formField.setValue(translate((TextArea) examplesTextField.getValue()));
+                });
+                horizontalLayout.add(examplesTextAutoTranslateButton);
+                verticalFieldLayout.add(horizontalLayout);
+            }
+        }
 
         Button navigateToUsageInSentenceOnYoutube = new Button("Open in youglish.com");
         navigateToUsageInSentenceOnYoutube.addClassName("option-button");
@@ -107,43 +125,21 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
         });
 
         CheckboxGroup<Checkbox> saveOptions = new CheckboxGroup<>();
-        Checkbox saveSpeech = getSaveSpeech();
+        saveSpeech = getSaveSpeech();
         saveOptions.add(saveSpeech);
 
-        Button saveButton = new Button("Save");
-        saveButton.addClassName("option-button");
+        formLayout.add(saveOptions);
+    }
 
-        saveButton.addClickListener(click -> {
-            TranslationRecord newTranslationRecord = new TranslationRecord();
-            if (StringUtils.isNotBlank(sourceTextField.getValue()) && StringUtils.isNotBlank(sourceTranslationField.getValue())) {
-                newTranslationRecord.setSourceText(sourceTextField.getValue());
-                newTranslationRecord.setTextTranslation(sourceTranslationField.getValue());
-                newTranslationRecord.setInSentence(examplesTextField.getValue());
-                newTranslationRecord.setInSentenceTranslation(examplesTranslationField.getValue());
-                newTranslationRecord.setFactor(1);
-
-                if (saveSpeech.getValue()) {
-                    newTranslationRecord.setTextSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getSourceText()));
-                    if (StringUtils.isNotBlank(newTranslationRecord.getInSentence())) {
-                        newTranslationRecord.setInSentenceSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getInSentence()));
-                    }
-                }
-
-                TranslationRecord newOne = this.translatorRecordService.save(newTranslationRecord);
-
-                data.add(newOne);
-                grid.getDataProvider().refreshAll();
-
-                sourceTextField.setValue("");
-                sourceTranslationField.setValue("");
-                examplesTextField.setValue("");
-                examplesTranslationField.setValue("");
-                saveSpeech.setValue(false);
-                dialog.close();
+    @Override
+    protected TranslationRecord customizeSavingInCreateForm(TranslationRecord newTranslationRecord) {
+        if (saveSpeech.getValue()) {
+            newTranslationRecord.setTextSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getSourceText()));
+            if (StringUtils.isNotBlank(newTranslationRecord.getInSentence())) {
+                newTranslationRecord.setInSentenceSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getInSentence()));
             }
-        });
-
-        dialogLayout.add(headerLayout, row1Layout, row2Layout, row3Layout, row4Layout, saveOptions, saveButton);
+        }
+        return newTranslationRecord;
     }
 
     private Checkbox getSaveSpeech() {
@@ -167,12 +163,6 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
         return button;
     }
 
-    private TextArea getTextFormComponent(String label) {
-        TextArea textField = new TextArea(label);
-        textField.setClassName("creating-flashcard-from-inputs");
-        return textField;
-    }
-
     private void buildHelpfulPagesLinks() {
         for (Map.Entry<String, String> stringStringEntry : helpfulLinks.entrySet()) {
             Anchor a = new Anchor(stringStringEntry.getKey(), "-" + stringStringEntry.getValue() + " (" + stringStringEntry.getKey() + ")");
@@ -181,25 +171,8 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
     }
 
     @Override
-    protected void customizeSaving(Field field, VerticalLayout layoutForField, String clickedColumn, TranslationRecord item) {
-        if (clickedColumn.equals(TranslationRecord.TranslationRecord_sourceText_columnName)) {
-            item.setTextSound(null);
-            Checkbox checkboxSound = (Checkbox) layoutForField.getComponentAt(1);
-            if (checkboxSound.getValue()) {
-                item.setTextSound(textToSpeechService.getTextSpeech(item.getSourceText()));
-            }
-        } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
-            item.setInSentenceSound(null);
-            Checkbox checkboxSound = (Checkbox) layoutForField.getComponentAt(1);
-            if (checkboxSound.getValue()) {
-                item.setInSentenceSound(textToSpeechService.getTextSpeech(item.getInSentence()));
-            }
-        }
-    }
-
-    @Override
-    protected void customFieldLayout(VerticalLayout layoutForField, AbstractField componentWithValue, String clickedColumn, TranslationRecord item) {
-        super.customFieldLayout(layoutForField, componentWithValue, clickedColumn, item);
+    protected void customFieldInEditLayout(VerticalLayout layoutForField, AbstractField componentWithValue, String clickedColumn, TranslationRecord item) {
+        super.customFieldInEditLayout(layoutForField, componentWithValue, clickedColumn, item);
 
         if (clickedColumn.equals(TranslationRecord.TranslationRecord_sourceText_columnName)) {
             Checkbox saveSpeech = getSaveSpeech();

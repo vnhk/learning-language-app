@@ -42,9 +42,9 @@ public class TranslationRecord implements AbstractBaseEntity<UUID>, PersistableT
     private String textSound;
     @Size(max = 1000000000)
     private String inSentenceSound;
-    @VaadinTableColumn(displayName = "Factor", internalName = TranslationRecord_factor_columnName)
+    @VaadinTableColumn(displayName = "Factor", internalName = TranslationRecord_factor_columnName, inSaveForm = false)
     private Integer factor;
-    @VaadinTableColumn(displayName = "Next Repetition Time", internalName = TranslationRecord_nextRepeatTime_columnName)
+    @VaadinTableColumn(displayName = "Next Repetition Time", internalName = TranslationRecord_nextRepeatTime_columnName, inSaveForm = false)
     private LocalDateTime nextRepeatTime;
 
     public LocalDateTime getNextRepeatTime() {
