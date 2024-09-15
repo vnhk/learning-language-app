@@ -9,6 +9,7 @@ import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.google.common.collect.ImmutableMap;
 import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -145,6 +146,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
     private Checkbox getSaveSpeech() {
         Checkbox saveSpeech = new Checkbox("Save sound as file", false);
         saveSpeech.setWidth("200px");
+        saveSpeech.setId("saveSpeechCheckbox");
         return saveSpeech;
     }
 
@@ -167,6 +169,28 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
         for (Map.Entry<String, String> stringStringEntry : helpfulLinks.entrySet()) {
             Anchor a = new Anchor(stringStringEntry.getKey(), "-" + stringStringEntry.getValue() + " (" + stringStringEntry.getKey() + ")");
             add(a);
+        }
+    }
+
+    @Override
+    protected void customPreUpdate(String clickedColumn, VerticalLayout layoutForField, TranslationRecord item, Field finalField, AbstractField finalComponentWithValue) {
+        super.customPreUpdate(clickedColumn, layoutForField, item, finalField, finalComponentWithValue);
+
+        int componentCount = layoutForField.getComponentCount();
+        for (int i = 0; i < componentCount; i++) {
+            Component component = layoutForField.getComponentAt(i);
+            if (component.getId().isPresent()) {
+                if (component.getId().get().equals("saveSpeechCheckbox")) {
+                    Boolean checked = ((Checkbox) component).getValue();
+                    if (clickedColumn.equals(TranslationRecord.TranslationRecord_sourceText_columnName)) {
+                        String sourceText = item.getSourceText();
+                        item.setTextSound(checked ? textToSpeechService.getTextSpeech(sourceText) : null);
+                    } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
+                        String inSentence = item.getInSentence();
+                        item.setTextSound(checked ? textToSpeechService.getTextSpeech(inSentence) : null);
+                    }
+                }
+            }
         }
     }
 
