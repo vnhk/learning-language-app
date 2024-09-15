@@ -187,7 +187,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
                         item.setTextSound(checked ? textToSpeechService.getTextSpeech(sourceText) : null);
                     } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
                         String inSentence = item.getInSentence();
-                        item.setTextSound(checked ? textToSpeechService.getTextSpeech(inSentence) : null);
+                        item.setInSentenceSound(checked ? textToSpeechService.getTextSpeech(inSentence) : null);
                     }
                 }
             }
