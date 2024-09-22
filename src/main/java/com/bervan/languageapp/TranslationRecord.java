@@ -173,7 +173,7 @@ public class TranslationRecord implements AbstractBaseEntity<UUID>, PersistableT
     }
 
     @Override
-    public String getName() {
+    public String getTableFilterableColumnValue() {
         return sourceText;
     }
 
