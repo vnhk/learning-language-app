@@ -22,8 +22,9 @@ public abstract class AbstractQuizView extends VerticalLayout {
         add(new LearningEnglishLayout(ROUTE_NAME));
         Map<TranslationRecord, String> quizQuestions = new HashMap<>();
 
-        int counter = 0;
-        buildQuizQuestionsMapping(translationRecordService, exampleOfUsageService, quizQuestions, counter);
+        List<TranslationRecord> records = new ArrayList<>(translationRecordService.load().stream().toList());
+        Collections.shuffle(records);
+        buildQuizQuestionsMapping(records, exampleOfUsageService, quizQuestions);
 
         List<String> sourceText = quizQuestions.keySet().stream().map(TranslationRecord::getSourceText).sorted().toList();
         add(new H4("Use: " + sourceText));
@@ -76,8 +77,9 @@ public abstract class AbstractQuizView extends VerticalLayout {
         }
     }
 
-    private void buildQuizQuestionsMapping(TranslationRecordService translationRecordService, ExampleOfUsageService exampleOfUsageService, Map<TranslationRecord, String> quizQuestions, int counter) {
-        for (TranslationRecord translationRecord : translationRecordService.load()) {
+    private void buildQuizQuestionsMapping(List<TranslationRecord> translationRecords, ExampleOfUsageService exampleOfUsageService, Map<TranslationRecord, String> quizQuestions) {
+        int counter = 0;
+        for (TranslationRecord translationRecord : translationRecords) {
             if (counter == amountOfQuestions) {
                 break;
             }
