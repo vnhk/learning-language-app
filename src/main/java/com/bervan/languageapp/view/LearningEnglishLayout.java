@@ -9,6 +9,7 @@ public final class LearningEnglishLayout extends AbstractPageLayout {
 
         addButton(menuButtonsRow, AbstractLearningAppHomeView.ROUTE_NAME, "Home");
         addButton(menuButtonsRow, AbstractLearningView.ROUTE_NAME, "Flashcards");
+        addButton(menuButtonsRow, AbstractQuizView.ROUTE_NAME, "Quiz");
 
         add(menuButtonsRow);
         add(new Hr());
