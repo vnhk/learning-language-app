@@ -23,6 +23,60 @@ public abstract class AbstractQuizView extends VerticalLayout {
         Map<TranslationRecord, String> quizQuestions = new HashMap<>();
 
         int counter = 0;
+        buildQuizQuestionsMapping(translationRecordService, exampleOfUsageService, quizQuestions, counter);
+
+        List<String> sourceText = quizQuestions.keySet().stream().map(TranslationRecord::getSourceText).sorted().toList();
+        add(new H4("Use: " + sourceText));
+
+        Map<TranslationRecord, HorizontalLayout> questions = new HashMap<>();
+        buildQuestionsLayouts(quizQuestions, sourceText, questions);
+
+        Button buttonCheck = new Button("Check Answers");
+        buttonCheck.addClickListener(e -> {
+            checkAnswers(quizQuestions, questions);
+        });
+        add(buttonCheck);
+
+    }
+
+    private void checkAnswers(Map<TranslationRecord, String> quizQuestions, Map<TranslationRecord, HorizontalLayout> questions) {
+        for (Map.Entry<TranslationRecord, HorizontalLayout> quizQ : questions.entrySet()) {
+            StringBuilder sentenceBuilder = new StringBuilder();
+            for (int i = 0; i < quizQ.getValue().getComponentCount(); i++) {
+                Component componentAt = quizQ.getValue().getComponentAt(i);
+                if (componentAt instanceof H4) {
+                    sentenceBuilder.append(((H4) componentAt).getText());
+                } else {
+                    Object value = ((ComboBox) componentAt).getValue();
+                    if (value != null) {
+                        sentenceBuilder.append(value);
+                    }
+                }
+            }
+
+            if (quizQuestions.get(quizQ.getKey()).replace("_", quizQ.getKey().getSourceText()).contentEquals(sentenceBuilder)) {
+                quizQ.getValue().getStyle().set("background-color", "green");
+            } else {
+                quizQ.getValue().getStyle().set("background-color", "red");
+            }
+        }
+    }
+
+    private void buildQuestionsLayouts(Map<TranslationRecord, String> quizQuestions, List<String> sourceText, Map<TranslationRecord, HorizontalLayout> questions) {
+        for (Map.Entry<TranslationRecord, String> quizQ : quizQuestions.entrySet()) {
+            String[] questionParts = quizQ.getValue().split("_");
+            HorizontalLayout questionL = new HorizontalLayout();
+            for (String questionPart : questionParts) {
+                ComboBox<String> options = new ComboBox<>("", sourceText);
+                questionL.add(new H4(questionPart), options);
+            }
+            questionL.remove(questionL.getComponentAt(questionL.getComponentCount() - 1)); //remove last inputField
+            add(questionL);
+            questions.put(quizQ.getKey(), questionL);
+        }
+    }
+
+    private void buildQuizQuestionsMapping(TranslationRecordService translationRecordService, ExampleOfUsageService exampleOfUsageService, Map<TranslationRecord, String> quizQuestions, int counter) {
         for (TranslationRecord translationRecord : translationRecordService.load()) {
             if (counter == amountOfQuestions) {
                 break;
@@ -48,50 +102,6 @@ public abstract class AbstractQuizView extends VerticalLayout {
                 }
             }
         }
-
-        List<String> sourceText = quizQuestions.keySet().stream().map(TranslationRecord::getSourceText).sorted().toList();
-
-        add(new H4("Use: " + sourceText));
-
-        Map<TranslationRecord, HorizontalLayout> questions = new HashMap<>();
-
-        for (Map.Entry<TranslationRecord, String> quizQ : quizQuestions.entrySet()) {
-            String[] questionParts = quizQ.getValue().split("_");
-            HorizontalLayout questionL = new HorizontalLayout();
-            for (String questionPart : questionParts) {
-                ComboBox<String> options = new ComboBox<>("", sourceText);
-                questionL.add(new H4(questionPart), options);
-            }
-            questionL.remove(questionL.getComponentAt(questionL.getComponentCount() - 1)); //remove last inputField
-            add(questionL);
-            questions.put(quizQ.getKey(), questionL);
-        }
-
-        Button buttonCheck = new Button("Check Answers");
-        buttonCheck.addClickListener(e -> {
-            for (Map.Entry<TranslationRecord, HorizontalLayout> quizQ : questions.entrySet()) {
-                StringBuilder sentenceBuilder = new StringBuilder();
-                for (int i = 0; i < quizQ.getValue().getComponentCount(); i++) {
-                    Component componentAt = quizQ.getValue().getComponentAt(i);
-                    if (componentAt instanceof H4) {
-                        sentenceBuilder.append(((H4) componentAt).getText());
-                    } else {
-                        Object value = ((ComboBox) componentAt).getValue();
-                        if (value != null) {
-                            sentenceBuilder.append(value);
-                        }
-                    }
-                }
-
-                if (quizQuestions.get(quizQ.getKey()).replace("_", quizQ.getKey().getSourceText()).contentEquals(sentenceBuilder)) {
-                    quizQ.getValue().getStyle().set("background-color", "green");
-                } else {
-                    quizQ.getValue().getStyle().set("background-color", "red");
-                }
-            }
-        });
-        add(buttonCheck);
-
     }
 
     private int findRandomIndex(int size, List<Integer> alreadyUsed) {
