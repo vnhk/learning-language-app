@@ -23,14 +23,23 @@ public class ExampleOfUsageService {
 
     public List<String> createExampleOfUsage(String sourceText) {
         try {
-            return find(sourceText);
+            return find(sourceText, 5);
         } catch (Exception e) {
             logger.error("Could not create example of usage!", e);
         }
         return new ArrayList<>();
     }
 
-    private List<String> find(String sourceText) throws IOException {
+    public List<String> createExampleOfUsage(String sourceText, int MAX_EXAMPLES) {
+        try {
+            return find(sourceText, MAX_EXAMPLES);
+        } catch (Exception e) {
+            logger.error("Could not create example of usage!", e);
+        }
+        return new ArrayList<>();
+    }
+
+    private List<String> find(String sourceText, int MAX_EXAMPLES) throws IOException {
         sourceText = sourceText.toLowerCase();
         List<String> examples = new ArrayList<>();
         Connection connection = Jsoup.connect(url + sourceText)
@@ -64,9 +73,9 @@ public class ExampleOfUsageService {
             }
         }
 
-        if (examples.size() > 5) {
+        if (examples.size() > MAX_EXAMPLES) {
             List<String> fiveExamples = new ArrayList<>();
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < MAX_EXAMPLES; i++) {
                 fiveExamples.add(examples.get(i));
             }
 

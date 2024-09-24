@@ -10,9 +10,7 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractQuizView extends VerticalLayout {
     public static final String ROUTE_NAME = "learning-english-app/quiz-view";
@@ -30,15 +28,22 @@ public abstract class AbstractQuizView extends VerticalLayout {
                 break;
             }
 
-            List<String> exampleOfUsage = exampleOfUsageService.createExampleOfUsage(translationRecord.getSourceText());
+            List<String> exampleOfUsage = exampleOfUsageService.createExampleOfUsage(translationRecord.getSourceText(), 20);
             if (exampleOfUsage.size() > 0) {
-                for (String example : exampleOfUsage) {
+                List<Integer> checkedIndexes = new ArrayList<>();
+
+                int randomIndex = findRandomIndex(exampleOfUsage.size(), checkedIndexes);
+                while (randomIndex != -1) {
+                    checkedIndexes.add(randomIndex);
+                    String example = exampleOfUsage.get(randomIndex);
                     int oldLength = example.length();
                     example = example.replace(translationRecord.getSourceText(), "_");
                     if (example.length() != oldLength) {
                         quizQuestions.put(translationRecord, example);
                         counter++;
                         break;
+                    } else {
+                        randomIndex = findRandomIndex(exampleOfUsage.size(), checkedIndexes);
                     }
                 }
             }
@@ -87,5 +92,18 @@ public abstract class AbstractQuizView extends VerticalLayout {
         });
         add(buttonCheck);
 
+    }
+
+    private int findRandomIndex(int size, List<Integer> alreadyUsed) {
+        Random r = new Random();
+        if (size == alreadyUsed.size()) {
+            return -1;
+        }
+        int res = -1;
+        while (res == -1 || alreadyUsed.contains(res)) {
+            res = r.nextInt(size);
+        }
+
+        return res;
     }
 }
