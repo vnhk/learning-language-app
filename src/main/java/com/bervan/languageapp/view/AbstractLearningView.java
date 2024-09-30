@@ -1,5 +1,6 @@
 package com.bervan.languageapp.view;
 
+import com.bervan.common.AbstractPageView;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.Flashcard;
 import com.bervan.languageapp.service.TranslationRecordService;
@@ -13,7 +14,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import java.util.Set;
 import java.util.UUID;
 
-public abstract class AbstractLearningView extends VerticalLayout {
+public abstract class AbstractLearningView extends AbstractPageView {
     public static final String ROUTE_NAME = "learning-english-app/learning-view";
     private final TranslationRecordService translationRecordService;
 
@@ -82,7 +83,7 @@ public abstract class AbstractLearningView extends VerticalLayout {
 
     private void setNextToLearn(Set<TranslationRecord> all) {
         if (all.size() == 0) {
-            Notification.show("No flashcards for that moment. Come back later!");
+            showPrimaryNotification("No flashcards for that moment. Come back later!");
             return;
         }
 

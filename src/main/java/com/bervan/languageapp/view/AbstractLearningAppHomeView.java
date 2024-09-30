@@ -154,7 +154,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
         try {
             return this.translationService.translate(textArea.getValue());
         } catch (Exception e) {
-            Notification.show(e.getMessage());
+            showErrorNotification(e.getMessage());
         }
         return "";
     }
