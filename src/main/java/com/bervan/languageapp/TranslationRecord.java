@@ -59,6 +59,9 @@ public class TranslationRecord implements AbstractBaseEntity<UUID>, PersistableT
     }
 
     public Boolean getDeleted() {
+        if (deleted == null) {
+            return false;
+        }
         return deleted;
     }
 
