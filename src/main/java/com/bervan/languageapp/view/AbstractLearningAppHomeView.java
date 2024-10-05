@@ -1,6 +1,7 @@
 package com.bervan.languageapp.view;
 
 import com.bervan.common.AbstractTableView;
+import com.bervan.common.AutoConfigurableField;
 import com.bervan.core.model.BervanLogger;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.ExampleOfUsageService;
@@ -8,7 +9,6 @@ import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.google.common.collect.ImmutableMap;
-import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -16,7 +16,6 @@ import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
@@ -66,17 +65,17 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
     }
 
     @Override
-    protected void customFieldInCreateLayout(Map<Field, AbstractField> fieldsHolder, Map<Field, VerticalLayout> fieldsLayoutHolder, VerticalLayout formLayout) {
-        Map.Entry<Field, AbstractField> sourceTextField = fieldsHolder.entrySet().stream().filter(e -> e.getKey().getName().equals(TranslationRecord.TranslationRecord_sourceText_columnName))
+    protected void customFieldInCreateLayout(Map<Field, AutoConfigurableField> fieldsHolder, Map<Field, VerticalLayout> fieldsLayoutHolder, VerticalLayout formLayout) {
+        Map.Entry<Field, AutoConfigurableField> sourceTextField = fieldsHolder.entrySet().stream().filter(e -> e.getKey().getName().equals(TranslationRecord.TranslationRecord_sourceText_columnName))
                 .findFirst().get();
 
-        for (Map.Entry<Field, AbstractField> fieldMap : fieldsHolder.entrySet()) {
+        for (Map.Entry<Field, AutoConfigurableField> fieldMap : fieldsHolder.entrySet()) {
             HorizontalLayout horizontalLayout = new HorizontalLayout(JustifyContentMode.BETWEEN);
             horizontalLayout.setWidthFull();
             horizontalLayout.getThemeList().remove("spacing");
             horizontalLayout.getThemeList().remove("padding");
             Field field = fieldMap.getKey();
-            AbstractField formField = fieldMap.getValue();
+            AutoConfigurableField formField = fieldMap.getValue();
             if (field.getName().equals(TranslationRecord.TranslationRecord_textTranslation_columnName)) {
                 VerticalLayout verticalFieldLayout = fieldsLayoutHolder.get(field);
                 Button sourceTextAutoTranslateButton = getFormButton("Auto translate");
@@ -106,7 +105,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
                 examplesTextAutoTranslateButton.addClassName("option-button");
                 VerticalLayout verticalFieldLayout = fieldsLayoutHolder.get(field);
 
-                Map.Entry<Field, AbstractField> examplesTextField = fieldsHolder.entrySet().stream().filter(e -> e.getKey().getName().equals(TranslationRecord.TranslationRecord_inSentence_columnName))
+                Map.Entry<Field, AutoConfigurableField> examplesTextField = fieldsHolder.entrySet().stream().filter(e -> e.getKey().getName().equals(TranslationRecord.TranslationRecord_inSentence_columnName))
                         .findFirst().get();
 
                 examplesTextAutoTranslateButton.addClickListener(click -> {
@@ -173,7 +172,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
     }
 
     @Override
-    protected void customPreUpdate(String clickedColumn, VerticalLayout layoutForField, TranslationRecord item, Field finalField, AbstractField finalComponentWithValue) {
+    protected void customPreUpdate(String clickedColumn, VerticalLayout layoutForField, TranslationRecord item, Field finalField, AutoConfigurableField finalComponentWithValue) {
         super.customPreUpdate(clickedColumn, layoutForField, item, finalField, finalComponentWithValue);
 
         int componentCount = layoutForField.getComponentCount();
@@ -195,7 +194,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
     }
 
     @Override
-    protected void customFieldInEditLayout(VerticalLayout layoutForField, AbstractField componentWithValue, String clickedColumn, TranslationRecord item) {
+    protected void customFieldInEditLayout(VerticalLayout layoutForField, AutoConfigurableField componentWithValue, String clickedColumn, TranslationRecord item) {
         super.customFieldInEditLayout(layoutForField, componentWithValue, clickedColumn, item);
 
         if (clickedColumn.equals(TranslationRecord.TranslationRecord_sourceText_columnName)) {
