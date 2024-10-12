@@ -12,7 +12,7 @@ public class Flashcard extends VerticalLayout {
     private AudioPlayer inSentencePlayer;
     private Boolean isAnswerVisible = Boolean.FALSE;
 
-    public Flashcard(TranslationRecord translationRecord, HorizontalLayout buttonsLayout) {
+    public Flashcard(TranslationRecord translationRecord, Div buttonsLayout) {
         sourcePlayer = new AudioPlayer();
         inSentencePlayer = new AudioPlayer();
 

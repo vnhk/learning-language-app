@@ -5,6 +5,7 @@ import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.Flashcard;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,7 +23,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
     private final Button hardButton = new Button("Hard");
     private final Button goodButton = new Button("Good");
     private final Button easyButton = new Button("Easy");
-    private final HorizontalLayout buttonsLayout = new HorizontalLayout();
+    private final Div buttonsLayout = new Div();
     private UUID currentCardId = UUID.randomUUID();
     private Flashcard currentFlashCard = null;
 
@@ -34,6 +35,10 @@ public abstract class AbstractLearningView extends AbstractPageView {
         hardButton.addClassName("option-button");
         goodButton.addClassName("option-button");
         easyButton.addClassName("option-button");
+        againButton.addClassName("flashcard-knowledge");
+        hardButton.addClassName("flashcard-knowledge");
+        goodButton.addClassName("flashcard-knowledge");
+        easyButton.addClassName("flashcard-knowledge");
         buttonsLayout.add(againButton);
         buttonsLayout.add(hardButton);
         buttonsLayout.add(goodButton);
