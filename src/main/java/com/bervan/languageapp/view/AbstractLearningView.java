@@ -8,8 +8,10 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextField;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public abstract class AbstractLearningView extends AbstractPageView {
     public static final String ROUTE_NAME = "learning-english-app/learning-view";
@@ -45,7 +47,11 @@ public abstract class AbstractLearningView extends AbstractPageView {
         uuid.setId("uuid");
         uuid.setVisible(false);
         this.translationRecordService = translationRecordService;
-        Set<TranslationRecord> all = translationRecordService.getAllForLearning();
+
+        LocalDateTime now = LocalDateTime.now();
+        Set<TranslationRecord> all = translationRecordService.getAllForLearning().stream()
+                .filter(e -> !(e.getNextRepeatTime() != null && e.getNextRepeatTime().isBefore(now)))
+                .collect(Collectors.toSet());
 
         againButton.addClickListener(buttonClickEvent -> {
             postButtonClickActions(translationRecordService, "AGAIN", all);
