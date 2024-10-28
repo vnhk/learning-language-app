@@ -50,7 +50,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
 
         LocalDateTime now = LocalDateTime.now();
         Set<TranslationRecord> all = translationRecordService.getAllForLearning().stream()
-                .filter(e -> !(e.getNextRepeatTime() != null && e.getNextRepeatTime().isBefore(now)))
+                .filter(e -> !(e.getNextRepeatTime() != null && e.getNextRepeatTime().isAfter(now)))
                 .collect(Collectors.toSet());
 
         againButton.addClickListener(buttonClickEvent -> {
