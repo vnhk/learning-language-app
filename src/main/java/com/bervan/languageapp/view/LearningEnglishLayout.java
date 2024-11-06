@@ -1,9 +1,9 @@
 package com.bervan.languageapp.view;
 
-import com.bervan.common.AbstractPageLayout;
+import com.bervan.common.MenuNavigationComponent;
 import com.vaadin.flow.component.html.Hr;
 
-public final class LearningEnglishLayout extends AbstractPageLayout {
+public final class LearningEnglishLayout extends MenuNavigationComponent {
     public LearningEnglishLayout(String routeName) {
         super(routeName);
 
@@ -12,6 +12,5 @@ public final class LearningEnglishLayout extends AbstractPageLayout {
         addButton(menuButtonsRow, AbstractQuizView.ROUTE_NAME, "Quiz");
 
         add(menuButtonsRow);
-        add(new Hr());
     }
 }

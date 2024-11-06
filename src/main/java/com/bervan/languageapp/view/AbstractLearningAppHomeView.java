@@ -39,7 +39,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<Tran
                                        ExampleOfUsageService exampleOfUsageService,
                                        TextToSpeechService textToSpeechService,
                                        TranslatorService translationService, BervanLogger log) {
-        super(new LearningEnglishLayout(ROUTE_NAME), translatorRecordService, "Learning Home", log, TranslationRecord.class);
+        super(new LearningEnglishLayout(ROUTE_NAME), translatorRecordService, log, TranslationRecord.class);
         this.exampleOfUsageService = exampleOfUsageService;
         this.textToSpeechService = textToSpeechService;
         this.translationService = translationService;
