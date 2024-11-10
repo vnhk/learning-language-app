@@ -1,8 +1,10 @@
 package com.bervan.languageapp.service;
 
+import com.bervan.common.service.AuthService;
 import com.bervan.common.service.BaseService;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.TranslationRecordRepository;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
-public class TranslationRecordService implements BaseService<TranslationRecord> {
+public class TranslationRecordService implements BaseService<UUID, TranslationRecord> {
     private final TranslationRecordRepository translationRecordRepository;
 
     public TranslationRecordService(TranslationRecordRepository translationRecordRepository) {
@@ -22,12 +24,14 @@ public class TranslationRecordService implements BaseService<TranslationRecord> 
         return translationRecordRepository.save(record);
     }
 
+    @PostFilter("filterObject.owner != null && filterObject.owner.getId().equals(T(com.bervan.common.service.AuthService).getLoggedUserId())")
     public Set<TranslationRecord> load() {
-        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNull();
+        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndOwnerId(AuthService.getLoggedUserId());
     }
 
+    @PostFilter("filterObject.owner != null && filterObject.owner.getId().equals(T(com.bervan.common.service.AuthService).getLoggedUserId())")
     public Set<TranslationRecord> getAllForLearning() {
-        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndNextRepeatTimeNullOrNextRepeatTimeBefore(LocalDateTime.now());
+        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndNextRepeatTimeNullOrNextRepeatTimeBeforeAndOwnerId(LocalDateTime.now(), AuthService.getLoggedUserId());
     }
 
     public void updateNextLearningDate(UUID uuid, String score) {

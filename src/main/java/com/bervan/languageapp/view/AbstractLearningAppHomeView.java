@@ -24,10 +24,11 @@ import io.micrometer.common.util.StringUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAddAudioIfExist;
 
-public abstract class AbstractLearningAppHomeView extends AbstractTableView<TranslationRecord> {
+public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID, TranslationRecord> {
     public static final String ROUTE_NAME = "learning-english-app/home";
     private final ExampleOfUsageService exampleOfUsageService;
     private final TextToSpeechService textToSpeechService;

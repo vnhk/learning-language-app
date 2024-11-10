@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Repository
 public interface TranslationRecordRepository extends BaseRepository<TranslationRecord, UUID> {
-    Set<TranslationRecord> findAllByDeletedIsFalseOrDeletedIsNull();
+    Set<TranslationRecord> findAllByDeletedIsFalseOrDeletedIsNullAndOwnerId(UUID ownerId);
 
-    Set<TranslationRecord> findAllByDeletedIsFalseOrDeletedIsNullAndNextRepeatTimeNullOrNextRepeatTimeBefore(LocalDateTime dateTime);
+    Set<TranslationRecord> findAllByDeletedIsFalseOrDeletedIsNullAndNextRepeatTimeNullOrNextRepeatTimeBeforeAndOwnerId(LocalDateTime dateTime, UUID ownerId);
 }
