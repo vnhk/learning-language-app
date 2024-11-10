@@ -25,7 +25,7 @@ public class TranslatorService {
     }
 
     public String translate(String value) {
-        if (value.length() > 250) {
+        if (value.length() > 500) {
             throw new RuntimeException("Too long value to be translated!");
         }
 

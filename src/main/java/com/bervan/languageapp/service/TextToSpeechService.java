@@ -11,7 +11,7 @@ import java.util.Base64;
 public class TextToSpeechService {
 
     public String getTextSpeech(String text) {
-        if (text.length() > 250) {
+        if (text.length() > 500) {
             throw new RuntimeException("Text is too long for creating sound!");
         }
 
