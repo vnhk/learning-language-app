@@ -24,14 +24,14 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
         return translationRecordRepository.save(record);
     }
 
-    @PostFilter("filterObject.owner != null && filterObject.owner.getId().equals(T(com.bervan.common.service.AuthService).getLoggedUserId())")
+    @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public Set<TranslationRecord> load() {
-        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndOwnerId(AuthService.getLoggedUserId());
+        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndOwnersId(AuthService.getLoggedUserId());
     }
 
-    @PostFilter("filterObject.owner != null && filterObject.owner.getId().equals(T(com.bervan.common.service.AuthService).getLoggedUserId())")
+    @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public Set<TranslationRecord> getAllForLearning() {
-        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndNextRepeatTimeNullOrNextRepeatTimeBeforeAndOwnerId(LocalDateTime.now(), AuthService.getLoggedUserId());
+        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndNextRepeatTimeNullOrNextRepeatTimeBeforeAndOwnersId(LocalDateTime.now(), AuthService.getLoggedUserId());
     }
 
     public void updateNextLearningDate(UUID uuid, String score) {

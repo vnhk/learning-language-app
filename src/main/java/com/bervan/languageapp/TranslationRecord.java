@@ -1,25 +1,18 @@
 package com.bervan.languageapp;
 
+import com.bervan.common.model.BervanBaseEntity;
 import com.bervan.common.model.PersistableTableData;
 import com.bervan.common.model.VaadinTableColumn;
-import com.bervan.common.user.User;
-import com.bervan.history.model.AbstractBaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.ParamDef;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-
-public class TranslationRecord implements AbstractBaseEntity<UUID>, PersistableTableData<UUID> {
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class TranslationRecord extends BervanBaseEntity<UUID> implements PersistableTableData<UUID> {
     public static final String TranslationRecord_sourceText_columnName = "sourceText";
     public static final String TranslationRecord_textTranslation_columnName = "textTranslation";
     public static final String TranslationRecord_inSentence_columnName = "inSentence";
@@ -52,19 +45,6 @@ public class TranslationRecord implements AbstractBaseEntity<UUID>, PersistableT
     private Integer factor;
     @VaadinTableColumn(displayName = "Next Repetition Time", internalName = TranslationRecord_nextRepeatTime_columnName, inSaveForm = false)
     private LocalDateTime nextRepeatTime;
-
-    @ManyToOne
-    private User owner;
-
-    @Override
-    public User getOwner() {
-        return owner;
-    }
-
-    @Override
-    public void setOwner(User user) {
-        this.owner = user;
-    }
 
     public LocalDateTime getNextRepeatTime() {
         return nextRepeatTime;
