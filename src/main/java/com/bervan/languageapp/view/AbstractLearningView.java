@@ -5,6 +5,7 @@ import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.Flashcard;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -24,10 +25,13 @@ public abstract class AbstractLearningView extends AbstractPageView {
     private final Div buttonsLayout = new Div();
     private UUID currentCardId = UUID.randomUUID();
     private Flashcard currentFlashCard = null;
-
+    private final Checkbox reversedSwitch = new Checkbox("Reversed flashcards?");
 
     public AbstractLearningView(TranslationRecordService translationRecordService) {
         super();
+
+        reversedSwitch.getElement().setAttribute("theme", "switch");
+
         add(new LearningEnglishLayout(ROUTE_NAME));
         againButton.addClassName("option-button");
         hardButton.addClassName("option-button");
@@ -97,8 +101,13 @@ public abstract class AbstractLearningView extends AbstractPageView {
         TranslationRecord translationRecord = all.iterator().next();
         currentCardId = translationRecord.getId();
 
-        currentFlashCard = new Flashcard(translationRecord, buttonsLayout);
-        add(currentFlashCard);
+        currentFlashCard = new Flashcard(translationRecord, buttonsLayout, reversedSwitch.getValue());
+        add(reversedSwitch, currentFlashCard);
+
+        reversedSwitch.addValueChangeListener(checkboxBooleanComponentValueChangeEvent -> {
+            remove(currentFlashCard);
+            setNextToLearn(all);
+        });
 
         againButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("AGAIN", translationRecordService.getFactor(currentCardId))) + "h");
         hardButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("HARD", translationRecordService.getFactor(currentCardId))) + "h");
