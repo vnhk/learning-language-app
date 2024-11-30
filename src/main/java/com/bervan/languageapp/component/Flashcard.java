@@ -42,6 +42,9 @@ public class Flashcard extends VerticalLayout {
             questionDiv.add(textTop);
         }
 
+        cardTopPlayer.setVisible(false);
+        cardBottomPlayer.setVisible(false);
+
         Div inSentenceDiv = new Div();
 
         if (translationRecord.getInSentence() != null) {
