@@ -26,12 +26,12 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public Set<TranslationRecord> load() {
-        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndOwnersId(AuthService.getLoggedUserId());
+        return translationRecordRepository.findAll(AuthService.getLoggedUserId());
     }
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public Set<TranslationRecord> getAllForLearning() {
-        return translationRecordRepository.findAllByDeletedIsFalseOrDeletedIsNullAndNextRepeatTimeNullOrNextRepeatTimeBeforeAndOwnersId(LocalDateTime.now(), AuthService.getLoggedUserId());
+        return translationRecordRepository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId());
     }
 
     public void updateNextLearningDate(UUID uuid, String score) {
