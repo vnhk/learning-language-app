@@ -53,9 +53,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
         this.translationRecordService = translationRecordService;
 
         LocalDateTime now = LocalDateTime.now();
-        Set<TranslationRecord> all = translationRecordService.getAllForLearning().stream()
-                .filter(e -> !(e.getNextRepeatTime() != null && e.getNextRepeatTime().isAfter(now)))
-                .collect(Collectors.toSet());
+        Set<TranslationRecord> all = loadLearningRecords(translationRecordService, now);
 
         againButton.addClickListener(buttonClickEvent -> {
             postButtonClickActions(translationRecordService, "AGAIN", all);
@@ -76,6 +74,12 @@ public abstract class AbstractLearningView extends AbstractPageView {
         setNextToLearn(all);
     }
 
+    private Set<TranslationRecord> loadLearningRecords(TranslationRecordService translationRecordService, LocalDateTime now) {
+        return translationRecordService.getAllForLearning().stream()
+                .filter(e -> !(e.getNextRepeatTime() != null && e.getNextRepeatTime().isAfter(now)))
+                .collect(Collectors.toSet());
+    }
+
     private void postButtonClickActions(TranslationRecordService translationRecordService, String button, Set<TranslationRecord> all) {
         translationRecordService.updateNextLearningDate(currentCardId, button);
         buttonsLayout.setVisible(false);
@@ -94,8 +98,11 @@ public abstract class AbstractLearningView extends AbstractPageView {
 
     private void setNextToLearn(Set<TranslationRecord> all) {
         if (all.size() == 0) {
-            showPrimaryNotification("No flashcards for that moment. Come back later!");
-            return;
+            all.addAll(loadLearningRecords(translationRecordService, LocalDateTime.now()));
+            if (all.size() == 0) {
+                showPrimaryNotification("No flashcards for that moment. Come back later!");
+                return;
+            }
         }
 
         TranslationRecord translationRecord = all.iterator().next();
@@ -109,9 +116,9 @@ public abstract class AbstractLearningView extends AbstractPageView {
             setNextToLearn(all);
         });
 
-        againButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("AGAIN", translationRecordService.getFactor(currentCardId))) + "h");
-        hardButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("HARD", translationRecordService.getFactor(currentCardId))) + "h");
-        goodButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("GOOD", translationRecordService.getFactor(currentCardId))) + "h");
-        easyButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("EASY", translationRecordService.getFactor(currentCardId))) + "h");
+        againButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("AGAIN", translationRecordService.getFactor(currentCardId)), "AGAIN") + "h");
+        hardButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("HARD", translationRecordService.getFactor(currentCardId)), "HARD") + "h");
+        goodButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("GOOD", translationRecordService.getFactor(currentCardId)), "GOOD") + "h");
+        easyButton.setTooltipText("<" + TranslationRecordService.getHoursUntilNextRepeatTime(TranslationRecordService.getNextFactor("EASY", translationRecordService.getFactor(currentCardId)), "EASY") + "h");
     }
 }

@@ -44,16 +44,19 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
         int nextFactor = getNextFactor(score, translationRecord.getFactor());
         translationRecord.setFactor(nextFactor);
         translationRecord.setNextRepeatTime(
-                getNextRepeatTime(nextFactor)
+                getNextRepeatTime(nextFactor, score)
         );
         translationRecordRepository.save(translationRecord);
     }
 
-    public static LocalDateTime getNextRepeatTime(Integer factor) {
-        return LocalDateTime.now().plusHours(getHoursUntilNextRepeatTime(factor));
+    public static LocalDateTime getNextRepeatTime(Integer factor, String score) {
+        return LocalDateTime.now().plusHours(getHoursUntilNextRepeatTime(factor, score));
     }
 
-    public static int getHoursUntilNextRepeatTime(Integer factor) {
+    public static int getHoursUntilNextRepeatTime(Integer factor, String score) {
+        if (score.equals("AGAIN")) {
+            return 0; //again means that card will appear in the same learning session
+        }
         return factor * 4;
     }
 
@@ -61,18 +64,16 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
         if (factor == null) {
             return 1;
         }
-        switch (score) {
-            case "AGAIN":
-                return 1;
-            case "HARD":
-                return (int) Math.max(1, factor * 0.6);
-            case "GOOD":
-                return factor * 2;
-            case "EASY":
-                return factor * 4;
-            default:
-                throw new IllegalArgumentException("Invalid grade");
-        }
+
+        return switch (score) {
+            //again means that you forgot or its new word, when you spent 3 months learning this word
+            //you don't want to reset your progress to 1.
+            case "AGAIN" -> Math.min(1, (int) (factor / 2.0));
+            case "HARD" -> (int) Math.max(1, factor * 0.6);
+            case "GOOD" -> factor * 2;
+            case "EASY" -> factor * 4;
+            default -> throw new IllegalArgumentException("Invalid grade");
+        };
     }
 
     public void delete(TranslationRecord record) {
