@@ -25,7 +25,7 @@ public class ExampleOfUsageService {
         try {
             return find(sourceText, 5);
         } catch (Exception e) {
-            logger.error("Could not create example of usage!", e);
+            logger.error("Could not create example of usage!");
         }
         return new ArrayList<>();
     }
@@ -34,7 +34,7 @@ public class ExampleOfUsageService {
         try {
             return find(sourceText, MAX_EXAMPLES);
         } catch (Exception e) {
-            logger.error("Could not create example of usage!", e);
+            logger.error("Could not create example of usage!");
         }
         return new ArrayList<>();
     }
@@ -53,7 +53,7 @@ public class ExampleOfUsageService {
                     String val = exampleSentence.text().replace(exampleSentenceTranslationToBeRemoved, "").trim();
                     examples.add(val);
                 } catch (Exception e) {
-                    logger.error("Could not create example of usage!", e);
+                    logger.error("Could not create example of usage!");
                 }
             }
         } else {
