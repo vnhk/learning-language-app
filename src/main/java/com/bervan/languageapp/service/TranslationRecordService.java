@@ -65,6 +65,10 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
             return 1;
         }
 
+        if (factor < 1) {
+            factor = 1;
+        }
+
         return switch (score) {
             //again means that you forgot or its new word, when you spent 3 months learning this word
             //you don't want to reset your progress to 1.
