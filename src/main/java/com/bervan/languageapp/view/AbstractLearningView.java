@@ -7,6 +7,8 @@ import com.bervan.languageapp.service.TranslationRecordService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
     private final Button easyButton = new Button("Easy");
     private final Div buttonsLayout = new Div();
     private UUID currentCardId = UUID.randomUUID();
+    private H2 flashcardLeftCounter;
     private Flashcard currentFlashCard = null;
     private final Checkbox reversedSwitch = new Checkbox("Reversed flashcards?");
 
@@ -86,6 +89,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
         translationRecordService.updateNextLearningDate(currentCardId, button);
         buttonsLayout.setVisible(false);
         remove(currentFlashCard);
+        remove(flashcardLeftCounter);
 
         for (int i = 0; i < all.size(); i++) {
             TranslationRecord next = all.iterator().next();
@@ -109,12 +113,14 @@ public abstract class AbstractLearningView extends AbstractPageView {
 
         TranslationRecord translationRecord = all.iterator().next();
         currentCardId = translationRecord.getId();
-
+        flashcardLeftCounter = new H2("Flashcards left: " + all.size());
         currentFlashCard = new Flashcard(translationRecord, buttonsLayout, reversedSwitch.getValue());
-        add(reversedSwitch, currentFlashCard);
+        add(reversedSwitch, flashcardLeftCounter, currentFlashCard);
 
         reversedSwitch.addValueChangeListener(checkboxBooleanComponentValueChangeEvent -> {
             remove(currentFlashCard);
+            remove(flashcardLeftCounter);
+            remove(reversedSwitch);
             setNextToLearn(all);
         });
 
