@@ -10,7 +10,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
         this.translationRecordService = translationRecordService;
 
         LocalDateTime now = LocalDateTime.now();
-        Set<TranslationRecord> all = loadLearningRecords(translationRecordService, now);
+        List<TranslationRecord> all = loadLearningRecords(translationRecordService, now);
 
         againButton.addClickListener(buttonClickEvent -> {
             postButtonClickActions(translationRecordService, "AGAIN", all);
@@ -74,13 +75,14 @@ public abstract class AbstractLearningView extends AbstractPageView {
         setNextToLearn(all);
     }
 
-    private Set<TranslationRecord> loadLearningRecords(TranslationRecordService translationRecordService, LocalDateTime now) {
+    private List<TranslationRecord> loadLearningRecords(TranslationRecordService translationRecordService, LocalDateTime now) {
         return translationRecordService.getAllForLearning().stream()
                 .filter(e -> !(e.getNextRepeatTime() != null && e.getNextRepeatTime().isAfter(now)))
-                .collect(Collectors.toSet());
+                .sorted(Comparator.comparing(TranslationRecord::getNextRepeatTime, Comparator.nullsFirst(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
     }
 
-    private void postButtonClickActions(TranslationRecordService translationRecordService, String button, Set<TranslationRecord> all) {
+    private void postButtonClickActions(TranslationRecordService translationRecordService, String button, List<TranslationRecord> all) {
         translationRecordService.updateNextLearningDate(currentCardId, button);
         buttonsLayout.setVisible(false);
         remove(currentFlashCard);
@@ -96,7 +98,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
         setNextToLearn(all);
     }
 
-    private void setNextToLearn(Set<TranslationRecord> all) {
+    private void setNextToLearn(List<TranslationRecord> all) {
         if (all.size() == 0) {
             all.addAll(loadLearningRecords(translationRecordService, LocalDateTime.now()));
             if (all.size() == 0) {
