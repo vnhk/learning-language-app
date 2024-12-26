@@ -7,9 +7,9 @@ import com.bervan.languageapp.service.TranslationRecordService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.textfield.TextField;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -79,9 +79,9 @@ public abstract class AbstractLearningView extends AbstractPageView {
     }
 
     private List<TranslationRecord> loadLearningRecords(TranslationRecordService translationRecordService, LocalDateTime now) {
-        return translationRecordService.getAllForLearning().stream()
+        return translationRecordService.getAllForLearning(Pageable.ofSize(50).first()).stream()
                 .filter(e -> !(e.getNextRepeatTime() != null && e.getNextRepeatTime().isAfter(now)))
-                .sorted(Comparator.comparing(TranslationRecord::getNextRepeatTime, Comparator.nullsFirst(Comparator.naturalOrder())))
+                .sorted(Comparator.comparing(TranslationRecord::getSourceText, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
     }
 

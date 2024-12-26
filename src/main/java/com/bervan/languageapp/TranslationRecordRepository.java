@@ -1,11 +1,13 @@
 package com.bervan.languageapp;
 
 import com.bervan.history.model.BaseRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,8 +23,10 @@ public interface TranslationRecordRepository extends BaseRepository<TranslationR
             "JOIN t.owners o " +
             "WHERE (t.deleted IS FALSE OR t.deleted IS NULL) " +
             "AND (t.nextRepeatTime IS NULL OR t.nextRepeatTime < :dateTime) " +
-            "AND o.id = :ownerId")
-    Set<TranslationRecord> getRecordsForLearning(
+            "AND o.id = :ownerId " +
+            "ORDER BY t.sourceText ASC")
+    List<TranslationRecord> getRecordsForLearning(
             @Param("dateTime") LocalDateTime dateTime,
-            @Param("ownerId") UUID ownerId);
+            @Param("ownerId") UUID ownerId,
+            Pageable pageable);
 }

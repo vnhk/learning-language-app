@@ -5,6 +5,7 @@ import com.bervan.common.service.BaseService;
 import com.bervan.ieentities.ExcelIEEntity;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.TranslationRecordRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +32,8 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
     }
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
-    public Set<TranslationRecord> getAllForLearning() {
-        return translationRecordRepository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId());
+    public List<TranslationRecord> getAllForLearning(Pageable pageable) {
+        return translationRecordRepository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), pageable);
     }
 
     public void updateNextLearningDate(UUID uuid, String score) {
