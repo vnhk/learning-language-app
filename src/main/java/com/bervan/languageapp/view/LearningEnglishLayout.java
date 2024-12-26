@@ -9,6 +9,7 @@ public final class LearningEnglishLayout extends MenuNavigationComponent {
         addButtonIfVisible(menuButtonsRow, AbstractLearningAppHomeView.ROUTE_NAME, "Home");
         addButtonIfVisible(menuButtonsRow, AbstractLearningView.ROUTE_NAME, "Flashcards");
         addButtonIfVisible(menuButtonsRow, AbstractQuizView.ROUTE_NAME, "Quiz");
+        addButtonIfVisible(menuButtonsRow, AbstractImportExportView.ROUTE_NAME, "Data IE");
 
         add(menuButtonsRow);
     }

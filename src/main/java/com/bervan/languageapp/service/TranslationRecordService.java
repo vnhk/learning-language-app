@@ -2,6 +2,7 @@ package com.bervan.languageapp.service;
 
 import com.bervan.common.service.AuthService;
 import com.bervan.common.service.BaseService;
+import com.bervan.ieentities.ExcelIEEntity;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.TranslationRecordRepository;
 import org.springframework.security.access.prepost.PostFilter;
@@ -83,6 +84,14 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
     public void delete(TranslationRecord record) {
         record.setDeleted(true);
         translationRecordRepository.save(record);
+    }
+
+    @Override
+    public void saveIfValid(List<? extends ExcelIEEntity> objects) {
+        List<? extends ExcelIEEntity> list = objects.stream().filter(e -> e instanceof TranslationRecord).toList();
+        for (ExcelIEEntity excelIEEntity : list) {
+            translationRecordRepository.save(((TranslationRecord) excelIEEntity));
+        }
     }
 
     public void delete(UUID uuid) {

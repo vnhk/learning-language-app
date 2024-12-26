@@ -19,6 +19,10 @@ public class Flashcard extends VerticalLayout {
         Div flashcardDiv = new Div();
         flashcardDiv.addClassName("flashcard");
 
+        if (translationRecord.getLevel() != null && !translationRecord.getLevel().isBlank()) {
+            flashcardDiv.addClassName(translationRecord.getLevel().toLowerCase() + "-level");
+        }
+
         if (isReversed) {
             reversedCard(translationRecord, buttonsLayout, flashcardDiv);
         } else {

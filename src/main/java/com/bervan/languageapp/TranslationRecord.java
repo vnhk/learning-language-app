@@ -3,6 +3,7 @@ package com.bervan.languageapp;
 import com.bervan.common.model.BervanBaseEntity;
 import com.bervan.common.model.PersistableTableData;
 import com.bervan.common.model.VaadinTableColumn;
+import com.bervan.ieentities.ExcelIEEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
@@ -12,10 +13,11 @@ import java.util.UUID;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class TranslationRecord extends BervanBaseEntity<UUID> implements PersistableTableData<UUID> {
+public class TranslationRecord extends BervanBaseEntity<UUID> implements PersistableTableData<UUID>, ExcelIEEntity<UUID> {
     public static final String TranslationRecord_sourceText_columnName = "sourceText";
     public static final String TranslationRecord_textTranslation_columnName = "textTranslation";
     public static final String TranslationRecord_inSentence_columnName = "inSentence";
+    public static final String TranslationRecord_level_columnName = "level";
     public static final String TranslationRecord_inSentenceTranslation_columnName = "inSentenceTranslation";
     public static final String TranslationRecord_factor_columnName = "factor";
     public static final String TranslationRecord_nextRepeatTime_columnName = "nextRepeatTime";
@@ -34,6 +36,9 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     @Size(max = 2000)
     @VaadinTableColumn(displayName = "Examples", internalName = TranslationRecord_inSentence_columnName)
     private String inSentence;
+    @Size(min = 2, max = 3)
+    @VaadinTableColumn(displayName = "Level", internalName = TranslationRecord_level_columnName)
+    private String level;
     @Size(max = 2000)
     @VaadinTableColumn(displayName = "Translation", internalName = TranslationRecord_inSentenceTranslation_columnName)
     private String inSentenceTranslation;
@@ -128,6 +133,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
         this.sourceText = old.getSourceText();
         this.textTranslation = old.getTextTranslation();
         this.type = old.getType();
+        this.level = old.getLevel();
         this.inSentence = old.getInSentence();
         this.inSentenceTranslation = old.getInSentenceTranslation();
         this.id = old.getId();
@@ -138,12 +144,12 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TranslationRecord that)) return false;
-        return Objects.equals(id, that.id) && Objects.equals(deleted, that.deleted) && Objects.equals(sourceText, that.sourceText) && Objects.equals(textTranslation, that.textTranslation) && Objects.equals(type, that.type) && Objects.equals(inSentence, that.inSentence) && Objects.equals(inSentenceTranslation, that.inSentenceTranslation) && Objects.equals(textSound, that.textSound) && Objects.equals(inSentenceSound, that.inSentenceSound);
+        return Objects.equals(id, that.id) && Objects.equals(deleted, that.deleted) && Objects.equals(sourceText, that.sourceText) && Objects.equals(level, that.level) && Objects.equals(textTranslation, that.textTranslation) && Objects.equals(type, that.type) && Objects.equals(inSentence, that.inSentence) && Objects.equals(inSentenceTranslation, that.inSentenceTranslation) && Objects.equals(textSound, that.textSound) && Objects.equals(inSentenceSound, that.inSentenceSound);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, deleted, sourceText, textTranslation, type, inSentence, inSentenceTranslation, textSound, inSentenceSound);
+        return Objects.hash(id, deleted, sourceText, textTranslation, level, type, inSentence, inSentenceTranslation, textSound, inSentenceSound);
     }
 
     @Override
@@ -179,6 +185,14 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
         return sourceText;
     }
 
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
 
     public static final class TranslationRecordBuilder {
         private UUID id;
@@ -186,6 +200,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
         private @Size(max = 2000) String sourceText;
         private @Size(max = 2000) String textTranslation;
         private String type;
+        private String level;
         private @Size(max = 2000) String inSentence;
         private @Size(max = 2000) String inSentenceTranslation;
         private @Size(max = 1000000000) String textSound;
@@ -201,6 +216,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
             this.sourceText = other.sourceText;
             this.textTranslation = other.textTranslation;
             this.type = other.type;
+            this.level = other.level;
             this.inSentence = other.inSentence;
             this.inSentenceTranslation = other.inSentenceTranslation;
             this.textSound = other.textSound;
@@ -214,6 +230,11 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
 
         public TranslationRecordBuilder withId(UUID id) {
             this.id = id;
+            return this;
+        }
+
+        public TranslationRecordBuilder withLevel(String level) {
+            this.level = level;
             return this;
         }
 
@@ -274,6 +295,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
             translationRecord.setTextSound(textSound);
             translationRecord.setInSentenceSound(inSentenceSound);
             translationRecord.nextRepeatTime = this.nextRepeatTime;
+            translationRecord.setLevel(this.level);
             return translationRecord;
         }
     }
