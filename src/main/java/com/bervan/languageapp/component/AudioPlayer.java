@@ -32,6 +32,7 @@ public class AudioPlayer extends Component {
     public void setSource(String audioInBase64) {
         if (audioInBase64 == null || audioInBase64.isBlank() || audioInBase64.isEmpty()) {
             this.setVisible(false);
+            return;
         }
 
         StreamResource audioResource = new StreamResource(
