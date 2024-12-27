@@ -29,6 +29,9 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     @Size(max = 2000)
     @VaadinTableColumn(displayName = "Text", internalName = TranslationRecord_sourceText_columnName)
     private String sourceText;
+    @Size(min = 2, max = 3)
+    @VaadinTableColumn(displayName = "Level", internalName = TranslationRecord_level_columnName, strValues = {"A1", "A2", "B1", "B2", "C1", "C2"})
+    private String level;
     @Size(max = 2000)
     @VaadinTableColumn(displayName = "Translation", internalName = TranslationRecord_textTranslation_columnName)
     private String textTranslation;
@@ -36,9 +39,6 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     @Size(max = 2000)
     @VaadinTableColumn(displayName = "Examples", internalName = TranslationRecord_inSentence_columnName)
     private String inSentence;
-    @Size(min = 2, max = 3)
-    @VaadinTableColumn(displayName = "Level", internalName = TranslationRecord_level_columnName, strValues = {"A1", "A2", "B1", "B2", "C1", "C2"})
-    private String level;
     @Size(max = 2000)
     @VaadinTableColumn(displayName = "Translation", internalName = TranslationRecord_inSentenceTranslation_columnName)
     private String inSentenceTranslation;
