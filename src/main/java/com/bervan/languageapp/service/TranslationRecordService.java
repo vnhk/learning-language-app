@@ -32,8 +32,8 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
     }
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
-    public List<TranslationRecord> getAllForLearning(Pageable pageable) {
-        return translationRecordRepository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), pageable);
+    public List<TranslationRecord> getAllForLearning(List<String> levels, Pageable pageable) {
+        return translationRecordRepository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), levels, pageable);
     }
 
     public void updateNextLearningDate(UUID uuid, String score) {

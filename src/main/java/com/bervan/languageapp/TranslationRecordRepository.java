@@ -24,9 +24,11 @@ public interface TranslationRecordRepository extends BaseRepository<TranslationR
             "WHERE (t.deleted IS FALSE OR t.deleted IS NULL) " +
             "AND (t.nextRepeatTime IS NULL OR t.nextRepeatTime < :dateTime) " +
             "AND o.id = :ownerId " +
+            "AND t.level IN :levels " +
             "ORDER BY t.sourceText ASC")
     List<TranslationRecord> getRecordsForLearning(
             @Param("dateTime") LocalDateTime dateTime,
             @Param("ownerId") UUID ownerId,
+            @Param("levels") List<String> levels,
             Pageable pageable);
 }
