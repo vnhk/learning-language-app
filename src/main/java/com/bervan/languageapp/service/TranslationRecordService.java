@@ -23,7 +23,22 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
     }
 
     public TranslationRecord save(TranslationRecord record) {
+        setLevel(record);
         return translationRecordRepository.save(record);
+    }
+
+    private void setLevel(TranslationRecord record) {
+        if (record.getLevel() == null || record.getLevel().isBlank()) {
+            String level = autoDetermineLevel(record.getSourceText());
+            if (level != null) {
+                record.setLevel("N/A");
+            }
+        }
+    }
+
+    private String autoDetermineLevel(String sourceText) {
+        // TODO: 28/12/2024
+        return "N/A";
     }
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
@@ -89,7 +104,7 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
 
     public void delete(TranslationRecord record) {
         record.setDeleted(true);
-        translationRecordRepository.save(record);
+        save(record);
     }
 
     @Override

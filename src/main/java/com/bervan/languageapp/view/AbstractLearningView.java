@@ -40,6 +40,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
     private final Div buttonsLayout = new Div();
 
     // Checkboxes to filter levels (A1, A2, B1, B2, C1, C2)
+    private final Checkbox levelNotClass = new Checkbox("N/A");
     private final Checkbox levelA1 = new Checkbox("A1");
     private final Checkbox levelA2 = new Checkbox("A2");
     private final Checkbox levelB1 = new Checkbox("B1");
@@ -97,6 +98,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
         // 1. SETUP LEVEL CHECKBOXES
         // =========================
         // By default, A1, A2, B1, B2 are selected
+        levelNotClass.setValue(true);
         levelA1.setValue(true);
         levelA2.setValue(true);
         levelB1.setValue(true);
@@ -106,7 +108,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
         loadLearningRecords();
 
         // Put all level checkboxes in a single container
-        Div levelCheckBoxesLayout = new Div(levelA1, levelA2, levelB1, levelB2, levelC1, levelC2);
+        Div levelCheckBoxesLayout = new Div(levelNotClass, levelA1, levelA2, levelB1, levelB2, levelC1, levelC2);
 
         // Add the level checkboxes to the top of the page
         add(levelCheckBoxesLayout);
