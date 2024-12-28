@@ -59,6 +59,11 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
         if (score.equals("AGAIN")) {
             return 0; //again means that card will appear in the same learning session
         }
+
+        if (factor >= 50) {
+            return 200 + factor;
+        }
+
         return factor * 4;
     }
 
