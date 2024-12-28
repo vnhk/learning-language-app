@@ -3,7 +3,6 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    margin-top: -100px;
 }
 
 .creating-flashcard-from-buttons {
@@ -22,7 +21,10 @@
     transition: transform 0.5s;
     width: 500px;
     max-height: 400px;
-    margin: 100px 25px 50px;
+    margin-top: 10px;
+    margin-right: 25px;
+    margin-left: 25px;
+    margin-bottom: 50px;
     padding: 100px;
     border-radius: 10px;
     background-color: #f9f9f9;

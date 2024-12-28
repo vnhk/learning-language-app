@@ -29,7 +29,7 @@ public class Flashcard extends VerticalLayout {
             normalCard(translationRecord, buttonsLayout, flashcardDiv);
         }
 
-        add(flashcardDiv, buttonsLayout);
+        add(buttonsLayout, flashcardDiv);
     }
 
     private void reversedCard(TranslationRecord translationRecord, Div buttonsLayout, Div flashcardDiv) {
