@@ -33,7 +33,7 @@ public abstract class AbstractQuizView extends VerticalLayout {
         buildQuestionsLayouts(quizQuestions, sourceText, questions);
 
         Button buttonCheck = new Button("Check Answers");
-        buttonCheck.setClassName("option-button");
+        buttonCheck.addClassName("option-button");
         buttonCheck.addClickListener(e -> {
             checkAnswers(quizQuestions, questions);
         });
