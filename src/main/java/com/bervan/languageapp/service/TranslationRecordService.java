@@ -1,5 +1,6 @@
 package com.bervan.languageapp.service;
 
+import com.bervan.common.search.SearchService;
 import com.bervan.common.service.AuthService;
 import com.bervan.common.service.BaseService;
 import com.bervan.ieentities.ExcelIEEntity;
@@ -15,16 +16,18 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
-public class TranslationRecordService implements BaseService<UUID, TranslationRecord> {
-    private final TranslationRecordRepository translationRecordRepository;
+public class TranslationRecordService extends BaseService<UUID, TranslationRecord> {
+    private final TranslationRecordRepository repository;
 
-    public TranslationRecordService(TranslationRecordRepository translationRecordRepository) {
-        this.translationRecordRepository = translationRecordRepository;
+    public TranslationRecordService(TranslationRecordRepository repository,
+                                    SearchService searchService) {
+        super(repository, searchService);
+        this.repository = repository;
     }
 
     public TranslationRecord save(TranslationRecord record) {
         setLevel(record);
-        return translationRecordRepository.save(record);
+        return repository.save(record);
     }
 
     private void setLevel(TranslationRecord record) {
@@ -43,16 +46,16 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public Set<TranslationRecord> load() {
-        return translationRecordRepository.findAll(AuthService.getLoggedUserId());
+        return repository.findAll(AuthService.getLoggedUserId());
     }
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public List<TranslationRecord> getAllForLearning(List<String> levels, Pageable pageable) {
-        return translationRecordRepository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), levels, pageable);
+        return repository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), levels, pageable);
     }
 
     public void updateNextLearningDate(UUID uuid, String score) {
-        TranslationRecord translationRecord = translationRecordRepository.findById(uuid).get();
+        TranslationRecord translationRecord = repository.findById(uuid).get();
 
         if (translationRecord.getFactor() == null || translationRecord.getFactor() < 1) {
             translationRecord.setFactor(1);
@@ -63,7 +66,7 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
         translationRecord.setNextRepeatTime(
                 getNextRepeatTime(nextFactor, score)
         );
-        translationRecordRepository.save(translationRecord);
+        repository.save(translationRecord);
     }
 
     public static LocalDateTime getNextRepeatTime(Integer factor, String score) {
@@ -107,22 +110,14 @@ public class TranslationRecordService implements BaseService<UUID, TranslationRe
         save(record);
     }
 
-    @Override
-    public void saveIfValid(List<? extends ExcelIEEntity> objects) {
-        List<? extends ExcelIEEntity> list = objects.stream().filter(e -> e instanceof TranslationRecord).toList();
-        for (ExcelIEEntity excelIEEntity : list) {
-            translationRecordRepository.save(((TranslationRecord) excelIEEntity));
-        }
-    }
-
     public void delete(UUID uuid) {
-        TranslationRecord translationRecord = translationRecordRepository.findById(uuid).get();
+        TranslationRecord translationRecord = repository.findById(uuid).get();
         translationRecord.setDeleted(true);
-        translationRecordRepository.save(translationRecord);
+        repository.save(translationRecord);
     }
 
     public Integer getFactor(UUID uuid) {
-        TranslationRecord translationRecord = translationRecordRepository.findById(uuid).get();
+        TranslationRecord translationRecord = repository.findById(uuid).get();
         return translationRecord.getFactor();
     }
 
