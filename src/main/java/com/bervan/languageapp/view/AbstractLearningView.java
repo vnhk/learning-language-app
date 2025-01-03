@@ -117,6 +117,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
         // 2. SETUP CHECKBOX LISTENERS
         // ============================
         // Each checkbox triggers data reload on change
+        levelNotClass.addValueChangeListener(event -> reloadData());
         levelA1.addValueChangeListener(event -> reloadData());
         levelA2.addValueChangeListener(event -> reloadData());
         levelB1.addValueChangeListener(event -> reloadData());
@@ -173,6 +174,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
 
     private List<String> getSelectedLevels() {
         List<String> levels = new ArrayList<>();
+        if (levelNotClass.getValue()) levels.add("N/A");
         if (levelA1.getValue()) levels.add("A1");
         if (levelA2.getValue()) levels.add("A2");
         if (levelB1.getValue()) levels.add("B1");
