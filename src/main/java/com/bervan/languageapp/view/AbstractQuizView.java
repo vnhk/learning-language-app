@@ -9,6 +9,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
@@ -22,7 +23,7 @@ public abstract class AbstractQuizView extends VerticalLayout {
         add(new LearningEnglishLayout(ROUTE_NAME));
         Map<TranslationRecord, String> quizQuestions = new HashMap<>();
 
-        List<TranslationRecord> records = new ArrayList<>(translationRecordService.load().stream().toList());
+        List<TranslationRecord> records = new ArrayList<>(translationRecordService.load(Pageable.ofSize(amountOfQuestions)).stream().toList());
         Collections.shuffle(records);
         buildQuizQuestionsMapping(records, exampleOfUsageService, quizQuestions);
 

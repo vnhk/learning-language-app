@@ -3,7 +3,6 @@ package com.bervan.languageapp.service;
 import com.bervan.common.search.SearchService;
 import com.bervan.common.service.AuthService;
 import com.bervan.common.service.BaseService;
-import com.bervan.ieentities.ExcelIEEntity;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.TranslationRecordRepository;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -42,11 +40,6 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
     private String autoDetermineLevel(String sourceText) {
         // TODO: 28/12/2024
         return "N/A";
-    }
-
-    @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
-    public Set<TranslationRecord> load() {
-        return repository.findAll(AuthService.getLoggedUserId());
     }
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
