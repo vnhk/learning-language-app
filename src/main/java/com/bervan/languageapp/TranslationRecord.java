@@ -6,6 +6,7 @@ import com.bervan.common.model.VaadinTableColumn;
 import com.bervan.ieentities.ExcelIEEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -23,7 +24,6 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     public static final String TranslationRecord_nextRepeatTime_columnName = "nextRepeatTime";
 
     @Id
-    @GeneratedValue
     private UUID id;
     private Boolean deleted;
     @Size(max = 2000)
