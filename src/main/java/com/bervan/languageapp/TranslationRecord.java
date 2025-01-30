@@ -6,7 +6,6 @@ import com.bervan.common.model.VaadinTableColumn;
 import com.bervan.ieentities.ExcelIEEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -62,7 +61,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     public TranslationRecord() {
     }
 
-    public Boolean getDeleted() {
+    public Boolean isDeleted() {
         if (deleted == null) {
             return false;
         }
@@ -137,7 +136,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
         this.inSentence = old.getInSentence();
         this.inSentenceTranslation = old.getInSentenceTranslation();
         this.id = old.getId();
-        this.deleted = old.getDeleted();
+        this.deleted = old.isDeleted();
     }
 
     @Override
