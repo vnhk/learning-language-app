@@ -23,7 +23,7 @@ public abstract class AbstractQuizView extends VerticalLayout {
         add(new LearningEnglishLayout(ROUTE_NAME));
         Map<TranslationRecord, String> quizQuestions = new HashMap<>();
 
-        List<TranslationRecord> records = new ArrayList<>(translationRecordService.load(Pageable.ofSize(amountOfQuestions)).stream().toList());
+        List<TranslationRecord> records = new ArrayList<>(translationRecordService.load(Pageable.ofSize(400)).stream().toList());
         Collections.shuffle(records);
         buildQuizQuestionsMapping(records, exampleOfUsageService, quizQuestions);
 
