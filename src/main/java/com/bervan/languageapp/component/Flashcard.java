@@ -1,6 +1,8 @@
 package com.bervan.languageapp.component;
 
 import com.bervan.languageapp.TranslationRecord;
+import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
@@ -10,15 +12,16 @@ public class Flashcard extends VerticalLayout {
     private AudioPlayer cardTopPlayer;
     private AudioPlayer cardBottomPlayer;
     private Boolean isAnswerVisible = Boolean.FALSE;
-    private boolean isReversed;
+    private Div buttonsLayout;
+    private Div flashcardDiv;
 
     public Flashcard(TranslationRecord translationRecord, Div buttonsLayout, boolean isReversed) {
-        cardTopPlayer = new AudioPlayer();
-        cardBottomPlayer = new AudioPlayer();
-        this.isReversed = isReversed;
+        this.cardTopPlayer = new AudioPlayer();
+        this.cardBottomPlayer = new AudioPlayer();
+        this.buttonsLayout = buttonsLayout;
 
         this.addClassName("flashcard-layout");
-        Div flashcardDiv = new Div();
+        flashcardDiv = new Div();
         flashcardDiv.addClassName("flashcard");
 
         if (translationRecord.getLevel() != null && !translationRecord.getLevel().isBlank()) {
@@ -26,15 +29,76 @@ public class Flashcard extends VerticalLayout {
         }
 
         if (isReversed) {
-            reversedCard(translationRecord, buttonsLayout, flashcardDiv);
+            reversedCard(translationRecord);
         } else {
-            normalCard(translationRecord, buttonsLayout, flashcardDiv);
+            normalCard(translationRecord);
         }
 
         add(buttonsLayout, flashcardDiv);
+
+        getElement().executeJs(
+                " document.addEventListener('keydown', function(event) {" +
+                        "    if (event.key === ' ' || event.key === 'Spacebar') {" +
+                        "        $0.$server.flashcardClick() " +
+                        "    } else if (event.key === 'q') {" +
+                        "        $0.$server.againButtonClick() " +
+                        "    } else if (event.key === 'w') {" +
+                        "        $0.$server.hardButtonClick() " +
+                        "    } else if (event.key === 'e') {" +
+                        "        $0.$server.goodButtonClick() " +
+                        "    } else if (event.key === 'r') {" +
+                        "        $0.$server.easyButtonClick() " +
+                        "    } else {return;}" +
+                        " }); "
+                ,
+                getElement()    // $0
+        );
     }
 
-    private void reversedCard(TranslationRecord translationRecord, Div buttonsLayout, Div flashcardDiv) {
+    @ClientCallable
+    public void flashcardClick() {
+        if (flashcardDiv.isVisible()) {
+            flashcardDiv.getElement().executeJs("this.click();");
+        }
+    }
+
+    @ClientCallable
+    public void easyButtonClick() {
+        if (buttonsLayout.isVisible()) {
+            buttonsLayout.getChildren().filter(e -> e instanceof Button)
+                    .filter(e -> ((Button) e).getText().toUpperCase().contains("EASY"))
+                    .forEach(e -> ((Button) e).click());
+        }
+    }
+
+    @ClientCallable
+    public void goodButtonClick() {
+        if (buttonsLayout.isVisible()) {
+            buttonsLayout.getChildren().filter(e -> e instanceof Button)
+                    .filter(e -> ((Button) e).getText().toUpperCase().contains("GOOD"))
+                    .forEach(e -> ((Button) e).click());
+        }
+    }
+
+    @ClientCallable
+    public void hardButtonClick() {
+        if (buttonsLayout.isVisible()) {
+            buttonsLayout.getChildren().filter(e -> e instanceof Button)
+                    .filter(e -> ((Button) e).getText().toUpperCase().contains("HARD"))
+                    .forEach(e -> ((Button) e).click());
+        }
+    }
+
+    @ClientCallable
+    public void againButtonClick() {
+        if (buttonsLayout.isVisible()) {
+            buttonsLayout.getChildren().filter(e -> e instanceof Button)
+                    .filter(e -> ((Button) e).getText().toUpperCase().contains("AGAIN"))
+                    .forEach(e -> ((Button) e).click());
+        }
+    }
+
+    private void reversedCard(TranslationRecord translationRecord) {
         Span textTop = new Span(translationRecord.getTextTranslation());
         Span textBottom = new Span(translationRecord.getInSentenceTranslation());
 
@@ -42,7 +106,7 @@ public class Flashcard extends VerticalLayout {
 
         if (translationRecord.getTextSound() != null) {
             cardTopPlayer.setSource(translationRecord.getTextSound());
-            cardTopPlayer.setAutoPlay();
+            cardTopPlayer.executeAutoPlay();
             questionDiv.add(textTop, cardTopPlayer);
             cardTopPlayer.getElement().executeJs("this.addEventListener('click', function(event) { event.stopPropagation(); });");
         } else {
@@ -88,7 +152,7 @@ public class Flashcard extends VerticalLayout {
         });
     }
 
-    private void normalCard(TranslationRecord translationRecord, Div buttonsLayout, Div flashcardDiv) {
+    private void normalCard(TranslationRecord translationRecord) {
         Span textTop = new Span(translationRecord.getSourceText());
         Span textBottom = new Span(translationRecord.getInSentence());
 
@@ -97,7 +161,7 @@ public class Flashcard extends VerticalLayout {
         if (translationRecord.getTextSound() != null) {
             cardTopPlayer.setSource(translationRecord.getTextSound());
             questionDiv.add(textTop, cardTopPlayer);
-            cardTopPlayer.setAutoPlay();
+            cardTopPlayer.executeAutoPlay();
             cardTopPlayer.getElement().executeJs("this.addEventListener('click', function(event) { event.stopPropagation(); });");
         } else {
             questionDiv.add(textTop);

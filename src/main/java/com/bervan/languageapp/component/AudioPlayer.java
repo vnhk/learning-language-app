@@ -29,7 +29,7 @@ public class AudioPlayer extends Component {
         getElement().appendChild(speakerIcon.getElement());
     }
 
-    public void setAutoPlay() {
+    public void executeAutoPlay() {
         getElement().executeJs("setTimeout(() => { const audio = this.querySelector('audio'); if (audio) { audio.play(); } }, 200);");
     }
 

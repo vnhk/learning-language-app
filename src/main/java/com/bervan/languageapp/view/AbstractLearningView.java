@@ -31,10 +31,10 @@ public abstract class AbstractLearningView extends AbstractPageView {
     private final TranslationRecordService translationRecordService;
 
     // Flashcard knowledge buttons
-    private final Button againButton = new Button("Again");
-    private final Button hardButton = new Button("Hard");
-    private final Button goodButton = new Button("Good");
-    private final Button easyButton = new Button("Easy");
+    private final Button againButton = new Button("Again (q)");
+    private final Button hardButton = new Button("Hard (w)");
+    private final Button goodButton = new Button("Good (e)");
+    private final Button easyButton = new Button("Easy (r)");
 
     // Div container for the flashcard knowledge buttons
     private final Div buttonsLayout = new Div();
