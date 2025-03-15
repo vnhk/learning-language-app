@@ -29,6 +29,10 @@ public class AudioPlayer extends Component {
         getElement().appendChild(speakerIcon.getElement());
     }
 
+    public void setAutoPlay() {
+        getElement().executeJs("setTimeout(() => { const audio = this.querySelector('audio'); if (audio) { audio.play(); } }, 200);");
+    }
+
     public void setSource(String audioInBase64) {
         if (audioInBase64 == null || audioInBase64.isBlank() || audioInBase64.isEmpty()) {
             this.setVisible(false);

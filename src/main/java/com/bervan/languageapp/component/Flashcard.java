@@ -10,10 +10,12 @@ public class Flashcard extends VerticalLayout {
     private AudioPlayer cardTopPlayer;
     private AudioPlayer cardBottomPlayer;
     private Boolean isAnswerVisible = Boolean.FALSE;
+    private boolean isReversed;
 
     public Flashcard(TranslationRecord translationRecord, Div buttonsLayout, boolean isReversed) {
         cardTopPlayer = new AudioPlayer();
         cardBottomPlayer = new AudioPlayer();
+        this.isReversed = isReversed;
 
         this.addClassName("flashcard-layout");
         Div flashcardDiv = new Div();
@@ -40,6 +42,7 @@ public class Flashcard extends VerticalLayout {
 
         if (translationRecord.getTextSound() != null) {
             cardTopPlayer.setSource(translationRecord.getTextSound());
+            cardTopPlayer.setAutoPlay();
             questionDiv.add(textTop, cardTopPlayer);
             cardTopPlayer.getElement().executeJs("this.addEventListener('click', function(event) { event.stopPropagation(); });");
         } else {
@@ -94,6 +97,7 @@ public class Flashcard extends VerticalLayout {
         if (translationRecord.getTextSound() != null) {
             cardTopPlayer.setSource(translationRecord.getTextSound());
             questionDiv.add(textTop, cardTopPlayer);
+            cardTopPlayer.setAutoPlay();
             cardTopPlayer.getElement().executeJs("this.addEventListener('click', function(event) { event.stopPropagation(); });");
         } else {
             questionDiv.add(textTop);
