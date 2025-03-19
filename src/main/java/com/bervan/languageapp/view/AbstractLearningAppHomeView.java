@@ -150,6 +150,13 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
         return saveSpeech;
     }
 
+    private Checkbox getReloadNextLearningDate() {
+        Checkbox saveSpeech = new Checkbox("Recalculate next learning date", true);
+        saveSpeech.setWidth("200px");
+        saveSpeech.setId("reloadNextLearningDate");
+        return saveSpeech;
+    }
+
     private String translate(TextArea textArea) {
         try {
             return this.translationService.translate(textArea.getValue());
@@ -189,6 +196,12 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
                         String inSentence = item.getInSentence();
                         item.setInSentenceSound(checked ? textToSpeechService.getTextSpeech(inSentence) : null);
                     }
+                } else if (component.getId().get().equals("reloadNextLearningDate")) {
+                    Boolean checked = ((Checkbox) component).getValue();
+                    if (checked && clickedColumn.equals(TranslationRecord.TranslationRecord_factor_columnName)) {
+                        Integer newFactor = item.getFactor();
+                        item.setNextRepeatTime(TranslationRecordService.getNextRepeatTime(newFactor, ""));
+                    }
                 }
             }
         }
@@ -206,6 +219,9 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
             Checkbox saveSpeech = getSaveSpeech();
             saveSpeech.setValue(item.getInSentenceSound() != null);
             layoutForField.add(saveSpeech);
+        } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_factor_columnName)) {
+            Checkbox reloadNextLearningDate = getReloadNextLearningDate();
+            layoutForField.add(reloadNextLearningDate);
         }
     }
 }
