@@ -2,12 +2,15 @@ package com.bervan.languageapp;
 
 import com.bervan.common.model.BervanBaseEntity;
 import com.bervan.common.model.PersistableTableData;
+import com.bervan.common.model.VaadinImageTableColumn;
 import com.bervan.common.model.VaadinTableColumn;
 import com.bervan.ieentities.ExcelIEEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,6 +22,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     public static final String TranslationRecord_inSentence_columnName = "inSentence";
     public static final String TranslationRecord_level_columnName = "level";
     public static final String TranslationRecord_inSentenceTranslation_columnName = "inSentenceTranslation";
+    public static final String TranslationRecord_images_columnName = "images";
     public static final String TranslationRecord_factor_columnName = "factor";
     public static final String TranslationRecord_nextRepeatTime_columnName = "nextRepeatTime";
 
@@ -49,6 +53,11 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     private Integer factor;
     @VaadinTableColumn(displayName = "Next Repetition Time", internalName = TranslationRecord_nextRepeatTime_columnName, inSaveForm = false)
     private LocalDateTime nextRepeatTime;
+    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "images", joinColumns = @JoinColumn(name = "library_id"))
+    @Column(name = "image", nullable = false, length = 1000000000)
+    @VaadinTableColumn(extension = VaadinImageTableColumn.class, displayName = "Images", internalName = TranslationRecord_images_columnName)
+    private final List<String> images = new ArrayList<>();
 
     public LocalDateTime getNextRepeatTime() {
         return nextRepeatTime;
@@ -192,6 +201,17 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
         this.level = level;
     }
 
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void addImage(String image) {
+        images.add(image);
+    }
+
+    public void removeImage(String image) {
+        images.remove(image);
+    }
 
     public static final class TranslationRecordBuilder {
         private UUID id;

@@ -5,11 +5,21 @@ import com.bervan.common.service.AuthService;
 import com.bervan.common.service.BaseService;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.TranslationRecordRepository;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,6 +36,47 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
     public TranslationRecord save(TranslationRecord record) {
         setLevel(record);
         return repository.save(record);
+    }
+
+    public List<String> tryToGetImages(TranslationRecord record) {
+        List<String> imageUrls = new ArrayList<>();
+        Document doc = null;
+        try {
+            doc = Jsoup.connect("https://unsplash.com/s/photos/" + record.getSourceText()).get();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Elements links = doc.select("a[href^=/photos/]");
+
+        for (Element link : links) {
+            Elements images = link.select("img");
+            for (Element img : images) {
+                String imageUrl = img.absUrl("src");
+                if (imageUrls.size() > 10) {
+                    return imageUrls;
+                }
+                imageUrls.add(imageUrl);
+            }
+        }
+
+        return imageUrls;
+    }
+
+    private String convertImageToBase64(String imgUrl) {
+        try (InputStream inputStream = new URL(imgUrl).openStream();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            byte[] imageBytes = outputStream.toByteArray();
+            return Base64.getEncoder().encodeToString(imageBytes);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void setLevel(TranslationRecord record) {

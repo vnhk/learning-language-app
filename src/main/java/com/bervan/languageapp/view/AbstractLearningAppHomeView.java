@@ -34,6 +34,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
     private final TextToSpeechService textToSpeechService;
     private final TranslatorService translationService;
     private Checkbox saveSpeech;
+    private Checkbox getImages;
     private Map<String, String> helpfulLinks = ImmutableMap.of("https://youglish.com", "The page that finds words in youtube videos");
 
     public AbstractLearningAppHomeView(TranslationRecordService translatorRecordService,
@@ -127,7 +128,8 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
 
         CheckboxGroup<Checkbox> saveOptions = new CheckboxGroup<>();
         saveSpeech = getSaveSpeech();
-        saveOptions.add(saveSpeech);
+        getImages = getImages();
+        saveOptions.add(getImages, saveSpeech);
 
         formLayout.add(saveOptions);
     }
@@ -140,6 +142,14 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
                 newTranslationRecord.setInSentenceSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getInSentence()));
             }
         }
+
+        if (getImages.getValue()) {
+            List<String> images = ((TranslationRecordService) service).tryToGetImages(newTranslationRecord);
+            for (String image : images) {
+                newTranslationRecord.addImage(image);
+            }
+        }
+
         return newTranslationRecord;
     }
 
@@ -150,11 +160,18 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
         return saveSpeech;
     }
 
+    private Checkbox getImages() {
+        Checkbox checkbox = new Checkbox("Load images", false);
+        checkbox.setWidth("200px");
+        checkbox.setId("loadImagesCheckbox");
+        return checkbox;
+    }
+
     private Checkbox getReloadNextLearningDate() {
-        Checkbox saveSpeech = new Checkbox("Recalculate next learning date", true);
-        saveSpeech.setWidth("200px");
-        saveSpeech.setId("reloadNextLearningDate");
-        return saveSpeech;
+        Checkbox checkbox = new Checkbox("Recalculate next learning date", true);
+        checkbox.setWidth("200px");
+        checkbox.setId("reloadNextLearningDate");
+        return checkbox;
     }
 
     private String translate(TextArea textArea) {
@@ -215,6 +232,9 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
             Checkbox saveSpeech = getSaveSpeech();
             saveSpeech.setValue(item.getTextSound() != null);
             layoutForField.add(saveSpeech);
+
+            Checkbox imagesCheckbox = getImages();
+            layoutForField.add(imagesCheckbox);
         } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
             Checkbox saveSpeech = getSaveSpeech();
             saveSpeech.setValue(item.getInSentenceSound() != null);
