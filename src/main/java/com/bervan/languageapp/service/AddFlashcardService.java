@@ -59,6 +59,11 @@ public class AddFlashcardService {
                 if (record.getInSentence() != null && !record.getInSentence().isBlank()) {
                     record.setInSentenceSound(textToSpeechService.getTextSpeech(record.getInSentence()));
                 }
+
+                List<String> images = translationRecordService.tryToGetImages(record);
+                for (String image : images) {
+                    record.addImage(image);
+                }
             }
             translationRecordService.save(record);
         }).start();
