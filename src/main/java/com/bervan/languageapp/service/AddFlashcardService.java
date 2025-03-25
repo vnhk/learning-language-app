@@ -60,10 +60,7 @@ public class AddFlashcardService {
                     record.setInSentenceSound(textToSpeechService.getTextSpeech(record.getInSentence()));
                 }
 
-                List<String> images = translationRecordService.tryToGetImages(record);
-                for (String image : images) {
-                    record.addImage(image);
-                }
+                translationRecordService.setNewAndReplaceImages(record);
             }
             translationRecordService.save(record);
         }).start();

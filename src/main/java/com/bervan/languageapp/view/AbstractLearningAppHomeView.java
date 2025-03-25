@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableMap;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
@@ -126,12 +125,10 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
             getUI().get().getPage().open(href);
         });
 
-        CheckboxGroup<Checkbox> saveOptions = new CheckboxGroup<>();
         saveSpeech = getSaveSpeech();
         getImages = getImages();
-        saveOptions.add(getImages, saveSpeech);
 
-        formLayout.add(saveOptions);
+        formLayout.add(saveSpeech, getImages);
     }
 
     @Override
@@ -144,10 +141,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
         }
 
         if (getImages.getValue()) {
-            List<String> images = ((TranslationRecordService) service).tryToGetImages(newTranslationRecord);
-            for (String image : images) {
-                newTranslationRecord.addImage(image);
-            }
+            ((TranslationRecordService) service).setNewAndReplaceImages(newTranslationRecord);
         }
 
         return newTranslationRecord;
@@ -161,7 +155,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
     }
 
     private Checkbox getImages() {
-        Checkbox checkbox = new Checkbox("Load images", false);
+        Checkbox checkbox = new Checkbox("Load new images", false);
         checkbox.setWidth("200px");
         checkbox.setId("loadImagesCheckbox");
         return checkbox;
@@ -219,6 +213,11 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
                         Integer newFactor = item.getFactor();
                         item.setNextRepeatTime(TranslationRecordService.getNextRepeatTime(newFactor, ""));
                     }
+                } else if (component.getId().get().equals("loadImagesCheckbox")) {
+                    Boolean checked = ((Checkbox) component).getValue();
+                    if (checked && clickedColumn.equals(TranslationRecord.TranslationRecord_images_columnName)) {
+                        ((TranslationRecordService) service).setNewAndReplaceImages(item);
+                    }
                 }
             }
         }
@@ -232,9 +231,6 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
             Checkbox saveSpeech = getSaveSpeech();
             saveSpeech.setValue(item.getTextSound() != null);
             layoutForField.add(saveSpeech);
-
-            Checkbox imagesCheckbox = getImages();
-            layoutForField.add(imagesCheckbox);
         } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
             Checkbox saveSpeech = getSaveSpeech();
             saveSpeech.setValue(item.getInSentenceSound() != null);
@@ -242,6 +238,9 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
         } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_factor_columnName)) {
             Checkbox reloadNextLearningDate = getReloadNextLearningDate();
             layoutForField.add(reloadNextLearningDate);
+        } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_images_columnName)) {
+            Checkbox imagesCheckbox = getImages();
+            layoutForField.add(imagesCheckbox);
         }
     }
 }

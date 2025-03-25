@@ -38,7 +38,7 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         return repository.save(record);
     }
 
-    public List<String> tryToGetImages(TranslationRecord record) {
+    public void setNewAndReplaceImages(TranslationRecord record) {
         List<String> imageUrls = new ArrayList<>();
         Document doc = null;
         try {
@@ -53,13 +53,23 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
             for (Element img : images) {
                 String imageUrl = img.absUrl("src");
                 if (imageUrls.size() > 10) {
-                    return imageUrls;
+                    break;
                 }
                 imageUrls.add(imageUrl);
             }
         }
 
-        return imageUrls;
+        if (imageUrls.isEmpty()) {
+            return;
+        }
+
+        for (String image : record.getImages()) {
+            record.removeImage(image);
+        }
+
+        for (String imageUrl : imageUrls) {
+            record.addImage(imageUrl);
+        }
     }
 
     private String convertImageToBase64(String imgUrl) {
