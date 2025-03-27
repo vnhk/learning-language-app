@@ -1,11 +1,13 @@
 package com.bervan.languageapp.component;
 
+import com.bervan.common.BervanImageViewer;
 import com.bervan.languageapp.TranslationRecord;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class Flashcard extends VerticalLayout {
@@ -14,6 +16,7 @@ public class Flashcard extends VerticalLayout {
     private Boolean isAnswerVisible = Boolean.FALSE;
     private Div buttonsLayout;
     private Div flashcardDiv;
+    private Div additionalDetailsDiv;
 
     public Flashcard(TranslationRecord translationRecord, Div buttonsLayout, boolean isReversed) {
         this.cardTopPlayer = new AudioPlayer();
@@ -22,7 +25,10 @@ public class Flashcard extends VerticalLayout {
 
         this.addClassName("flashcard-layout");
         flashcardDiv = new Div();
+        additionalDetailsDiv = getAdditionalDetailsDiv(translationRecord);
+        additionalDetailsDiv.setVisible(false);
         flashcardDiv.addClassName("flashcard");
+        additionalDetailsDiv.addClassName("flashcard-additional-details");
 
         if (translationRecord.getLevel() != null && !translationRecord.getLevel().isBlank()) {
             flashcardDiv.addClassName(translationRecord.getLevel().toLowerCase() + "-level");
@@ -34,7 +40,7 @@ public class Flashcard extends VerticalLayout {
             normalCard(translationRecord);
         }
 
-        add(buttonsLayout, flashcardDiv);
+        add(buttonsLayout, new HorizontalLayout(flashcardDiv, additionalDetailsDiv));
 
         getElement().executeJs(
                 " document.addEventListener('keydown', function(event) {" +
@@ -53,6 +59,16 @@ public class Flashcard extends VerticalLayout {
                 ,
                 getElement()    // $0
         );
+    }
+
+    private Div getAdditionalDetailsDiv(TranslationRecord translationRecord) {
+        Div div = new Div();
+        if (!translationRecord.getImages().isEmpty()) {
+            BervanImageViewer bervanImageViewer = new BervanImageViewer(translationRecord.getImages());
+            bervanImageViewer.setImageViewerSize("350px", "400px");
+            div.add(bervanImageViewer);
+        }
+        return div;
     }
 
     @ClientCallable
@@ -139,6 +155,7 @@ public class Flashcard extends VerticalLayout {
                 cardBottomPlayer.setVisible(true);
 
                 buttonsLayout.setVisible(true);
+                additionalDetailsDiv.setVisible(true);
                 isAnswerVisible = true;
             } else {
                 textTop.setText(translationRecord.getTextTranslation());
@@ -147,6 +164,7 @@ public class Flashcard extends VerticalLayout {
                 cardBottomPlayer.setVisible(false);
 
                 buttonsLayout.setVisible(false);
+                additionalDetailsDiv.setVisible(false);
                 isAnswerVisible = false;
             }
         });
@@ -191,6 +209,7 @@ public class Flashcard extends VerticalLayout {
 
                 buttonsLayout.setVisible(true);
                 isAnswerVisible = true;
+                additionalDetailsDiv.setVisible(true);
             } else {
                 textTop.setText(translationRecord.getSourceText());
                 textBottom.setText(translationRecord.getInSentence());
@@ -199,6 +218,7 @@ public class Flashcard extends VerticalLayout {
 
                 buttonsLayout.setVisible(false);
                 isAnswerVisible = false;
+                additionalDetailsDiv.setVisible(false);
             }
         });
     }
