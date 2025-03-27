@@ -54,6 +54,8 @@ public class Flashcard extends VerticalLayout {
                         "        $0.$server.goodButtonClick() " +
                         "    } else if (event.key === 'r') {" +
                         "        $0.$server.easyButtonClick() " +
+                        "    } else if (event.key === 'p') {" +
+                        "        $0.$server.playSound() " +
                         "    } else {return;}" +
                         " }); "
                 ,
@@ -75,6 +77,13 @@ public class Flashcard extends VerticalLayout {
     public void flashcardClick() {
         if (flashcardDiv.isVisible()) {
             flashcardDiv.getElement().executeJs("this.click();");
+        }
+    }
+
+    @ClientCallable
+    public void playSound() {
+        if (flashcardDiv.isVisible() && cardTopPlayer != null) {
+            cardTopPlayer.executeAutoPlay();
         }
     }
 
