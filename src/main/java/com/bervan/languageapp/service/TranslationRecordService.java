@@ -72,23 +72,6 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         }
     }
 
-    private String convertImageToBase64(String imgUrl) {
-        try (InputStream inputStream = new URL(imgUrl).openStream();
-             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-
-            byte[] imageBytes = outputStream.toByteArray();
-            return Base64.getEncoder().encodeToString(imageBytes);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void setLevel(TranslationRecord record) {
         if (record.getLevel() == null || record.getLevel().isBlank()) {
             String level = autoDetermineLevel(record.getSourceText());
