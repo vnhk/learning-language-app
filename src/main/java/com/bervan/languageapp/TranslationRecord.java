@@ -56,7 +56,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "images", joinColumns = @JoinColumn(name = "library_id"))
     @Column(name = "image", nullable = false, length = 1000000000)
-    @VaadinTableColumn(extension = VaadinImageTableColumn.class, displayName = "Images", internalName = TranslationRecord_images_columnName)
+    @VaadinTableColumn(extension = VaadinImageTableColumn.class, displayName = "Images", internalName = TranslationRecord_images_columnName, inSaveForm = false)
     private final List<String> images = new ArrayList<>();
 
     public LocalDateTime getNextRepeatTime() {
