@@ -15,6 +15,7 @@ import java.util.*;
 public abstract class AbstractCrosswordView extends VerticalLayout {
     public static final String ROUTE_NAME = "learning-english-app/crossword";
     private final CrosswordService crosswordService;
+    private final char EMPTY_CELL_CHAR = '-';
 
     private char[][] grid;
     private List<Word> words;
@@ -76,7 +77,7 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
 
         grid = new char[gridSize][gridSize];
         for (char[] row : grid) {
-            Arrays.fill(row, ' ');
+            Arrays.fill(row, EMPTY_CELL_CHAR);
         }
 
         wordNumbers.clear();
@@ -114,7 +115,7 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
 
             for (int row = 0; row < gridSize && !placed; row++) {
                 for (int col = 0; col < gridSize && !placed; col++) {
-                    if (grid[row][col] == ' ' || grid[row][col] == currentWord.word.charAt(0)) {
+                    if (grid[row][col] == EMPTY_CELL_CHAR || grid[row][col] == currentWord.word.charAt(0)) {
                         if (canPlaceWord(currentWord, row, col, true)) {
                             placeWord(currentWord, row, col, true);
                             placed = true;
@@ -149,14 +150,14 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
         if (horizontal) {
             if (col + word.word.length() > gridSize) return false;
             for (int i = 0; i < word.word.length(); i++) {
-                if (grid[row][col + i] != ' ' && grid[row][col + i] != word.word.charAt(i)) {
+                if (grid[row][col + i] != EMPTY_CELL_CHAR && grid[row][col + i] != word.word.charAt(i)) {
                     return false;
                 }
             }
         } else {
             if (row + word.word.length() > gridSize) return false;
             for (int i = 0; i < word.word.length(); i++) {
-                if (grid[row + i][col] != ' ' && grid[row + i][col] != word.word.charAt(i)) {
+                if (grid[row + i][col] != EMPTY_CELL_CHAR && grid[row + i][col] != word.word.charAt(i)) {
                     return false;
                 }
             }
@@ -185,11 +186,11 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
     private void removeWord(Word word) {
         if (word.isHorizontal) {
             for (int i = 0; i < word.word.length(); i++) {
-                grid[word.y][word.x + i] = ' ';
+                grid[word.y][word.x + i] = EMPTY_CELL_CHAR;
             }
         } else {
             for (int i = 0; i < word.word.length(); i++) {
-                grid[word.y + i][word.x] = ' ';
+                grid[word.y + i][word.x] = EMPTY_CELL_CHAR;
             }
         }
     }
@@ -213,7 +214,7 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
 
                 String cellId = row + "-" + col;
 
-                if (grid[row][col] != ' ') {
+                if (grid[row][col] != EMPTY_CELL_CHAR) {
                     TextField inputField = new TextField();
                     inputField.setValue("");
                     inputField.setMaxLength(1);
@@ -281,6 +282,8 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
                 String cellId = row + "-" + col;
                 TextField inputField = inputFields.get(cellId);
                 if (inputField != null && inputField.getValue() != null && inputField.getValue().length() == 1 && inputField.getValue().toUpperCase().charAt(0) == grid[row][col]) {
+                    correctAnswers++;
+                } else if (inputField != null && inputField.getValue() != null && inputField.getValue().length() == 0 && grid[row][col] == ' ') { //space
                     correctAnswers++;
                 }
             }

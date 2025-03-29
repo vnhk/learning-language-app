@@ -20,7 +20,14 @@ public class CrosswordService {
         Collections.shuffle(words);
         List<TranslationRecord> result = new ArrayList<>();
         for (TranslationRecord word : words) {
-            word.setSourceText(word.getSourceText().replaceAll(" ", ""));
+            word.setSourceText(word.getSourceText().replaceAll("\\?", "")
+                    .replaceAll("\\.", "")
+                    .replaceAll(",", "")
+                    .replaceAll("\\(", "")
+                    .replaceAll("\\)", "")
+                    .replaceAll("!", "")
+                    .toUpperCase()
+            );
             if (word.getSourceText().length() < width && word.getSourceText().length() < height) {
                 result.add(word);
             }
