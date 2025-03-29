@@ -1,10 +1,12 @@
 package com.bervan.languageapp.view;
 
+import com.bervan.languageapp.TranslationRecord;
+import com.bervan.languageapp.service.CrosswordService;
 import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -12,20 +14,25 @@ import java.util.*;
 
 public abstract class AbstractCrosswordView extends VerticalLayout {
     public static final String ROUTE_NAME = "learning-english-app/crossword";
+    private final CrosswordService crosswordService;
+
     private char[][] grid;
     private List<Word> words;
     private Grid<Word> wordGrid;
     private Div crosswordContainer;
     private int gridSize = 13;
-    private Text messageLabel;
+    private Span messageLabel;
     private Map<String, TextField> inputFields = new HashMap<>();
+    private Map<Integer, Integer> wordNumbers = new HashMap<>();
 
-    public AbstractCrosswordView() {
+    public AbstractCrosswordView(CrosswordService crosswordService) {
+        this.crosswordService = crosswordService;
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
         getStyle().set("background-color", "#121212");
 
-        messageLabel = new Text("");
+        messageLabel = new Span();
+        messageLabel.getStyle().set("color", "#ffdb58");
 
         crosswordContainer = new Div();
         crosswordContainer.getStyle().set("margin-top", "20px");
@@ -34,18 +41,14 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
         crosswordContainer.getStyle().set("border-radius", "12px");
 
         wordGrid = new Grid<>(Word.class);
-        wordGrid.setColumns("word", "definition");
+        wordGrid.setColumns("index", "word", "definition", "placed");
         wordGrid.getStyle().set("max-width", "400px");
         wordGrid.getStyle().set("margin-top", "20px");
         wordGrid.getStyle().set("background-color", "#1f2937");
         wordGrid.getStyle().set("color", "#ffffff");
-//        wordGrid.getHeaderRows().forEach(row ->
-//                row.getCells().forEach(cell ->
-//                        cell.getElement().getStyle().set("color", "#ffdb58")
-//                )
-//        );
 
-        Button generateButton = new Button("Generuj Krzyżówkę", this::generateCrossword);
+
+        Button generateButton = new Button("Generate Crossword Puzzle", this::generateCrossword);
         generateButton.getStyle().set("margin-top", "20px");
         generateButton.getStyle().set("background-color", "#4caf50");
         generateButton.getStyle().set("color", "#ffffff");
@@ -55,7 +58,7 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
         generateButton.getStyle().set("box-shadow", "0 2px 5px rgba(0,0,0,0.2)");
         generateButton.addThemeVariants();
 
-        Button checkButton = new Button("Sprawdź", this::checkAnswers); // Dodaj przycisk "Sprawdź"
+        Button checkButton = new Button("Check", this::checkAnswers);
         checkButton.getStyle().set("margin-top", "20px");
         checkButton.getStyle().set("background-color", "#007bff");
         checkButton.getStyle().set("color", "#ffffff");
@@ -65,52 +68,45 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
         checkButton.getStyle().set("box-shadow", "0 2px 5px rgba(0,0,0,0.2)");
         checkButton.addThemeVariants();
 
-        add(messageLabel, crosswordContainer, wordGrid, generateButton, checkButton); // Dodaj przycisk do layoutu
+        add(messageLabel, crosswordContainer, wordGrid, generateButton, checkButton);
     }
 
     private void generateCrossword(ClickEvent event) {
-        words = new ArrayList<>();
-        words.add(new Word("JAVA", "Język programowania"));
-        words.add(new Word("SPRING", "Framework Spring Boot"));
-        words.add(new Word("VAADIN", "Framework Vaadin"));
-        words.add(new Word("KOTLIN", "Język programowania"));
-        words.add(new Word("GROOVY", "Język skryptowy"));
-        words.add(new Word("SCALA", "Język programowania"));
-        words.add(new Word("CLOJURE", "Dialekt Lispa"));
-        words.add(new Word("GRADLE", "System budowania"));
-        words.add(new Word("MAVEN", "Narzędzie do zarządzania projektami"));
-        words.add(new Word("HIBERNATE", "ORM Framework"));
-        words.add(new Word("THYMELEAF", "Silnik szablonów"));
-        words.add(new Word("SECURITY", "Moduł bezpieczeństwa Spring"));
-        words.add(new Word("REST", "Architektura oprogramowania"));
-        words.add(new Word("API", "Interfejs programowania aplikacji"));
-        words.add(new Word("DATABASE", "Baza danych"));
-        words.add(new Word("TRANSACTION", "Jednostka pracy w DB"));
-        words.add(new Word("QUERY", "Zapytanie do bazy danych"));
-        words.add(new Word("SERVER", "Komputer udostępniający zasoby"));
-        words.add(new Word("CLIENT", "Aplikacja korzystająca z zasobów serwera"));
-        words.add(new Word("THREAD", "Wątek wykonania"));
+        words = getWords();
 
-        // Inicjalizacja i generowanie krzyżówki
         grid = new char[gridSize][gridSize];
         for (char[] row : grid) {
             Arrays.fill(row, ' ');
         }
 
+        wordNumbers.clear();
         if (solveCrossword()) {
             displayCrossword();
+            for (int i = 0; i < words.size(); i++) {
+                words.get(i).setIndex(i + 1);
+            }
             wordGrid.setItems(words);
-            messageLabel.setText("Krzyżówka została wygenerowana! Wpisz słowa i kliknij 'Sprawdź'.");
+            messageLabel.setText("Crossword has been generated!");
         } else {
-            messageLabel.setText("Nie udało się wygenerować krzyżówki z podanych słów.");
+            messageLabel.setText("Crossword could not been generated.....");
             crosswordContainer.removeAll();
             wordGrid.setItems();
         }
     }
 
+    private List<Word> getWords() {
+        List<Word> res = new ArrayList<>();
+        List<TranslationRecord> translationRecords = crosswordService.getCrosswordWords(gridSize, gridSize);
+        for (TranslationRecord translationRecord : translationRecords) {
+            res.add(new Word(translationRecord.getSourceText(), translationRecord.getTextTranslation()));
+        }
+        return res;
+    }
+
     private boolean solveCrossword() {
         Collections.sort(words, (a, b) -> b.word.length() - a.word.length());
-        List<Word> placedWords = new ArrayList<>();
+        List<Word> notPlacedWords = new ArrayList<>();
+        int wordNumber = 1;
 
         for (int i = 0; i < words.size(); i++) {
             Word currentWord = words.get(i);
@@ -122,24 +118,29 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
                         if (canPlaceWord(currentWord, row, col, true)) {
                             placeWord(currentWord, row, col, true);
                             placed = true;
-                            placedWords.add(currentWord);
+                            wordNumbers.put(wordNumber, row * gridSize + col);
+                            wordNumber++;
                             break;
                         } else if (canPlaceWord(currentWord, row, col, false)) {
                             placeWord(currentWord, row, col, false);
                             placed = true;
-                            placedWords.add(currentWord);
+                            wordNumbers.put(wordNumber, row * gridSize + col);
+                            wordNumber++;
                             break;
                         }
                     }
                 }
             }
             if (!placed) {
-                // Jeśli nie udało się umieścić słowa, zresetuj planszę i spróbuj od nowa
-                for (Word word : placedWords) {
-                    removeWord(word);
-                }
-                return false;
+                notPlacedWords.add(currentWord);
+//                for (Word word : placedWords) {
+//                    removeWord(word);
+//                }
+//                return false;
             }
+        }
+        for (Word notPlacedWord : notPlacedWords) {
+            words.remove(notPlacedWord);
         }
         return true;
     }
@@ -195,7 +196,7 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
 
     private void displayCrossword() {
         crosswordContainer.removeAll();
-        inputFields.clear(); // Wyczyść mapę pól tekstowych
+        inputFields.clear();
         Div gridContainer = new Div();
         gridContainer.getStyle().set("display", "grid");
         gridContainer.getStyle().set("grid-template-columns", "repeat(" + gridSize + ", 30px)");
@@ -208,25 +209,42 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
         for (int row = 0; row < gridSize; row++) {
             for (int col = 0; col < gridSize; col++) {
                 Div cell = new Div();
-                String cellId = row + "-" + col; // Unikalny identyfikator dla każdej komórki
+                cell.getStyle().set("position", "relative");
 
-                if (grid[row][col] != ' ') { // Jeśli to litera słowa, dodaj pole tekstowe
+                String cellId = row + "-" + col;
+
+                if (grid[row][col] != ' ') {
                     TextField inputField = new TextField();
-                    inputField.setValue("");  // Ustaw puste pole na początku
-                    inputField.setMaxLength(1); // Ogranicz do jednego znaku
+                    inputField.setValue("");
+                    inputField.setMaxLength(1);
                     inputField.setWidth("30px");
                     inputField.setHeight("30px");
                     inputField.getStyle().set("font-size", "16px");
-                    inputField.getStyle().set("text-transform", "uppercase"); // Automatyczna konwersja na duże litery
+                    inputField.getStyle().set("text-transform", "uppercase");
                     inputField.getStyle().set("text-align", "center");
                     inputField.getStyle().set("padding", "0");
                     inputField.getStyle().set("border-radius", "4px");
                     inputField.getStyle().set("background-color", "#ffffff");
                     inputField.getStyle().set("color", "#000000");
 
-                    inputFields.put(cellId, inputField); // Dodaj do mapy
+                    int position = row * gridSize + col;
+                    for (Map.Entry<Integer, Integer> entry : wordNumbers.entrySet()) {
+                        if (entry.getValue() == position) {
+                            Span numberLabel = new Span(String.valueOf(entry.getKey()));
+                            numberLabel.getStyle().set("position", "absolute");
+                            numberLabel.getStyle().set("top", "2px");
+                            numberLabel.getStyle().set("left", "2px");
+                            numberLabel.getStyle().set("z-index", "500");
+                            numberLabel.getStyle().set("font-size", "10px");
+                            numberLabel.getStyle().set("color", "#ffdb58");
+                            cell.add(numberLabel);
+                            break;
+                        }
+                    }
+
+                    inputFields.put(cellId, inputField);
                     cell.add(inputField);
-                } else { // W przeciwnym razie wyświetl puste pole
+                } else {
                     cell.setText("");
                     cell.getStyle().set("width", "30px");
                     cell.getStyle().set("height", "30px");
@@ -268,18 +286,18 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
             }
         }
 
-        resultMessage.append("Poprawne odpowiedzi: ").append(correctAnswers).append(" z ").append(totalLetters).append(" liter.\n");
+        resultMessage.append("Correct answers: ").append(correctAnswers).append(" - ").append(totalLetters).append(" letters.\n");
         if (correctAnswers == totalLetters) {
-            resultMessage.append("Gratulacje! Rozwiązałeś/aś krzyżówkę!");
+            resultMessage.append("GZ! You won the game!");
             messageLabel.setText(resultMessage.toString());
         } else {
-            resultMessage.append("Spróbuj ponownie.");
+            resultMessage.append("Check again.");
             messageLabel.setText(resultMessage.toString());
         }
     }
 
-
     public static class Word {
+        int index;
         String word;
         String definition;
         int x;
@@ -289,6 +307,22 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
         public Word(String word, String definition) {
             this.word = word;
             this.definition = definition;
+        }
+
+        public String getPlaced() {
+            if (isHorizontal) {
+                return "Horizontal";
+            } else {
+                return "Vertical";
+            }
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
         }
 
         public String getWord() {
