@@ -21,7 +21,7 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
     private List<Word> words;
     private Grid<Word> wordGrid;
     private Div crosswordContainer;
-    private int gridSize = 13;
+    private int gridSize = 30;
     private Span messageLabel;
     private Map<String, TextField> inputFields = new HashMap<>();
     private Map<Integer, Integer> wordNumbers = new HashMap<>();
@@ -75,6 +75,11 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
     private void generateCrossword(ClickEvent event) {
         words = getWords();
 
+//        words = new ArrayList<>();
+//        words.add(new Word("ITINERARY", "Serving size"));
+//        words.add(new Word("SHOUT", "consumerism"));
+//        words.add(new Word("IMAGE", "acceptance"));
+
         grid = new char[gridSize][gridSize];
         for (char[] row : grid) {
             Arrays.fill(row, EMPTY_CELL_CHAR);
@@ -105,17 +110,25 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
     }
 
     private boolean solveCrossword() {
-        Collections.sort(words, (a, b) -> b.word.length() - a.word.length());
+        Collections.shuffle(words);
+        words = smartSortWords(words);
         List<Word> notPlacedWords = new ArrayList<>();
         int wordNumber = 1;
 
         for (int i = 0; i < words.size(); i++) {
             Word currentWord = words.get(i);
             boolean placed = false;
+            int row = 0;
+            int col = 0;
 
-            for (int row = 0; row < gridSize && !placed; row++) {
-                for (int col = 0; col < gridSize && !placed; col++) {
+            for (; row < gridSize && !placed; row++) {
+                for (; col < gridSize && !placed; col++) {
                     if (grid[row][col] == EMPTY_CELL_CHAR || grid[row][col] == currentWord.word.charAt(0)) {
+                        if (isLastCellInRowOrInColumnAndPreviousCellIsUsed(row, col)) {
+                            //don't place words if only one (last) cell is empty, leave this empty
+                            continue;
+                        }
+
                         if (canPlaceWord(currentWord, row, col, true)) {
                             placeWord(currentWord, row, col, true);
                             placed = true;
@@ -134,10 +147,6 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
             }
             if (!placed) {
                 notPlacedWords.add(currentWord);
-//                for (Word word : placedWords) {
-//                    removeWord(word);
-//                }
-//                return false;
             }
         }
         for (Word notPlacedWord : notPlacedWords) {
@@ -146,22 +155,100 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
         return true;
     }
 
+    private boolean isLastCellInRowOrInColumnAndPreviousCellIsUsed(int row, int col) {
+        return (col > 0 && grid[row][col] == EMPTY_CELL_CHAR && grid[row][col - 1] != EMPTY_CELL_CHAR) || (row > 0 && grid[row][col] == EMPTY_CELL_CHAR && grid[row - 1][col] != EMPTY_CELL_CHAR);
+    }
+
     private boolean canPlaceWord(Word word, int row, int col, boolean horizontal) {
+        int i = 0;
         if (horizontal) {
             if (col + word.word.length() > gridSize) return false;
-            for (int i = 0; i < word.word.length(); i++) {
+            for (; i < word.word.length(); i++) {
                 if (grid[row][col + i] != EMPTY_CELL_CHAR && grid[row][col + i] != word.word.charAt(i)) {
                     return false;
                 }
             }
         } else {
             if (row + word.word.length() > gridSize) return false;
-            for (int i = 0; i < word.word.length(); i++) {
+            for (; i < word.word.length(); i++) {
                 if (grid[row + i][col] != EMPTY_CELL_CHAR && grid[row + i][col] != word.word.charAt(i)) {
                     return false;
                 }
             }
         }
+
+//        if (col + i < gridSize && grid[row][col + i] != EMPTY_CELL_CHAR) {
+//            return false; //don't want to have word end just before another word start:
+//            //TEST ok
+//            //VALUE ok
+//            //VALUETEST not ok
+//
+//            //VALUE [-] TEST ok
+//        }
+//
+//
+//        if (!horizontal && col + 1 < gridSize && grid[row][col + 1] != EMPTY_CELL_CHAR) {
+//            return false;
+//            //T  [-]  V
+//            //E  [-]  A
+//            //S  [-]  L
+//            //T  [-]  U
+//            //[-][-]  E
+//        }
+//
+//        if (!horizontal && col - 1 >= 0 && grid[row][col - 1] != EMPTY_CELL_CHAR) {
+//            return false;
+//            //T  [-]  V
+//            //E  [-]  A
+//            //S  [-]  L
+//            //T  [-]  U
+//            //[-][-]  E
+//        }
+//
+//        if (col + i - 1 > 0 && col + i - 1 < gridSize && grid[row][col + i - 1] != EMPTY_CELL_CHAR) {
+//            return false; //don't want to have word end just after another word:
+//            //TEST ok
+//            //VALUE ok
+//            //TESTVALUE not ok
+//
+//            //TEST [-] VALUE ok
+//        }
+//
+//        if (row + i < gridSize && grid[row + i][col] != EMPTY_CELL_CHAR) {
+//            return false; //don't want to have word end just before another word start:
+//            //V
+//            //A
+//            //L
+//            //U
+//            //E
+//            //TEST not ok, there is no work like VALUET
+//
+//            //V ok
+//            //A
+//            //L
+//            //U
+//            //E
+//            //[-]
+//            //TEST ok
+//        }
+//
+//        if (row + i - 1 > 0 && row + i - 1 < gridSize && grid[row + i - 1][col] != EMPTY_CELL_CHAR) {
+//            return false; //don't want to have word end just after another word:
+//            //TEST ok
+//            //V not ok, there is no work like TVALUE
+//            //A
+//            //L
+//            //U
+//            //E
+//
+//            //TEST ok
+//            //[-]
+//            //V ok
+//            //A
+//            //L
+//            //U
+//            //E
+//        }
         return true;
     }
 
@@ -347,5 +434,58 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
         public boolean isHorizontal() {
             return isHorizontal;
         }
+    }
+
+    public List<Word> smartSortWords(List<Word> words) {
+        if (words.isEmpty()) return words;
+
+        List<Word> sortedList = new ArrayList<>();
+        Set<Word> remainingWords = new HashSet<>(words);
+
+        Word firstWord = words.get(0);
+        sortedList.add(firstWord);
+        remainingWords.remove(firstWord);
+
+        while (!remainingWords.isEmpty()) {
+            Word lastAdded = sortedList.get(sortedList.size() - 1);
+            Word bestMatch = null;
+            int maxCommonLetters = -1;
+
+            for (Word candidate : remainingWords) {
+                int commonLetters = countCommonLetters(lastAdded.getWord(), candidate.getWord());
+                if (commonLetters > maxCommonLetters) {
+                    maxCommonLetters = commonLetters;
+                    bestMatch = candidate;
+                }
+            }
+
+            if (bestMatch != null) {
+                sortedList.add(bestMatch);
+                remainingWords.remove(bestMatch);
+            }
+        }
+
+        return sortedList;
+    }
+
+    private int countCommonLetters(String word1, String word2) {
+        Map<Character, Integer> freq1 = getLetterFrequencies(word1);
+        Map<Character, Integer> freq2 = getLetterFrequencies(word2);
+
+        int commonCount = 0;
+        for (char c : freq1.keySet()) {
+            if (freq2.containsKey(c)) {
+                commonCount += Math.min(freq1.get(c), freq2.get(c));
+            }
+        }
+        return commonCount;
+    }
+
+    private Map<Character, Integer> getLetterFrequencies(String word) {
+        Map<Character, Integer> frequency = new HashMap<>();
+        for (char c : word.toCharArray()) {
+            frequency.put(c, frequency.getOrDefault(c, 0) + 1);
+        }
+        return frequency;
     }
 }
