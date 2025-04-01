@@ -1,6 +1,5 @@
 package com.bervan.languageapp.service;
 
-import com.bervan.common.model.PersistableTableData;
 import com.bervan.languageapp.TranslationRecord;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class AddFlashcardService {
+public class AddFlashcardService implements AddAsFlashcardService {
     private final TranslationRecordService translationRecordService;
     private final TranslatorService translatorService;
     private final ExampleOfUsageService exampleOfUsageService;
@@ -22,11 +21,11 @@ public class AddFlashcardService {
         this.textToSpeechService = textToSpeechService;
     }
 
-    public void addAsFlashcardAsync(PersistableTableData item) {
+    public void addAsFlashcardAsync(FlashcardDetails item) {
         SecurityContext context = SecurityContextHolder.getContext();
         new Thread(() -> {
             SecurityContextHolder.setContext(context);
-            String name = item.getTableFilterableColumnValue();
+            String name = item.getValue();
             String translated = translatorService.translate(name);
             List<String> exampleOfUsage = exampleOfUsageService.createExampleOfUsage(name);
             String examples = exampleOfUsage.toString().replace("[", "").replace("]", "");
