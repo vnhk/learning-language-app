@@ -1,36 +1,46 @@
 package com.bervan.languageapp.service;
 
 import com.bervan.common.search.SearchService;
+import com.bervan.common.service.AIService;
 import com.bervan.common.service.AuthService;
 import com.bervan.common.service.BaseService;
+import com.bervan.common.service.OpenAIService;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.TranslationRecordRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class TranslationRecordService extends BaseService<UUID, TranslationRecord> {
     private final TranslationRecordRepository repository;
+    @Value("${openai.api.key}")
+    private String apiKey;
+    private final AIService languageLevelAI;
 
     public TranslationRecordService(TranslationRecordRepository repository,
                                     SearchService searchService) {
         super(repository, searchService);
         this.repository = repository;
+        this.languageLevelAI =
+                new OpenAIService(
+                        """
+                                Your task is to evaluate the language level of the given text.
+                                Your possible answers are: A1, A2, B1, B2, C1, C2.
+                                Example: "Hello, how are you?" -> A1
+                                Respond only with the language level. Nothing else.
+                                """);
     }
 
     public TranslationRecord save(TranslationRecord record) {
@@ -73,17 +83,20 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
     }
 
     private void setLevel(TranslationRecord record) {
-        if (record.getLevel() == null || record.getLevel().isBlank()) {
+        if (record.getLevel() == null || record.getLevel().isBlank() ||
+                "N/A".equals(record.getLevel())) {
             String level = autoDetermineLevel(record.getSourceText());
-            if (level != null) {
+            if (level == null || level.isBlank() ||
+                    !List.of("A1", "A2", "B1", "B2", "C1", "C2").contains(level)) {
                 record.setLevel("N/A");
+            } else {
+                record.setLevel(level);
             }
         }
     }
 
     private String autoDetermineLevel(String sourceText) {
-        // TODO: 28/12/2024
-        return "N/A";
+        return languageLevelAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.2, apiKey);
     }
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
