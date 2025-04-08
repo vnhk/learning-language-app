@@ -16,9 +16,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -78,7 +82,7 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         }
 
         for (String imageUrl : imageUrls) {
-            record.addImage(imageUrl);
+            record.addImage(convertImageToBase64(imageUrl));
         }
     }
 
@@ -102,6 +106,27 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public List<TranslationRecord> getAllForLearning(List<String> levels, Pageable pageable) {
         return repository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), levels, pageable);
+    }
+
+    private String convertImageToBase64(String img) {
+        if (img.startsWith("http")) {
+            try (InputStream inputStream = new URL(img).openStream();
+                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+
+                byte[] imageBytes = outputStream.toByteArray();
+                return Base64.getEncoder().encodeToString(imageBytes);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            return img;
+        }
     }
 
     public void updateNextLearningDate(UUID uuid, String score) {
