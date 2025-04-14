@@ -11,6 +11,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostFilter;
@@ -28,6 +30,7 @@ import java.util.UUID;
 
 @Service
 public class TranslationRecordService extends BaseService<UUID, TranslationRecord> {
+    private static final Logger log = LoggerFactory.getLogger(TranslationRecordService.class);
     private final TranslationRecordRepository repository;
     @Value("${openai.api.key}")
     private String apiKey;
@@ -53,36 +56,40 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
     }
 
     public void setNewAndReplaceImages(TranslationRecord record) {
-        List<String> imageUrls = new ArrayList<>();
-        Document doc = null;
         try {
-            doc = Jsoup.connect("https://unsplash.com/s/photos/" + record.getSourceText()).get();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        Elements links = doc.select("a[href^=/photos/]");
-
-        for (Element link : links) {
-            Elements images = link.select("img");
-            for (Element img : images) {
-                String imageUrl = img.absUrl("src");
-                if (imageUrls.size() > 10) {
-                    break;
-                }
-                imageUrls.add(imageUrl);
+            List<String> imageUrls = new ArrayList<>();
+            Document doc = null;
+            try {
+                doc = Jsoup.connect("https://unsplash.com/s/photos/" + record.getSourceText()).get();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        }
+            Elements links = doc.select("a[href^=/photos/]");
 
-        if (imageUrls.isEmpty()) {
-            return;
-        }
+            for (Element link : links) {
+                Elements images = link.select("img");
+                for (Element img : images) {
+                    String imageUrl = img.absUrl("src");
+                    if (imageUrls.size() > 10) {
+                        break;
+                    }
+                    imageUrls.add(imageUrl);
+                }
+            }
 
-        for (String image : record.getImages()) {
-            record.removeImage(image);
-        }
+            if (imageUrls.isEmpty()) {
+                return;
+            }
 
-        for (String imageUrl : imageUrls) {
-            record.addImage(convertImageToBase64(imageUrl));
+            for (String image : record.getImages()) {
+                record.removeImage(image);
+            }
+
+            for (String imageUrl : imageUrls) {
+                record.addImage(convertImageToBase64(imageUrl));
+            }
+        } catch (Exception e) {
+            log.error("Unable to load and set images!", e);
         }
     }
 
