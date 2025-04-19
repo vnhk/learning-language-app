@@ -34,17 +34,22 @@ public class AudioPlayer extends Component {
     }
 
     public void setSource(String audioInBase64) {
-        if (audioInBase64 == null || audioInBase64.isBlank() || audioInBase64.isEmpty()) {
-            this.setVisible(false);
-            return;
+        try {
+            if (audioInBase64 == null || audioInBase64.isBlank() || audioInBase64.isEmpty()) {
+                this.setVisible(false);
+                return;
+            }
+
+            StreamResource audioResource = new StreamResource(
+                    "audio.mp3",
+                    () -> new ByteArrayInputStream(Base64.getDecoder().decode(audioInBase64))
+            );
+
+            audioElement.getElement().setAttribute("src", audioResource);
+        } catch (Exception ignored) {
+
         }
 
-        StreamResource audioResource = new StreamResource(
-                "audio.mp3",
-                () -> new ByteArrayInputStream(Base64.getDecoder().decode(audioInBase64))
-        );
-
-        audioElement.getElement().setAttribute("src", audioResource);
     }
 
     public void toggleAudio() {
