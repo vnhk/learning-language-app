@@ -18,6 +18,7 @@ import java.util.UUID;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class TranslationRecord extends BervanBaseEntity<UUID> implements PersistableTableData<UUID>, ExcelIEEntity<UUID> {
     public static final String TranslationRecord_sourceText_columnName = "sourceText";
+    public static final String TranslationRecord_markedForLearning_columnName = "markedForLearning";
     public static final String TranslationRecord_textTranslation_columnName = "textTranslation";
     public static final String TranslationRecord_inSentence_columnName = "inSentence";
     public static final String TranslationRecord_level_columnName = "level";
@@ -51,8 +52,10 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     private String inSentenceSound;
     @VaadinTableColumn(displayName = "Factor", internalName = TranslationRecord_factor_columnName, inSaveForm = false)
     private Integer factor;
-    @VaadinTableColumn(displayName = "Next Repetition Time", internalName = TranslationRecord_nextRepeatTime_columnName, inSaveForm = false)
+    @VaadinTableColumn(displayName = "Repeat", internalName = TranslationRecord_nextRepeatTime_columnName, inSaveForm = false)
     private LocalDateTime nextRepeatTime;
+    @VaadinTableColumn(displayName = "Learn", internalName = TranslationRecord_markedForLearning_columnName)
+    private boolean markedForLearning = true;
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "images", joinColumns = @JoinColumn(name = "library_id"))
     @Column(name = "image", nullable = false, length = 1000000000)
@@ -213,109 +216,11 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
         images.remove(image);
     }
 
-    public static final class TranslationRecordBuilder {
-        private UUID id;
-        private Boolean deleted;
-        private @Size(max = 2000) String sourceText;
-        private @Size(max = 2000) String textTranslation;
-        private String type;
-        private String level;
-        private @Size(max = 2000) String inSentence;
-        private @Size(max = 2000) String inSentenceTranslation;
-        private @Size(max = 1000000000) String textSound;
-        private @Size(max = 1000000000) String inSentenceSound;
-        private LocalDateTime nextRepeatTime;
+    public boolean isMarkedForLearning() {
+        return markedForLearning;
+    }
 
-        public TranslationRecordBuilder() {
-        }
-
-        public TranslationRecordBuilder(TranslationRecord other) {
-            this.id = other.id;
-            this.deleted = other.deleted;
-            this.sourceText = other.sourceText;
-            this.textTranslation = other.textTranslation;
-            this.type = other.type;
-            this.level = other.level;
-            this.inSentence = other.inSentence;
-            this.inSentenceTranslation = other.inSentenceTranslation;
-            this.textSound = other.textSound;
-            this.inSentenceSound = other.inSentenceSound;
-            this.nextRepeatTime = other.nextRepeatTime;
-        }
-
-        public static TranslationRecordBuilder aTranslationRecord() {
-            return new TranslationRecordBuilder();
-        }
-
-        public TranslationRecordBuilder withId(UUID id) {
-            this.id = id;
-            return this;
-        }
-
-        public TranslationRecordBuilder withLevel(String level) {
-            this.level = level;
-            return this;
-        }
-
-        public TranslationRecordBuilder withDeleted(Boolean deleted) {
-            this.deleted = deleted;
-            return this;
-        }
-
-        public TranslationRecordBuilder withSourceText(String sourceText) {
-            this.sourceText = sourceText;
-            return this;
-        }
-
-        public TranslationRecordBuilder withTextTranslation(String textTranslation) {
-            this.textTranslation = textTranslation;
-            return this;
-        }
-
-        public TranslationRecordBuilder withType(String type) {
-            this.type = type;
-            return this;
-        }
-
-        public TranslationRecordBuilder withInSentence(String inSentence) {
-            this.inSentence = inSentence;
-            return this;
-        }
-
-        public TranslationRecordBuilder withInSentenceTranslation(String inSentenceTranslation) {
-            this.inSentenceTranslation = inSentenceTranslation;
-            return this;
-        }
-
-        public TranslationRecordBuilder withTextSound(String textSound) {
-            this.textSound = textSound;
-            return this;
-        }
-
-        public TranslationRecordBuilder withInSentenceSound(String inSentenceSound) {
-            this.inSentenceSound = inSentenceSound;
-            return this;
-        }
-
-        public TranslationRecordBuilder withNextRepeatTime(LocalDateTime nextRepeatTime) {
-            this.nextRepeatTime = nextRepeatTime;
-            return this;
-        }
-
-        public TranslationRecord build() {
-            TranslationRecord translationRecord = new TranslationRecord();
-            translationRecord.setId(id);
-            translationRecord.setDeleted(deleted);
-            translationRecord.setSourceText(sourceText);
-            translationRecord.setTextTranslation(textTranslation);
-            translationRecord.setType(type);
-            translationRecord.setInSentence(inSentence);
-            translationRecord.setInSentenceTranslation(inSentenceTranslation);
-            translationRecord.setTextSound(textSound);
-            translationRecord.setInSentenceSound(inSentenceSound);
-            translationRecord.nextRepeatTime = this.nextRepeatTime;
-            translationRecord.setLevel(this.level);
-            return translationRecord;
-        }
+    public void setMarkedForLearning(boolean markedForLearning) {
+        this.markedForLearning = markedForLearning;
     }
 }

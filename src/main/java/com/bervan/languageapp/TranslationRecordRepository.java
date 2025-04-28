@@ -23,6 +23,7 @@ public interface TranslationRecordRepository extends BaseRepository<TranslationR
             "JOIN t.owners o " +
             "WHERE (t.deleted IS FALSE OR t.deleted IS NULL) " +
             "AND (t.nextRepeatTime IS NULL OR t.nextRepeatTime < :dateTime) " +
+            "AND t.markedForLearning IS TRUE " +
             "AND o.id = :ownerId " +
             "AND t.level IN :levels " +
             "ORDER BY t.sourceText ASC")

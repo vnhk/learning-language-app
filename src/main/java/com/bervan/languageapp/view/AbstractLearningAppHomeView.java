@@ -2,6 +2,8 @@ package com.bervan.languageapp.view;
 
 import com.bervan.common.AbstractTableView;
 import com.bervan.common.AutoConfigurableField;
+import com.bervan.common.BervanButton;
+import com.bervan.common.BervanButtonStyle;
 import com.bervan.core.model.BervanLogger;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.ExampleOfUsageService;
@@ -12,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
@@ -23,6 +26,7 @@ import io.micrometer.common.util.StringUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAddAudioIfExist;
@@ -34,6 +38,8 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
     private final TranslatorService translationService;
     private Checkbox saveSpeech;
     private Checkbox getImages;
+    private BervanButton markToLearnButton;
+    private BervanButton markNotToLearnButton;
     private Map<String, String> helpfulLinks = ImmutableMap.of("https://youglish.com", "The page that finds words in youtube videos");
 
     public AbstractLearningAppHomeView(TranslationRecordService translatorRecordService,
@@ -46,7 +52,80 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
         this.translationService = translationService;
         renderCommonComponents();
         buildHelpfulPagesLinks();
+
+        markToLearnButton = new BervanButton("Set to learn", setToLearnEvent -> {
+            ConfirmDialog confirmDialog = new ConfirmDialog();
+            confirmDialog.setHeader("Confirm set to learn");
+            confirmDialog.setText("Are you sure you want to mark the selected items as: to learn?");
+
+            confirmDialog.setConfirmText("Yes");
+            confirmDialog.setConfirmButtonTheme("primary");
+            confirmDialog.addConfirmListener(event -> {
+                Set<String> itemsId = getSelectedItemsByCheckbox();
+
+                List<TranslationRecord> toSet = data.stream()
+                        .filter(e -> e.getId() != null)
+                        .filter(e -> itemsId.contains(e.getId().toString()))
+                        .filter(e -> !e.isMarkedForLearning())
+                        .toList();
+
+                for (TranslationRecord translationRecord : toSet) {
+                    translationRecord.setMarkedForLearning(true);
+                    service.save(translationRecord);
+                    this.grid.getDataProvider().refreshItem(translationRecord);
+                }
+
+                showSuccessNotification("Changed state of " + toSet.size() + " items");
+            });
+
+            confirmDialog.setCancelText("Cancel");
+            confirmDialog.setCancelable(true);
+            confirmDialog.addCancelListener(event -> {
+            });
+
+            confirmDialog.open();
+        }, BervanButtonStyle.SECONDARY);
+
+        markNotToLearnButton = new BervanButton("Set not to learn", setNotToLearnEvent -> {
+            ConfirmDialog confirmDialog = new ConfirmDialog();
+            confirmDialog.setHeader("Confirm set not to learn");
+            confirmDialog.setText("Are you sure you want to mark the selected items as: not to learn?");
+
+            confirmDialog.setConfirmText("Yes");
+            confirmDialog.setConfirmButtonTheme("primary");
+            confirmDialog.addConfirmListener(event -> {
+                Set<String> itemsId = getSelectedItemsByCheckbox();
+
+                List<TranslationRecord> toSet = data.stream()
+                        .filter(e -> e.getId() != null)
+                        .filter(e -> itemsId.contains(e.getId().toString()))
+                        .filter(TranslationRecord::isMarkedForLearning)
+                        .toList();
+
+                for (TranslationRecord translationRecord : toSet) {
+                    translationRecord.setMarkedForLearning(false);
+                    service.save(translationRecord);
+                    this.grid.getDataProvider().refreshItem(translationRecord);
+                }
+
+                showSuccessNotification("Changed state of " + toSet.size() + " items");
+            });
+
+            confirmDialog.setCancelText("Cancel");
+            confirmDialog.setCancelable(true);
+            confirmDialog.addCancelListener(event -> {
+            });
+
+            confirmDialog.open();
+        }, BervanButtonStyle.SECONDARY);
+
+        checkboxActions.remove(checkboxDeleteButton);
+        checkboxActions.add(markToLearnButton);
+        checkboxActions.add(markNotToLearnButton);
+        checkboxActions.add(checkboxDeleteButton);
     }
+
+
 
     @Override
     protected Grid<TranslationRecord> getGrid() {
