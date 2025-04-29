@@ -88,7 +88,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
             });
 
             confirmDialog.open();
-        }, BervanButtonStyle.SECONDARY);
+        }, BervanButtonStyle.WARNING);
 
         markNotToLearnButton = new BervanButton("Deactivate", setNotToLearnEvent -> {
             ConfirmDialog confirmDialog = new ConfirmDialog();
@@ -124,7 +124,13 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
             });
 
             confirmDialog.open();
-        }, BervanButtonStyle.SECONDARY);
+        }, BervanButtonStyle.WARNING);
+
+        buttonsForCheckboxesForVisibilityChange.add(markNotToLearnButton);
+        buttonsForCheckboxesForVisibilityChange.add(markToLearnButton);
+        for (Button button : buttonsForCheckboxesForVisibilityChange) {
+            button.setEnabled(false);
+        }
 
         checkboxActions.remove(checkboxDeleteButton);
         checkboxActions.add(markToLearnButton);

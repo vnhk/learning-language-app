@@ -32,4 +32,18 @@ public interface TranslationRecordRepository extends BaseRepository<TranslationR
             @Param("ownerId") UUID ownerId,
             @Param("levels") List<String> levels,
             Pageable pageable);
+
+    @Query(value = """
+                SELECT * FROM translation_record t
+                JOIN translation_record_owners o ON t.id = o.translation_record_id
+                WHERE (t.deleted IS FALSE OR t.deleted IS NULL)
+                  AND t.marked_for_learning IS TRUE
+                  AND o.owners_id = :ownerId
+                  AND t.level IN (:levels)
+                ORDER BY RAND()
+            """, nativeQuery = true)
+    List<TranslationRecord> getRecordsForQuiz(
+            @Param("ownerId") UUID ownerId,
+            @Param("levels") List<String> levels,
+            Pageable pageable);
 }

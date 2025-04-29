@@ -115,6 +115,11 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         return repository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), levels, pageable);
     }
 
+    @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
+    public List<TranslationRecord> getRecordsForQuiz(List<String> levels, Pageable pageable) {
+        return repository.getRecordsForQuiz(AuthService.getLoggedUserId(), levels, pageable);
+    }
+
     private String convertImageToBase64(String img) {
         if (img.startsWith("http")) {
             try (InputStream inputStream = new URL(img).openStream();
