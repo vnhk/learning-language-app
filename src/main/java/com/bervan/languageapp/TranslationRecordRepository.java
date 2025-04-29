@@ -40,7 +40,7 @@ public interface TranslationRecordRepository extends BaseRepository<TranslationR
                   AND t.marked_for_learning IS TRUE
                   AND o.owners_id = :ownerId
                   AND t.level IN (:levels)
-                ORDER BY RAND()
+                ORDER BY t.factor ASC
             """, nativeQuery = true)
     List<TranslationRecord> getRecordsForQuiz(
             @Param("ownerId") UUID ownerId,
