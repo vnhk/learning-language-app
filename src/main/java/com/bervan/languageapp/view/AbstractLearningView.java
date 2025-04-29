@@ -97,13 +97,14 @@ public abstract class AbstractLearningView extends AbstractPageView {
         // =========================
         // 1. SETUP LEVEL CHECKBOXES
         // =========================
-        // By default, A1, A2, B1, B2 are selected
+        // By default, all are selected
         levelNotClass.setValue(true);
         levelA1.setValue(true);
         levelA2.setValue(true);
         levelB1.setValue(true);
         levelB2.setValue(true);
-        // C1, C2 remain unchecked by default
+        levelC1.setValue(true);
+        levelC2.setValue(true);
 
         loadLearningRecords();
 
