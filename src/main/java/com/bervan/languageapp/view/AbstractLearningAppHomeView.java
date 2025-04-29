@@ -11,6 +11,7 @@ import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.google.common.collect.ImmutableMap;
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -53,10 +54,10 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
         renderCommonComponents();
         buildHelpfulPagesLinks();
 
-        markToLearnButton = new BervanButton("Set to learn", setToLearnEvent -> {
+        markToLearnButton = new BervanButton("Activate", setToLearnEvent -> {
             ConfirmDialog confirmDialog = new ConfirmDialog();
-            confirmDialog.setHeader("Confirm set to learn");
-            confirmDialog.setText("Are you sure you want to mark the selected items as: to learn?");
+            confirmDialog.setHeader("Confirm activation");
+            confirmDialog.setText("Are you sure you want to activate selected item(s)?");
 
             confirmDialog.setConfirmText("Yes");
             confirmDialog.setConfirmButtonTheme("primary");
@@ -72,9 +73,12 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
                 for (TranslationRecord translationRecord : toSet) {
                     translationRecord.setMarkedForLearning(true);
                     service.save(translationRecord);
-                    this.grid.getDataProvider().refreshItem(translationRecord);
                 }
 
+                checkboxes.stream().filter(AbstractField::getValue).forEach(e -> e.setValue(false));
+                selectAllCheckbox.setValue(false);
+
+                refreshData();
                 showSuccessNotification("Changed state of " + toSet.size() + " items");
             });
 
@@ -86,10 +90,10 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
             confirmDialog.open();
         }, BervanButtonStyle.SECONDARY);
 
-        markNotToLearnButton = new BervanButton("Set not to learn", setNotToLearnEvent -> {
+        markNotToLearnButton = new BervanButton("Deactivate", setNotToLearnEvent -> {
             ConfirmDialog confirmDialog = new ConfirmDialog();
-            confirmDialog.setHeader("Confirm set not to learn");
-            confirmDialog.setText("Are you sure you want to mark the selected items as: not to learn?");
+            confirmDialog.setHeader("Confirm deactivation");
+            confirmDialog.setText("Are you sure you want to deactivate selected item(s)?");
 
             confirmDialog.setConfirmText("Yes");
             confirmDialog.setConfirmButtonTheme("primary");
@@ -105,9 +109,12 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
                 for (TranslationRecord translationRecord : toSet) {
                     translationRecord.setMarkedForLearning(false);
                     service.save(translationRecord);
-                    this.grid.getDataProvider().refreshItem(translationRecord);
                 }
 
+                checkboxes.stream().filter(AbstractField::getValue).forEach(e -> e.setValue(false));
+                selectAllCheckbox.setValue(false);
+
+                refreshData();
                 showSuccessNotification("Changed state of " + toSet.size() + " items");
             });
 
