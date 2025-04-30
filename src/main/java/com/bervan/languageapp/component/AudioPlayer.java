@@ -8,11 +8,13 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
 
 @Tag("Div")
+@Slf4j
 public class AudioPlayer extends Component {
 
     private AudioElement audioElement;
@@ -42,7 +44,7 @@ public class AudioPlayer extends Component {
 
             StreamResource audioResource = new StreamResource(
                     "audio.mp3",
-                    () -> new ByteArrayInputStream(Base64.getDecoder().decode(audioInBase64))
+                    () -> new ByteArrayInputStream(getDecode(audioInBase64))
             );
 
             audioElement.getElement().setAttribute("src", audioResource);
@@ -50,6 +52,15 @@ public class AudioPlayer extends Component {
 
         }
 
+    }
+
+    private static byte[] getDecode(String audioInBase64) {
+        try {
+            return Base64.getDecoder().decode(audioInBase64);
+        } catch (IllegalArgumentException e) {
+            log.error("Incorrect base64 audio.");
+            return new byte[0];
+        }
     }
 
     public void toggleAudio() {
