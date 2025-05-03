@@ -54,7 +54,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     private Integer factor;
     @VaadinTableColumn(displayName = "Repeat", internalName = TranslationRecord_nextRepeatTime_columnName, inSaveForm = false)
     private LocalDateTime nextRepeatTime;
-    @VaadinTableColumn(displayName = "Learn", internalName = TranslationRecord_markedForLearning_columnName)
+    @VaadinTableColumn(displayName = "Learn", internalName = TranslationRecord_markedForLearning_columnName, inSaveForm = false)
     private boolean markedForLearning = true;
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "images", joinColumns = @JoinColumn(name = "library_id"))
