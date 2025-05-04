@@ -234,6 +234,8 @@ public abstract class AbstractLearningView extends AbstractPageView {
             // If still no cards, show a notification
             if (all.isEmpty()) {
                 showPrimaryNotification("No flashcards for that moment. Come back later!");
+                flashcardLeftCounter = new H2("Flashcards left: 0");
+                add(flashcardLeftCounter);
                 return;
             }
         }
