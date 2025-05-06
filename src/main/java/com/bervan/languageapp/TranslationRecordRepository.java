@@ -48,6 +48,6 @@ public interface TranslationRecordRepository extends BaseRepository<TranslationR
             Pageable pageable);
 
 
-    @Query("SELECT tr.id, tr.images FROM TranslationRecord tr WHERE tr.deleted = false AND tr.id IN :ids")
+    @Query("SELECT tr.id, tr.images FROM TranslationRecord tr WHERE tr.id IN (:ids)")
     List<Object[]> getImages(@Param("ids") List<UUID> ids);
 }

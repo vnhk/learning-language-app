@@ -23,10 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class TranslationRecordService extends BaseService<UUID, TranslationRecord> {
@@ -217,8 +214,16 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
 
     public void loadImages(List<TranslationRecord> collect) {
         List<Object[]> imagesMapping = repository.getImages(collect.stream().map(TranslationRecord::getId).toList());
+        Map<UUID, List<String>> images = new HashMap<>();
+        for (Object[] objects : imagesMapping) {
+            UUID uuid = (UUID) objects[0];
+            String img = (String) objects[1];
+            images.computeIfAbsent(uuid, k -> new ArrayList<>());
+            images.get(uuid).add(img);
+        }
 
         for (TranslationRecord translationRecord : collect) {
+            translationRecord.getImages().addAll(images.get(translationRecord.getId()));
         }
     }
 }
