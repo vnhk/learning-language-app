@@ -46,4 +46,8 @@ public interface TranslationRecordRepository extends BaseRepository<TranslationR
             @Param("ownerId") UUID ownerId,
             @Param("levels") List<String> levels,
             Pageable pageable);
+
+
+    @Query("SELECT tr.id, tr.images FROM TranslationRecord tr WHERE tr.deleted = false AND tr.id IN :ids")
+    List<Object[]> getImages(@Param("ids") List<UUID> ids);
 }
