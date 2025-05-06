@@ -239,6 +239,13 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
         return newTranslationRecord;
     }
 
+    @Override
+    protected void postSearchUpdate(List<TranslationRecord> collect) {
+        super.postSearchUpdate(collect);
+
+        ((TranslationRecordService) service).loadImages(collect);
+    }
+
     private Checkbox getSaveSpeech() {
         Checkbox saveSpeech = new Checkbox("Save sound as file", false);
         saveSpeech.setWidth("200px");

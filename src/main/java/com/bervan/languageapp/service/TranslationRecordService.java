@@ -214,4 +214,11 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
             save(datum);
         }
     }
+
+    public void loadImages(List<TranslationRecord> collect) {
+        List<Object[]> imagesMapping = repository.getImages(collect.stream().map(TranslationRecord::getId).toList());
+
+        for (TranslationRecord translationRecord : collect) {
+        }
+    }
 }
