@@ -223,7 +223,9 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         }
 
         for (TranslationRecord translationRecord : collect) {
-            translationRecord.getImages().addAll(images.get(translationRecord.getId()));
+            if (images.get(translationRecord.getId()) != null) {
+                translationRecord.setImages(images.get(translationRecord.getId()));
+            }
         }
     }
 }

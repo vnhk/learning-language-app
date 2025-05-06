@@ -208,6 +208,10 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
         return images;
     }
 
+    public void setImages(List<String> images) {
+        this.images = images;
+    }
+
     public void addImage(String image) {
         images.add(image);
     }
