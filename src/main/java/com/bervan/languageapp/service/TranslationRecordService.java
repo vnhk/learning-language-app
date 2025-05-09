@@ -49,7 +49,11 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
 
     public TranslationRecord save(TranslationRecord record) {
         setLevel(record);
-        return repository.save(record);
+        try {
+            return repository.save(record);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void setNewAndReplaceImages(TranslationRecord record) {
