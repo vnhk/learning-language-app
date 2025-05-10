@@ -290,7 +290,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
     }
 
     @Override
-    protected void customPreUpdate(String clickedColumn, VerticalLayout layoutForField, TranslationRecord item, Field finalField, AutoConfigurableField finalComponentWithValue) {
+    protected TranslationRecord customPreUpdate(String clickedColumn, VerticalLayout layoutForField, TranslationRecord item, Field finalField, AutoConfigurableField finalComponentWithValue) {
         super.customPreUpdate(clickedColumn, layoutForField, item, finalField, finalComponentWithValue);
 
         int componentCount = layoutForField.getComponentCount();
@@ -320,6 +320,8 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
                 }
             }
         }
+
+        return item;
     }
 
     @Override
