@@ -72,7 +72,9 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
 
                 for (TranslationRecord translationRecord : toSet) {
                     translationRecord.setMarkedForLearning(true);
-                    service.save(translationRecord);
+                    TranslationRecord translationRecordInDB = service.loadById(translationRecord.getId()).get();
+                    translationRecordInDB.setMarkedForLearning(true);
+                    service.save(translationRecordInDB);
                 }
 
                 checkboxes.stream().filter(AbstractField::getValue).forEach(e -> e.setValue(false));
@@ -108,7 +110,9 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
 
                 for (TranslationRecord translationRecord : toSet) {
                     translationRecord.setMarkedForLearning(false);
-                    service.save(translationRecord);
+                    TranslationRecord translationRecordInDB = service.loadById(translationRecord.getId()).get();
+                    translationRecordInDB.setMarkedForLearning(false);
+                    service.save(translationRecordInDB);
                 }
 
                 checkboxes.stream().filter(AbstractField::getValue).forEach(e -> e.setValue(false));
@@ -291,7 +295,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID
 
     @Override
     protected TranslationRecord customPreUpdate(String clickedColumn, VerticalLayout layoutForField, TranslationRecord item, Field finalField, AutoConfigurableField finalComponentWithValue) {
-        super.customPreUpdate(clickedColumn, layoutForField, item, finalField, finalComponentWithValue);
+        item = super.customPreUpdate(clickedColumn, layoutForField, item, finalField, finalComponentWithValue);
 
         int componentCount = layoutForField.getComponentCount();
         for (int i = 0; i < componentCount; i++) {
