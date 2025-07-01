@@ -7,6 +7,8 @@ import com.bervan.common.service.BaseService;
 import com.bervan.common.service.OpenAIService;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.TranslationRecordRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,9 +31,10 @@ import java.util.*;
 public class TranslationRecordService extends BaseService<UUID, TranslationRecord> {
     private static final Logger log = LoggerFactory.getLogger(TranslationRecordService.class);
     private final TranslationRecordRepository repository;
+    private final AIService languageLevelAI;
+    private final AIService usefulPhrasesAI;
     @Value("${openai.api.key}")
     private String apiKey;
-    private final AIService languageLevelAI;
 
     public TranslationRecordService(TranslationRecordRepository repository,
                                     SearchService searchService) {
@@ -45,6 +48,69 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
                                 Example: "Hello, how are you?" -> A1
                                 Respond only with the language level. Nothing else.
                                 """);
+        usefulPhrasesAI = new OpenAIService("""
+                You are an English language learning assistant for a Polish user.
+                Your task is to analyze subtitles from an episode of a TV series or a movie, extract only useful sentences or phrases worth learning with at least B2-level English (skip random slang, filler words, or swear words), and return them in JSON format.
+                
+                JSON format for each item:
+                {
+                  "sourceText": "English sentence (feel free to slightly modify the sentence for clarity)",
+                  "textTranslation": "Polish translation",
+                  "level": "Estimated CEFR level (minimum B2; skip easier sentences; allowed values: B2, C1, C2)"
+                }
+                
+                Example output:
+                [
+                  {
+                    "sourceText": "This is your first useful sentence.",
+                    "textTranslation": "To jest twoje pierwsze przydatne zdanie.",
+                    "level": "C1"
+                  },
+                  {
+                    "sourceText": "Here's another practical phrase.",
+                    "textTranslation": "Oto kolejny praktyczny zwrot.",
+                    "level": "B2"
+                  }
+                ]
+                
+                Return only meaningful expressions that would be practical for conversations or understanding English media.
+                """);
+    }
+
+    public static LocalDateTime getNextRepeatTime(Integer factor, String score) {
+        return LocalDateTime.now().plusHours(getHoursUntilNextRepeatTime(factor, score));
+    }
+
+    public static int getHoursUntilNextRepeatTime(Integer factor, String score) {
+        if (score.equals("AGAIN")) {
+            return 0; //again means that card will appear in the same learning session
+        }
+
+        if (factor >= 50) {
+            return 200 + factor;
+        }
+
+        return factor * 4;
+    }
+
+    public static int getNextFactor(String score, Integer factor) {
+        if (factor == null) {
+            return 1;
+        }
+
+        if (factor < 1) {
+            factor = 1;
+        }
+
+        return switch (score) {
+            //again means that you forgot or its new word, when you spent 3 months learning this word
+            //you don't want to reset your progress to 1.
+            case "AGAIN" -> Math.min(1, (int) (factor / 2.0));
+            case "HARD" -> (int) Math.max(1, factor * 0.6);
+            case "GOOD" -> factor * 2;
+            case "EASY" -> factor * 4;
+            default -> throw new IllegalArgumentException("Invalid grade");
+        };
     }
 
     public TranslationRecord save(TranslationRecord record) {
@@ -111,6 +177,21 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         return languageLevelAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.2, apiKey);
     }
 
+    public List<TranslationRecord> createUsefulPhrasesForInputText(String sourceText) {
+        try {
+            String jsonResponse = usefulPhrasesAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.1, apiKey);
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(
+                    jsonResponse,
+                    new TypeReference<List<TranslationRecord>>() {
+                    }
+            );
+        } catch (Exception e) {
+            log.error("Failed to createUsefulPhrasesForInputText!", e);
+            throw new RuntimeException("Failed to create useful phrases!");
+        }
+    }
+
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public List<TranslationRecord> getAllForLearning(List<String> levels, Pageable pageable) {
         return repository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), levels, pageable);
@@ -155,42 +236,6 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
                 getNextRepeatTime(nextFactor, score)
         );
         repository.save(translationRecord);
-    }
-
-    public static LocalDateTime getNextRepeatTime(Integer factor, String score) {
-        return LocalDateTime.now().plusHours(getHoursUntilNextRepeatTime(factor, score));
-    }
-
-    public static int getHoursUntilNextRepeatTime(Integer factor, String score) {
-        if (score.equals("AGAIN")) {
-            return 0; //again means that card will appear in the same learning session
-        }
-
-        if (factor >= 50) {
-            return 200 + factor;
-        }
-
-        return factor * 4;
-    }
-
-    public static int getNextFactor(String score, Integer factor) {
-        if (factor == null) {
-            return 1;
-        }
-
-        if (factor < 1) {
-            factor = 1;
-        }
-
-        return switch (score) {
-            //again means that you forgot or its new word, when you spent 3 months learning this word
-            //you don't want to reset your progress to 1.
-            case "AGAIN" -> Math.min(1, (int) (factor / 2.0));
-            case "HARD" -> (int) Math.max(1, factor * 0.6);
-            case "GOOD" -> factor * 2;
-            case "EASY" -> factor * 4;
-            default -> throw new IllegalArgumentException("Invalid grade");
-        };
     }
 
     public void delete(TranslationRecord record) {
