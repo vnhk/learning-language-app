@@ -1,6 +1,6 @@
 package com.bervan.languageapp.view;
 
-import com.bervan.common.AbstractTableView;
+import com.bervan.common.AbstractBervanTableView;
 import com.bervan.common.AutoConfigurableField;
 import com.bervan.common.BervanButton;
 import com.bervan.common.BervanButtonStyle;
@@ -32,7 +32,7 @@ import java.util.UUID;
 
 import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAddAudioIfExist;
 
-public abstract class AbstractLearningAppHomeView extends AbstractTableView<UUID, TranslationRecord> {
+public abstract class AbstractLearningAppHomeView extends AbstractBervanTableView<UUID, TranslationRecord> {
     public static final String ROUTE_NAME = "learning-english-app/home";
     private final ExampleOfUsageService exampleOfUsageService;
     private final TextToSpeechService textToSpeechService;
