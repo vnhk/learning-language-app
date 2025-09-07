@@ -1,6 +1,6 @@
 package com.bervan.languageapp.view;
 
-import com.bervan.common.BervanButton;
+import com.bervan.common.component.BervanButton;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.ExampleOfUsageService;
 import com.bervan.languageapp.service.TranslationRecordService;

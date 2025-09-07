@@ -1,6 +1,6 @@
 package com.bervan.languageapp.component;
 
-import com.bervan.common.BervanImageViewer;
+import com.bervan.common.component.BervanImageViewer;
 import com.bervan.languageapp.TranslationRecord;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.button.Button;

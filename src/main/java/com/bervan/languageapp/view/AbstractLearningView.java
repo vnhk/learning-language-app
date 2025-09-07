@@ -1,6 +1,6 @@
 package com.bervan.languageapp.view;
 
-import com.bervan.common.AbstractPageView;
+import com.bervan.common.view.AbstractPageView;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.Flashcard;
 import com.bervan.languageapp.service.TranslationRecordService;

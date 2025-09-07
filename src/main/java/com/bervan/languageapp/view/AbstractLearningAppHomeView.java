@@ -1,9 +1,9 @@
 package com.bervan.languageapp.view;
 
-import com.bervan.common.AbstractBervanTableView;
-import com.bervan.common.AutoConfigurableField;
-import com.bervan.common.BervanButton;
-import com.bervan.common.BervanButtonStyle;
+import com.bervan.common.view.AbstractBervanTableView;
+import com.bervan.common.component.AutoConfigurableField;
+import com.bervan.common.component.BervanButton;
+import com.bervan.common.component.BervanButtonStyle;
 import com.bervan.core.model.BervanLogger;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.ExampleOfUsageService;

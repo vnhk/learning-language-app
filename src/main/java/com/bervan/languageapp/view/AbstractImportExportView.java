@@ -1,6 +1,6 @@
 package com.bervan.languageapp.view;
 
-import com.bervan.common.AbstractDataIEView;
+import com.bervan.common.view.AbstractDataIEView;
 import com.bervan.core.model.BervanLogger;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.TranslationRecordService;
