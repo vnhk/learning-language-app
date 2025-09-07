@@ -1,21 +1,18 @@
 package com.bervan.languageapp.view;
 
-import com.bervan.common.view.AbstractBervanTableView;
 import com.bervan.common.component.AutoConfigurableField;
-import com.bervan.common.component.BervanButton;
-import com.bervan.common.component.BervanButtonStyle;
+import com.bervan.common.view.AbstractBervanTableView;
 import com.bervan.core.model.BervanLogger;
 import com.bervan.languageapp.TranslationRecord;
+import com.bervan.languageapp.component.LearningLanguageTableToolbar;
 import com.bervan.languageapp.service.ExampleOfUsageService;
 import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.google.common.collect.ImmutableMap;
-import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
@@ -27,7 +24,6 @@ import io.micrometer.common.util.StringUtils;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAddAudioIfExist;
@@ -39,8 +35,6 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
     private final TranslatorService translationService;
     private Checkbox saveSpeech;
     private Checkbox getImages;
-    private BervanButton markToLearnButton;
-    private BervanButton markNotToLearnButton;
     private Map<String, String> helpfulLinks = ImmutableMap.of("https://youglish.com", "The page that finds words in youtube videos");
 
     public AbstractLearningAppHomeView(TranslationRecordService translatorRecordService,
@@ -53,96 +47,18 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
         this.translationService = translationService;
         renderCommonComponents();
         buildHelpfulPagesLinks();
-
-        markToLearnButton = new BervanButton("Activate", setToLearnEvent -> {
-            ConfirmDialog confirmDialog = new ConfirmDialog();
-            confirmDialog.setHeader("Confirm activation");
-            confirmDialog.setText("Are you sure you want to activate selected item(s)?");
-
-            confirmDialog.setConfirmText("Yes");
-            confirmDialog.setConfirmButtonTheme("primary");
-            confirmDialog.addConfirmListener(event -> {
-                Set<String> itemsId = getSelectedItemsByCheckbox();
-
-                List<TranslationRecord> toSet = data.stream()
-                        .filter(e -> e.getId() != null)
-                        .filter(e -> itemsId.contains(e.getId().toString()))
-                        .filter(e -> !e.isMarkedForLearning())
-                        .toList();
-
-                for (TranslationRecord translationRecord : toSet) {
-                    translationRecord.setMarkedForLearning(true);
-                    TranslationRecord translationRecordInDB = service.loadById(translationRecord.getId()).get();
-                    translationRecordInDB.setMarkedForLearning(true);
-                    service.save(translationRecordInDB);
-                }
-
-                checkboxes.stream().filter(AbstractField::getValue).forEach(e -> e.setValue(false));
-                selectAllCheckbox.setValue(false);
-
-                refreshData();
-                showSuccessNotification("Changed state of " + toSet.size() + " items");
-            });
-
-            confirmDialog.setCancelText("Cancel");
-            confirmDialog.setCancelable(true);
-            confirmDialog.addCancelListener(event -> {
-            });
-
-            confirmDialog.open();
-        }, BervanButtonStyle.WARNING);
-
-        markNotToLearnButton = new BervanButton("Deactivate", setNotToLearnEvent -> {
-            ConfirmDialog confirmDialog = new ConfirmDialog();
-            confirmDialog.setHeader("Confirm deactivation");
-            confirmDialog.setText("Are you sure you want to deactivate selected item(s)?");
-
-            confirmDialog.setConfirmText("Yes");
-            confirmDialog.setConfirmButtonTheme("primary");
-            confirmDialog.addConfirmListener(event -> {
-                Set<String> itemsId = getSelectedItemsByCheckbox();
-
-                List<TranslationRecord> toSet = data.stream()
-                        .filter(e -> e.getId() != null)
-                        .filter(e -> itemsId.contains(e.getId().toString()))
-                        .filter(TranslationRecord::isMarkedForLearning)
-                        .toList();
-
-                for (TranslationRecord translationRecord : toSet) {
-                    translationRecord.setMarkedForLearning(false);
-                    TranslationRecord translationRecordInDB = service.loadById(translationRecord.getId()).get();
-                    translationRecordInDB.setMarkedForLearning(false);
-                    service.save(translationRecordInDB);
-                }
-
-                checkboxes.stream().filter(AbstractField::getValue).forEach(e -> e.setValue(false));
-                selectAllCheckbox.setValue(false);
-
-                refreshData();
-                showSuccessNotification("Changed state of " + toSet.size() + " items");
-            });
-
-            confirmDialog.setCancelText("Cancel");
-            confirmDialog.setCancelable(true);
-            confirmDialog.addCancelListener(event -> {
-            });
-
-            confirmDialog.open();
-        }, BervanButtonStyle.WARNING);
-
-        buttonsForCheckboxesForVisibilityChange.add(markNotToLearnButton);
-        buttonsForCheckboxesForVisibilityChange.add(markToLearnButton);
-        for (Button button : buttonsForCheckboxesForVisibilityChange) {
-            button.setEnabled(false);
-        }
-
-        checkboxActions.remove(checkboxDeleteButton);
-        checkboxActions.add(markToLearnButton);
-        checkboxActions.add(markNotToLearnButton);
-        checkboxActions.add(checkboxDeleteButton);
     }
 
-
+    @Override
+    protected void buildToolbarActionBar() {
+        tableToolbarActions = new LearningLanguageTableToolbar(gridActionService,
+                checkboxes, data, tClass, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange, service)
+                .withMarkToLearn()
+                .withMarkNotToLearn()
+                .withDeleteButton()
+                .withExportButton(isExportable(), service, bervanLogger, pathToFileStorage, globalTmpDir)
+                .build();
+    }
 
     @Override
     protected Grid<TranslationRecord> getGrid() {
