@@ -52,9 +52,10 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
     @Override
     protected void buildToolbarActionBar() {
         tableToolbarActions = new LearningLanguageTableToolbar(gridActionService,
-                checkboxes, data, tClass, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange, service)
+                checkboxes, data, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange, service)
                 .withMarkToLearn()
                 .withMarkNotToLearn()
+                .withEditButton(service, bervanLogger)
                 .withDeleteButton()
                 .withExportButton(isExportable(), service, bervanLogger, pathToFileStorage, globalTmpDir)
                 .build();

@@ -20,9 +20,9 @@ public class LearningLanguageTableToolbar extends BervanTableToolbar<UUID, Trans
     private BervanButton markNotToLearnButton;
     private BaseService<UUID, TranslationRecord> service;
 
-    public LearningLanguageTableToolbar(GridActionService<UUID, TranslationRecord> gridActionService, List<Checkbox> checkboxes, List<TranslationRecord> data, Class<?> tClass, Checkbox selectAllCheckbox, List<Button> buttonsForCheckboxesForVisibilityChange,
+    public LearningLanguageTableToolbar(GridActionService<UUID, TranslationRecord> gridActionService, List<Checkbox> checkboxes, List<TranslationRecord> data, Checkbox selectAllCheckbox, List<Button> buttonsForCheckboxesForVisibilityChange,
                                         BaseService<UUID, TranslationRecord> service) {
-        super(gridActionService, checkboxes, data, tClass, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange);
+        super(gridActionService, checkboxes, data, TranslationRecord.class, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange);
         this.service = service;
     }
 
