@@ -9,12 +9,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TranslatorService {
+    private final BervanLogger logger;
     @Value("${translation.api.key}")
     private String API_KEY;
     private Translate translate;
-    private final BervanLogger logger;
-    private String sourceLanguage = "ES";
-    private String targetLanguage = "PL";
 
     public TranslatorService(BervanLogger logger) {
         this.logger = logger;
@@ -24,11 +22,20 @@ public class TranslatorService {
                 .build().getService();
     }
 
-    public String translate(String value) {
+    public String translate(String value, String language) {
         if (value.length() > 500) {
             throw new RuntimeException("Too long value to be translated!");
         }
+        String sourceLanguage = null;
+        if (language.equals("EN")) {
+            sourceLanguage = "en-US";
+        } else if (language.equals("ES")) {
+            sourceLanguage = "es-ES";
+        } else {
+            throw new IllegalArgumentException("Language symbol is not supported!");
+        }
 
+        String targetLanguage = "pl";
         Translation translation = translate.translate(value,
                 Translate.TranslateOption.sourceLanguage(sourceLanguage),
                 Translate.TranslateOption.targetLanguage(targetLanguage));

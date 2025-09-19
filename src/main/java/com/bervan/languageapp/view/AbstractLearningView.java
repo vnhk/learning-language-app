@@ -1,5 +1,6 @@
 package com.bervan.languageapp.view;
 
+import com.bervan.common.MenuNavigationComponent;
 import com.bervan.common.view.AbstractPageView;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.Flashcard;
@@ -25,10 +26,9 @@ import java.util.UUID;
  * Any change to the checkbox selection triggers a data reload.
  */
 public abstract class AbstractLearningView extends AbstractPageView {
-    public static final String ROUTE_NAME = "learning-english-app/learning-view";
-
     // Service for accessing and updating TranslationRecord entities
     private final TranslationRecordService translationRecordService;
+    private final String language;
 
     // Flashcard knowledge buttons
     private final Button againButton = new Button("Again (q)");
@@ -50,30 +50,25 @@ public abstract class AbstractLearningView extends AbstractPageView {
 
     // Checkbox for reversed flashcards
     private final Checkbox reversedSwitch = new Checkbox("Reversed flashcards?");
-
+    private final List<TranslationRecord> all = new ArrayList<>();
     // Flashcard currently being viewed
     private Flashcard currentFlashCard = null;
-
     // Unique identifier of the current card
     private UUID currentCardId = UUID.randomUUID();
-
     // Label to show how many flashcards left
     private H2 flashcardLeftCounter;
 
-    private final List<TranslationRecord> all = new ArrayList<>();
-
     // Constructor
-    public AbstractLearningView(TranslationRecordService translationRecordService) {
+    public AbstractLearningView(TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigationLayout, String language) {
         super();
 
-        // Initialize service
         this.translationRecordService = translationRecordService;
+        this.language = language;
 
         // Setup reversedSwitch as a "switch" style
         reversedSwitch.getElement().setAttribute("theme", "switch");
 
-        // Add a custom layout for this view (e.g. a header, etc.)
-        add(new LearningEnglishLayout(ROUTE_NAME));
+        add(menuNavigationLayout);
 
         // Style classes for the buttons
         againButton.addClassName("option-button");
@@ -170,7 +165,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
         List<String> selectedLevels = getSelectedLevels();
         all.removeAll(all);
         all.addAll(translationRecordService
-                .getAllForLearning(selectedLevels, Pageable.ofSize(50).first()));
+                .getAllForLearning(language, selectedLevels, Pageable.ofSize(50).first()));
     }
 
     private List<String> getSelectedLevels() {

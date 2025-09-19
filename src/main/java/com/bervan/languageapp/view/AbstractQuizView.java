@@ -1,9 +1,11 @@
 package com.bervan.languageapp.view;
 
+import com.bervan.common.MenuNavigationComponent;
 import com.bervan.common.component.BervanButton;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.ExampleOfUsageService;
 import com.bervan.languageapp.service.TranslationRecordService;
+import com.bervan.languageapp.view.en.LearningEnglishLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -17,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import java.util.*;
 
 public abstract class AbstractQuizView extends VerticalLayout {
-    public static final String ROUTE_NAME = "learning-english-app/quiz-view";
     private final int amountOfQuestions = 10;
     private final Checkbox levelNotClass = new Checkbox("N/A", true);
     private final Checkbox levelA1 = new Checkbox("A1", true);
@@ -26,17 +27,19 @@ public abstract class AbstractQuizView extends VerticalLayout {
     private final Checkbox levelB2 = new Checkbox("B2", true);
     private final Checkbox levelC1 = new Checkbox("C1", true);
     private final Checkbox levelC2 = new Checkbox("C2", true);
-    private final BervanButton generateQuizButton = new BervanButton("Generate", buttonClickEvent -> generateQuiz());
-    private Map<String, String> quizQuestions;
-    private Map<String, HorizontalLayout> questions = new HashMap<>();
     private final TranslationRecordService translationRecordService;
     private final ExampleOfUsageService exampleOfUsageService;
+    private final String language;
+    private Map<String, String> quizQuestions;
+    private Map<String, HorizontalLayout> questions = new HashMap<>();
+    private final BervanButton generateQuizButton = new BervanButton("Generate", buttonClickEvent -> generateQuiz());
 
-    public AbstractQuizView(TranslationRecordService translationRecordService, ExampleOfUsageService exampleOfUsageService) {
+    public AbstractQuizView(TranslationRecordService translationRecordService, ExampleOfUsageService exampleOfUsageService, String language, MenuNavigationComponent menuNavigationLayout) {
         super();
         this.translationRecordService = translationRecordService;
         this.exampleOfUsageService = exampleOfUsageService;
-        add(new LearningEnglishLayout(ROUTE_NAME));
+        this.language = language;
+        add(menuNavigationLayout);
 
         Div levelCheckBoxesLayout = new Div(levelNotClass, levelA1, levelA2, levelB1, levelB2, levelC1, levelC2);
         add(levelCheckBoxesLayout, generateQuizButton);
@@ -74,7 +77,7 @@ public abstract class AbstractQuizView extends VerticalLayout {
     }
 
     private void generateQuiz() {
-        List<TranslationRecord> records = new ArrayList<>(translationRecordService.getRecordsForQuiz(getSelectedLevels(),
+        List<TranslationRecord> records = new ArrayList<>(translationRecordService.getRecordsForQuiz(language, getSelectedLevels(),
                         Pageable.ofSize(amountOfQuestions * 5))
                 .stream().toList());
         Collections.shuffle(records);
@@ -125,7 +128,7 @@ public abstract class AbstractQuizView extends VerticalLayout {
                 break;
             }
 
-            Map<String, List<String>> exampleOfUsage = exampleOfUsageService.createExampleOfUsage(translationRecord.getSourceText(), 1, true);
+            Map<String, List<String>> exampleOfUsage = exampleOfUsageService.createExampleOfUsage(translationRecord.getSourceText(), language,1, true);
             if (!exampleOfUsage.isEmpty()) {
                 List<Integer> checkedIndexes = new ArrayList<>();
 

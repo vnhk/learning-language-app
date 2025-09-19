@@ -13,8 +13,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import java.util.*;
 
 public abstract class AbstractCrosswordView extends VerticalLayout {
-    public static final String ROUTE_NAME = "learning-english-app/crossword";
     private final CrosswordService crosswordService;
+    private final String language;
     private final char EMPTY_CELL_CHAR = '-';
 
     private char[][] grid;
@@ -26,8 +26,9 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
     private Map<String, TextField> inputFields = new HashMap<>();
     private Map<Integer, Integer> wordNumbers = new HashMap<>();
 
-    public AbstractCrosswordView(CrosswordService crosswordService) {
+    public AbstractCrosswordView(CrosswordService crosswordService, String language) {
         this.crosswordService = crosswordService;
+        this.language = language;
         setAlignItems(Alignment.CENTER);
         setJustifyContentMode(JustifyContentMode.CENTER);
         getStyle().set("background-color", "#121212");
@@ -75,11 +76,6 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
     private void generateCrossword(ClickEvent event) {
         words = getWords();
 
-//        words = new ArrayList<>();
-//        words.add(new Word("ITINERARY", "Serving size"));
-//        words.add(new Word("SHOUT", "consumerism"));
-//        words.add(new Word("IMAGE", "acceptance"));
-
         grid = new char[gridSize][gridSize];
         for (char[] row : grid) {
             Arrays.fill(row, EMPTY_CELL_CHAR);
@@ -102,7 +98,7 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
 
     private List<Word> getWords() {
         List<Word> res = new ArrayList<>();
-        List<TranslationRecord> translationRecords = crosswordService.getCrosswordWords(gridSize, gridSize);
+        List<TranslationRecord> translationRecords = crosswordService.getCrosswordWords(gridSize, gridSize, language);
         for (TranslationRecord translationRecord : translationRecords) {
             res.add(new Word(translationRecord.getSourceText(), translationRecord.getTextTranslation()));
         }
@@ -176,79 +172,6 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
                 }
             }
         }
-
-//        if (col + i < gridSize && grid[row][col + i] != EMPTY_CELL_CHAR) {
-//            return false; //don't want to have word end just before another word start:
-//            //TEST ok
-//            //VALUE ok
-//            //VALUETEST not ok
-//
-//            //VALUE [-] TEST ok
-//        }
-//
-//
-//        if (!horizontal && col + 1 < gridSize && grid[row][col + 1] != EMPTY_CELL_CHAR) {
-//            return false;
-//            //T  [-]  V
-//            //E  [-]  A
-//            //S  [-]  L
-//            //T  [-]  U
-//            //[-][-]  E
-//        }
-//
-//        if (!horizontal && col - 1 >= 0 && grid[row][col - 1] != EMPTY_CELL_CHAR) {
-//            return false;
-//            //T  [-]  V
-//            //E  [-]  A
-//            //S  [-]  L
-//            //T  [-]  U
-//            //[-][-]  E
-//        }
-//
-//        if (col + i - 1 > 0 && col + i - 1 < gridSize && grid[row][col + i - 1] != EMPTY_CELL_CHAR) {
-//            return false; //don't want to have word end just after another word:
-//            //TEST ok
-//            //VALUE ok
-//            //TESTVALUE not ok
-//
-//            //TEST [-] VALUE ok
-//        }
-//
-//        if (row + i < gridSize && grid[row + i][col] != EMPTY_CELL_CHAR) {
-//            return false; //don't want to have word end just before another word start:
-//            //V
-//            //A
-//            //L
-//            //U
-//            //E
-//            //TEST not ok, there is no work like VALUET
-//
-//            //V ok
-//            //A
-//            //L
-//            //U
-//            //E
-//            //[-]
-//            //TEST ok
-//        }
-//
-//        if (row + i - 1 > 0 && row + i - 1 < gridSize && grid[row + i - 1][col] != EMPTY_CELL_CHAR) {
-//            return false; //don't want to have word end just after another word:
-//            //TEST ok
-//            //V not ok, there is no work like TVALUE
-//            //A
-//            //L
-//            //U
-//            //E
-//
-//            //TEST ok
-//            //[-]
-//            //V ok
-//            //A
-//            //L
-//            //U
-//            //E
-//        }
         return true;
     }
 
@@ -386,56 +309,6 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
         }
     }
 
-    public static class Word {
-        int index;
-        String word;
-        String definition;
-        int x;
-        int y;
-        boolean isHorizontal;
-
-        public Word(String word, String definition) {
-            this.word = word;
-            this.definition = definition;
-        }
-
-        public String getPlaced() {
-            if (isHorizontal) {
-                return "Horizontal";
-            } else {
-                return "Vertical";
-            }
-        }
-
-        public void setIndex(int index) {
-            this.index = index;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-
-        public String getWord() {
-            return word;
-        }
-
-        public String getDefinition() {
-            return definition;
-        }
-
-        public int getX() {
-            return x;
-        }
-
-        public int getY() {
-            return y;
-        }
-
-        public boolean isHorizontal() {
-            return isHorizontal;
-        }
-    }
-
     public List<Word> smartSortWords(List<Word> words) {
         if (words.isEmpty()) return words;
 
@@ -487,5 +360,55 @@ public abstract class AbstractCrosswordView extends VerticalLayout {
             frequency.put(c, frequency.getOrDefault(c, 0) + 1);
         }
         return frequency;
+    }
+
+    public static class Word {
+        int index;
+        String word;
+        String definition;
+        int x;
+        int y;
+        boolean isHorizontal;
+
+        public Word(String word, String definition) {
+            this.word = word;
+            this.definition = definition;
+        }
+
+        public String getPlaced() {
+            if (isHorizontal) {
+                return "Horizontal";
+            } else {
+                return "Vertical";
+            }
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+
+        public String getWord() {
+            return word;
+        }
+
+        public String getDefinition() {
+            return definition;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public boolean isHorizontal() {
+            return isHorizontal;
+        }
     }
 }

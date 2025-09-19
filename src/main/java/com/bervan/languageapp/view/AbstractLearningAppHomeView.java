@@ -1,6 +1,9 @@
 package com.bervan.languageapp.view;
 
+import com.bervan.common.MenuNavigationComponent;
 import com.bervan.common.component.AutoConfigurableField;
+import com.bervan.common.search.SearchRequest;
+import com.bervan.common.search.model.SearchOperation;
 import com.bervan.common.view.AbstractBervanTableView;
 import com.bervan.core.model.BervanLogger;
 import com.bervan.languageapp.TranslationRecord;
@@ -9,12 +12,10 @@ import com.bervan.languageapp.service.ExampleOfUsageService;
 import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
-import com.google.common.collect.ImmutableMap;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,7 +23,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import io.micrometer.common.util.StringUtils;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,24 +30,25 @@ import java.util.UUID;
 import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAddAudioIfExist;
 
 public abstract class AbstractLearningAppHomeView extends AbstractBervanTableView<UUID, TranslationRecord> {
-    public static final String ROUTE_NAME = "learning-english-app/home";
+    protected final String language;
     private final ExampleOfUsageService exampleOfUsageService;
     private final TextToSpeechService textToSpeechService;
     private final TranslatorService translationService;
     private Checkbox saveSpeech;
     private Checkbox getImages;
-    private Map<String, String> helpfulLinks = ImmutableMap.of("https://youglish.com", "The page that finds words in youtube videos");
 
     public AbstractLearningAppHomeView(TranslationRecordService translatorRecordService,
                                        ExampleOfUsageService exampleOfUsageService,
                                        TextToSpeechService textToSpeechService,
-                                       TranslatorService translationService, BervanLogger log) {
-        super(new LearningEnglishLayout(ROUTE_NAME), translatorRecordService, log, TranslationRecord.class);
+                                       TranslatorService translationService, BervanLogger log,
+                                       String language,
+                                       MenuNavigationComponent pageNavigationComponent) {
+        super(pageNavigationComponent, translatorRecordService, log, TranslationRecord.class);
         this.exampleOfUsageService = exampleOfUsageService;
         this.textToSpeechService = textToSpeechService;
         this.translationService = translationService;
+        this.language = language;
         renderCommonComponents();
-        buildHelpfulPagesLinks();
     }
 
     @Override
@@ -60,6 +61,12 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
                 .withDeleteButton()
                 .withExportButton(isExportable(), service, bervanLogger, pathToFileStorage, globalTmpDir)
                 .build();
+    }
+
+    @Override
+    protected void customizePreLoad(SearchRequest request) {
+        request.addCriterion("LANGUAGE_CRITERIA", TranslationRecord.class,
+                "language", SearchOperation.EQUALS_OPERATION, language);
     }
 
     @Override
@@ -108,7 +115,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
                 VerticalLayout verticalFieldLayout = fieldsLayoutHolder.get(field);
 
                 findExamplesButton.addClickListener(click -> {
-                    List<String> examplesOfUsage = this.exampleOfUsageService.createExampleOfUsage(String.valueOf(sourceTextField.getValue().getValue()));
+                    List<String> examplesOfUsage = this.exampleOfUsageService.createExampleOfUsage(String.valueOf(sourceTextField.getValue().getValue()), language);
                     formField.setValue(
                             examplesOfUsage.toString().replace("[", "").replace("]", "")
                     );
@@ -131,14 +138,6 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
             }
         }
 
-        Button navigateToUsageInSentenceOnYoutube = new Button("Open in youglish.com");
-        navigateToUsageInSentenceOnYoutube.addClassName("option-button");
-        navigateToUsageInSentenceOnYoutube.addClickListener(click -> {
-            String hrefFormat = "https://youglish.com/pronounce/%s/english?";
-            String href = String.format(hrefFormat, sourceTextField.getValue());
-            getUI().get().getPage().open(href);
-        });
-
         saveSpeech = getSaveSpeech();
         getImages = getImages();
 
@@ -148,15 +147,17 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
     @Override
     protected TranslationRecord customizeSavingInCreateForm(TranslationRecord newTranslationRecord) {
         if (saveSpeech.getValue()) {
-            newTranslationRecord.setTextSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getSourceText()));
+            newTranslationRecord.setTextSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getSourceText(), language));
             if (StringUtils.isNotBlank(newTranslationRecord.getInSentence())) {
-                newTranslationRecord.setInSentenceSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getInSentence()));
+                newTranslationRecord.setInSentenceSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getInSentence(), language));
             }
         }
 
         if (getImages.getValue()) {
             ((TranslationRecordService) service).setNewAndReplaceImages(newTranslationRecord);
         }
+
+        newTranslationRecord.setLanguage(language);
 
         return newTranslationRecord;
     }
@@ -191,7 +192,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
 
     private String translate(TextArea textArea) {
         try {
-            return this.translationService.translate(textArea.getValue());
+            return this.translationService.translate(textArea.getValue(), language);
         } catch (Exception e) {
             showErrorNotification(e.getMessage());
         }
@@ -202,13 +203,6 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
         Button button = new Button(label);
         button.setClassName("creating-flashcard-from-buttons");
         return button;
-    }
-
-    private void buildHelpfulPagesLinks() {
-        for (Map.Entry<String, String> stringStringEntry : helpfulLinks.entrySet()) {
-            Anchor a = new Anchor(stringStringEntry.getKey(), "-" + stringStringEntry.getValue() + " (" + stringStringEntry.getKey() + ")");
-            add(a);
-        }
     }
 
     @Override
@@ -223,10 +217,10 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
                     Boolean checked = ((Checkbox) component).getValue();
                     if (clickedColumn.equals(TranslationRecord.TranslationRecord_sourceText_columnName)) {
                         String sourceText = item.getSourceText();
-                        item.setTextSound(checked ? textToSpeechService.getTextSpeech(sourceText) : null);
+                        item.setTextSound(checked ? textToSpeechService.getTextSpeech(sourceText, language) : null);
                     } else if (clickedColumn.equals(TranslationRecord.TranslationRecord_inSentence_columnName)) {
                         String inSentence = item.getInSentence();
-                        item.setInSentenceSound(checked ? textToSpeechService.getTextSpeech(inSentence) : null);
+                        item.setInSentenceSound(checked ? textToSpeechService.getTextSpeech(inSentence, language) : null);
                     }
                 } else if (component.getId().get().equals("reloadNextLearningDate")) {
                     Boolean checked = ((Checkbox) component).getValue();
@@ -242,6 +236,8 @@ public abstract class AbstractLearningAppHomeView extends AbstractBervanTableVie
                 }
             }
         }
+
+        item.setLanguage(language);
 
         return item;
     }

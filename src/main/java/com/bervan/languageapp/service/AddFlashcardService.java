@@ -21,13 +21,13 @@ public class AddFlashcardService implements AddAsFlashcardService {
         this.textToSpeechService = textToSpeechService;
     }
 
-    public void addAsFlashcardAsync(FlashcardDetails item) {
+    public void addAsFlashcardAsync(FlashcardDetails item, String language) {
         SecurityContext context = SecurityContextHolder.getContext();
         new Thread(() -> {
             SecurityContextHolder.setContext(context);
             String name = item.getValue();
-            String translated = translatorService.translate(name);
-            List<String> exampleOfUsage = exampleOfUsageService.createExampleOfUsage(name);
+            String translated = translatorService.translate(name, language);
+            List<String> exampleOfUsage = exampleOfUsageService.createExampleOfUsage(name, language);
             String examples = exampleOfUsage.toString().replace("[", "").replace("]", "");
 
             TranslationRecord record = new TranslationRecord();
@@ -48,15 +48,15 @@ public class AddFlashcardService implements AddAsFlashcardService {
                 }
 
                 record.setInSentence(examples);
-                String examplesTranslated = translatorService.translate(examples);
+                String examplesTranslated = translatorService.translate(examples, language);
                 record.setInSentenceTranslation(examplesTranslated);
 
                 if (record.getSourceText() != null && !record.getSourceText().isBlank()) {
-                    record.setTextSound(textToSpeechService.getTextSpeech(record.getSourceText()));
+                    record.setTextSound(textToSpeechService.getTextSpeech(record.getSourceText(), language));
                 }
 
                 if (record.getInSentence() != null && !record.getInSentence().isBlank()) {
-                    record.setInSentenceSound(textToSpeechService.getTextSpeech(record.getInSentence()));
+                    record.setInSentenceSound(textToSpeechService.getTextSpeech(record.getInSentence(), language));
                 }
 
                 translationRecordService.setNewAndReplaceImages(record);

@@ -56,6 +56,7 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     private LocalDateTime nextRepeatTime;
     @VaadinBervanColumn(displayName = "Learn", internalName = TranslationRecord_markedForLearning_columnName, inSaveForm = false)
     private boolean markedForLearning = true;
+    private String language = "EN";
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "images", joinColumns = @JoinColumn(name = "library_id"))
     @Column(name = "image", nullable = false, length = 1000000000)
@@ -226,5 +227,13 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
 
     public void setMarkedForLearning(boolean markedForLearning) {
         this.markedForLearning = markedForLearning;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 }

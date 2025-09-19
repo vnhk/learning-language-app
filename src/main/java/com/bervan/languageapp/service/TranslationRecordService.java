@@ -7,8 +7,6 @@ import com.bervan.common.service.BaseService;
 import com.bervan.common.service.OpenAIService;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.TranslationRecordRepository;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,8 +29,9 @@ import java.util.*;
 public class TranslationRecordService extends BaseService<UUID, TranslationRecord> {
     private static final Logger log = LoggerFactory.getLogger(TranslationRecordService.class);
     private final TranslationRecordRepository repository;
-    private final AIService languageLevelAI;
-    private final AIService usefulPhrasesAI;
+    private final AIService englishLanguageLevelAI;
+    private final AIService spanishLanguageLevelAI;
+    private final AIService englishUsefulPhrasesAI;
     @Value("${openai.api.key}")
     private String apiKey;
 
@@ -40,15 +39,23 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
                                     SearchService searchService) {
         super(repository, searchService);
         this.repository = repository;
-        this.languageLevelAI =
+        this.spanishLanguageLevelAI =
                 new OpenAIService(
                         """
-                                Your task is to evaluate the language level of the given text.
+                                Your task is to evaluate the language level of the given spanish text.
+                                Your possible answers are: A1, A2, B1, B2, C1, C2.
+                                Example: "¿Hola, cómo estás?" -> A1
+                                Respond only with the language level. Nothing else.
+                                """);
+        this.englishLanguageLevelAI =
+                new OpenAIService(
+                        """
+                                Your task is to evaluate the language level of the given english text.
                                 Your possible answers are: A1, A2, B1, B2, C1, C2.
                                 Example: "Hello, how are you?" -> A1
                                 Respond only with the language level. Nothing else.
                                 """);
-        usefulPhrasesAI = new OpenAIService("""
+        englishUsefulPhrasesAI = new OpenAIService("""
                 You are an English language learning assistant for a Polish user.
                 Your task is to analyze subtitles from an episode of a TV series or a movie, extract only useful sentences or phrases worth learning with at least B2-level English (skip random slang, filler words, or swear words), and return them in JSON format.
                 
@@ -115,6 +122,11 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
 
     public TranslationRecord save(TranslationRecord record) {
         setLevel(record);
+
+        if (record.getLanguage() == null) {
+            throw new IllegalArgumentException("Language must be set!");
+        }
+
         try {
             return repository.save(record);
         } catch (Exception e) {
@@ -163,7 +175,7 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
     private void setLevel(TranslationRecord record) {
         if (record.getLevel() == null || record.getLevel().isBlank() ||
                 "N/A".equals(record.getLevel())) {
-            String level = autoDetermineLevel(record.getSourceText());
+            String level = autoDetermineLevel(record.getSourceText(), record.getLanguage());
             if (level == null || level.isBlank() ||
                     !List.of("A1", "A2", "B1", "B2", "C1", "C2").contains(level)) {
                 record.setLevel("N/A");
@@ -173,33 +185,39 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         }
     }
 
-    private String autoDetermineLevel(String sourceText) {
-        return languageLevelAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.2, apiKey);
-    }
-
-    public List<TranslationRecord> createUsefulPhrasesForInputText(String sourceText) {
-        try {
-            String jsonResponse = usefulPhrasesAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.1, apiKey);
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(
-                    jsonResponse,
-                    new TypeReference<List<TranslationRecord>>() {
-                    }
-            );
-        } catch (Exception e) {
-            log.error("Failed to createUsefulPhrasesForInputText!", e);
-            throw new RuntimeException("Failed to create useful phrases!");
+    private String autoDetermineLevel(String sourceText, String language) {
+        if (language.equals("EN")) {
+            return englishLanguageLevelAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.2, apiKey);
+        } else if (language.equals("ES")) {
+            return spanishLanguageLevelAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.2, apiKey);
+        } else {
+            throw new IllegalArgumentException("Language symbol is not supported!");
         }
     }
 
+//    public List<TranslationRecord> createUsefulPhrasesForInputText(String sourceText) {
+//        try {
+//            String jsonResponse = englishUsefulPhrasesAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.1, apiKey);
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            return objectMapper.readValue(
+//                    jsonResponse,
+//                    new TypeReference<List<TranslationRecord>>() {
+//                    }
+//            );
+//        } catch (Exception e) {
+//            log.error("Failed to createUsefulPhrasesForInputText!", e);
+//            throw new RuntimeException("Failed to create useful phrases!");
+//        }
+//    }
+
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
-    public List<TranslationRecord> getAllForLearning(List<String> levels, Pageable pageable) {
-        return repository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), levels, pageable);
+    public List<TranslationRecord> getAllForLearning(String language, List<String> levels, Pageable pageable) {
+        return repository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), levels, language, pageable);
     }
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
-    public List<TranslationRecord> getRecordsForQuiz(List<String> levels, Pageable pageable) {
-        return repository.getRecordsForQuiz(AuthService.getLoggedUserId(), levels, pageable);
+    public List<TranslationRecord> getRecordsForQuiz(String language, List<String> levels, Pageable pageable) {
+        return repository.getRecordsForQuiz(AuthService.getLoggedUserId(), levels, language, pageable);
     }
 
     private String convertImageToBase64(String img) {

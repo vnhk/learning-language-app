@@ -10,9 +10,18 @@ import java.util.Base64;
 @Service
 public class TextToSpeechService {
 
-    public String getTextSpeech(String text) {
+    public String getTextSpeech(String text, String language) {
         if (text.length() > 500) {
             throw new RuntimeException("Text is too long for creating sound!");
+        }
+        String languageCode = null;
+
+        if(language.equals("EN")) {
+            languageCode = "en-US";
+        } else if(language.equals("ES")) {
+            languageCode = "es-ES";
+        } else {
+            throw new IllegalArgumentException("Language symbol is not supported!");
         }
 
         try (TextToSpeechClient textToSpeechClient = TextToSpeechClient.create()) {
@@ -23,7 +32,7 @@ public class TextToSpeechService {
             // ("neutral")
             VoiceSelectionParams voice =
                     VoiceSelectionParams.newBuilder()
-                            .setLanguageCode("en-US")
+                            .setLanguageCode(languageCode)
                             .setSsmlGender(SsmlVoiceGender.FEMALE)
                             .build();
 

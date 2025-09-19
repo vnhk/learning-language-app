@@ -1,5 +1,7 @@
 package com.bervan.languageapp.service;
 
+import com.bervan.common.search.SearchRequest;
+import com.bervan.common.search.model.SearchOperation;
 import com.bervan.languageapp.TranslationRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +17,12 @@ public class CrosswordService {
     @Autowired
     private TranslationRecordService wordRepository;
 
-    public List<TranslationRecord> getCrosswordWords(int width, int height) {
-        List<TranslationRecord> words = new ArrayList<>(wordRepository.load(Pageable.ofSize(1500)));
+    public List<TranslationRecord> getCrosswordWords(int width, int height, String language) {
+        SearchRequest request = new SearchRequest();
+        request.addCriterion("LANGUAGE_CRITERIA", TranslationRecord.class,
+                "language", SearchOperation.EQUALS_OPERATION, language);
+
+        List<TranslationRecord> words = new ArrayList<>(wordRepository.load(request, Pageable.ofSize(1500)));
         Collections.shuffle(words);
         List<TranslationRecord> result = new ArrayList<>();
         for (TranslationRecord word : words) {
