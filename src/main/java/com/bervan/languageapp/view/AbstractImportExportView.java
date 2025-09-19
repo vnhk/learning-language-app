@@ -1,5 +1,6 @@
 package com.bervan.languageapp.view;
 
+import com.bervan.common.MenuNavigationComponent;
 import com.bervan.common.search.SearchRequest;
 import com.bervan.common.search.model.SearchOperation;
 import com.bervan.common.view.AbstractDataIEView;
@@ -7,19 +8,17 @@ import com.bervan.core.model.BervanLogger;
 import com.bervan.ieentities.ExcelIEEntity;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.TranslationRecordService;
-import com.bervan.languageapp.view.en.LearningEnglishLayout;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 public abstract class AbstractImportExportView extends AbstractDataIEView<UUID, TranslationRecord> {
-    public static final String ROUTE_NAME = "learning-language-app/en/import-export";
     private final String language;
 
-    public AbstractImportExportView(BervanLogger logger, TranslationRecordService translationRecordService, String language) {
+    public AbstractImportExportView(BervanLogger logger, TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigation, String language) {
         super(translationRecordService,
-                new LearningEnglishLayout(ROUTE_NAME),
+                menuNavigation,
                 logger,
                 TranslationRecord.class);
         this.language = language;
