@@ -13,6 +13,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -164,8 +165,10 @@ public abstract class AbstractLearningView extends AbstractPageView {
     private void loadLearningRecords() {
         List<String> selectedLevels = getSelectedLevels();
         all.removeAll(all);
-        all.addAll(translationRecordService
-                .getAllForLearning(language, selectedLevels, Pageable.ofSize(50).first()));
+        List<TranslationRecord> allForLearning = translationRecordService
+                .getAllForLearning(language, selectedLevels, Pageable.ofSize(50).first());
+        Collections.shuffle(allForLearning);
+        all.addAll(allForLearning);
     }
 
     private List<String> getSelectedLevels() {
