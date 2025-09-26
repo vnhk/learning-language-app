@@ -8,6 +8,7 @@ public final class LearningSpanishLayout extends MenuNavigationComponent {
         super(routeName);
 
         addButtonIfVisible(menuButtonsRow, AbstractSpanishLearningAppHomeView.ROUTE_NAME, "Home", VaadinIcon.HOME.create());
+        addButtonIfVisible(menuButtonsRow, AbstractSpanishLearningTableView.ROUTE_NAME, "List", VaadinIcon.TABLE.create());
         addButtonIfVisible(menuButtonsRow, AbstractSpanishLearningView.ROUTE_NAME, "Flashcards", VaadinIcon.BOOKMARK.create());
         addButtonIfVisible(menuButtonsRow, AbstractSpanishQuizView.ROUTE_NAME, "Quiz", VaadinIcon.QUESTION.create());
         addButtonIfVisible(menuButtonsRow, AbstractSpanishCrosswordView.ROUTE_NAME, "Crossword", VaadinIcon.PUZZLE_PIECE.create());
