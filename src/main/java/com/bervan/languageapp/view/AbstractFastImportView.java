@@ -1,5 +1,7 @@
 package com.bervan.languageapp.view;
 
+import com.bervan.asynctask.AsyncTask;
+import com.bervan.asynctask.AsyncTaskService;
 import com.bervan.common.MenuNavigationComponent;
 import com.bervan.common.component.BervanButton;
 import com.bervan.common.search.SearchQueryOption;
@@ -37,15 +39,17 @@ public abstract class AbstractFastImportView extends AbstractPageView {
     private final TranslationRecordService translationRecordService;
     private final TextToSpeechService textToSpeechService;
     private final SearchService searchService;
+    private final AsyncTaskService asyncTaskService;
     private final TranslatorService translatorService;
     private final ExampleOfUsageService exampleOfUsageService;
     private final BervanButton loadButton = new BervanButton("Load", buttonClickEvent -> createRecords(text.getValue()));
 
-    public AbstractFastImportView(TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigation, String language, TextToSpeechService textToSpeechService, SearchService searchService, TranslatorService translatorService, ExampleOfUsageService exampleOfUsageService) {
+    public AbstractFastImportView(TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigation, String language, TextToSpeechService textToSpeechService, SearchService searchService, AsyncTaskService asyncTaskService, TranslatorService translatorService, ExampleOfUsageService exampleOfUsageService) {
         this.language = language;
         this.textToSpeechService = textToSpeechService;
         this.translationRecordService = translationRecordService;
         this.searchService = searchService;
+        this.asyncTaskService = asyncTaskService;
         this.translatorService = translatorService;
         this.exampleOfUsageService = exampleOfUsageService;
         text.setHeight("200px");
@@ -59,39 +63,48 @@ public abstract class AbstractFastImportView extends AbstractPageView {
     protected void createRecords(String text) {
         //process in another thread to not block the app
         SecurityContext context = SecurityContextHolder.getContext();
+
+        AsyncTask newAsyncTask = asyncTaskService.createAndStoreAsyncTask();
         new Thread(() -> {
-            SecurityContextHolder.setContext(context);
-            Set<String> alreadyExisting = getAlreadyPresentWords();
-            List<String> wordsToAdd = Arrays.stream(text.split(";")).map(String::trim).filter(word -> !alreadyExisting.contains(word)).toList();
+            AsyncTask asyncTask = asyncTaskService.setInProgress(newAsyncTask);
+            try {
+                SecurityContextHolder.setContext(context);
+                Set<String> alreadyExisting = getAlreadyPresentWords();
+                List<String> wordsToAdd = Arrays.stream(text.split(";")).map(String::trim).filter(word -> !alreadyExisting.contains(word)).toList();
 
-            log.info("Importing {} words in Fast Import", wordsToAdd.size());
+                log.info("Importing {} words in Fast Import", wordsToAdd.size());
 
-            List<TranslationRecord> toSave = new ArrayList<>();
-            for (String word : wordsToAdd) {
-                TranslationRecord translationRecord = new TranslationRecord();
-                translationRecord.setSourceText(word);
-                translationRecord.setMarkedForLearning(markAllAsToLearn.getValue());
-                translationRecord.setLanguage(language);
-                translationRecord.setTextTranslation(translatorService.translate(word, language));
+                List<TranslationRecord> toSave = new ArrayList<>();
+                for (String word : wordsToAdd) {
+                    TranslationRecord translationRecord = new TranslationRecord();
+                    translationRecord.setSourceText(word);
+                    translationRecord.setMarkedForLearning(markAllAsToLearn.getValue());
+                    translationRecord.setLanguage(language);
+                    translationRecord.setTextTranslation(translatorService.translate(word, language));
 
-                if (generateExamples.getValue()) {
-                    generateExamples(word, translationRecord);
+                    if (generateExamples.getValue()) {
+                        generateExamples(word, translationRecord);
+                    }
+
+                    if (generateSound.getValue()) {
+                        generateSound(translationRecord);
+                    }
+
+                    if (generateImages.getValue()) {
+                        generateImages(translationRecord);
+                    }
+
+                    toSave.add(translationRecord);
                 }
 
-                if (generateSound.getValue()) {
-                    generateSound(translationRecord);
-                }
-
-                if (generateImages.getValue()) {
-                    generateImages(translationRecord);
-                }
-
-                toSave.add(translationRecord);
+                log.info("Saving {} records in Fast Import", toSave.size());
+                translationRecordService.save(toSave);
+                asyncTaskService.setFinished(asyncTask, "Import successful: " + wordsToAdd + " imported!");
+            } catch (Exception e) {
+                log.error("Could not import words!", e);
+                asyncTaskService.setFailed(asyncTask, "Could not import words: " + e.getMessage());
             }
 
-            log.info("Saving {} records in Fast Import", toSave.size());
-            translationRecordService.save(toSave);
-            showPrimaryNotification("Import finished!");
         }).start();
 
         showPrimaryNotification("Importing started. It might take a while...");
