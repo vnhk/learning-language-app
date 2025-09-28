@@ -1,32 +1,12 @@
 package com.bervan.languageapp.view.en;
 
-import com.bervan.core.model.BervanLogger;
-import com.bervan.languageapp.service.ExampleOfUsageService;
-import com.bervan.languageapp.service.TextToSpeechService;
-import com.bervan.languageapp.service.TranslationRecordService;
-import com.bervan.languageapp.service.TranslatorService;
 import com.bervan.languageapp.view.AbstractLearningAppHomeView;
-import com.google.common.collect.ImmutableMap;
-import com.vaadin.flow.component.html.Anchor;
-
-import java.util.Map;
+import com.bervan.languageapp.view.es.LearningSpanishLayout;
 
 public abstract class AbstractEnglishLearningAppHomeView extends AbstractLearningAppHomeView {
     public static final String ROUTE_NAME = "learning-language-app/en/home";
-    private final Map<String, String> helpfulLinks = ImmutableMap.of("https://youglish.com", "The page that finds words in youtube videos");
 
-    public AbstractEnglishLearningAppHomeView(TranslationRecordService translatorRecordService,
-                                              ExampleOfUsageService exampleOfUsageService,
-                                              TextToSpeechService textToSpeechService,
-                                              TranslatorService translationService, BervanLogger log) {
-        super(translatorRecordService, exampleOfUsageService, textToSpeechService, translationService, log, "EN", new LearningEnglishLayout(ROUTE_NAME));
-        buildHelpfulPagesLinks();
-    }
-
-    private void buildHelpfulPagesLinks() {
-        for (Map.Entry<String, String> stringStringEntry : helpfulLinks.entrySet()) {
-            Anchor a = new Anchor(stringStringEntry.getKey(), "-" + stringStringEntry.getValue() + " (" + stringStringEntry.getKey() + ")");
-            add(a);
-        }
+    public AbstractEnglishLearningAppHomeView() {
+        super(new LearningEnglishLayout(ROUTE_NAME));
     }
 }
