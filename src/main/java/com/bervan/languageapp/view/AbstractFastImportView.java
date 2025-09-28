@@ -99,7 +99,7 @@ public abstract class AbstractFastImportView extends AbstractPageView {
 
                 log.info("Saving {} records in Fast Import", toSave.size());
                 translationRecordService.save(toSave);
-                asyncTaskService.setFinished(asyncTask, "Import successful: " + wordsToAdd + " imported!");
+                asyncTaskService.setFinished(asyncTask, "Import successful: " + wordsToAdd.size() + " items imported!");
             } catch (Exception e) {
                 log.error("Could not import words!", e);
                 asyncTaskService.setFailed(asyncTask, "Could not import words: " + e.getMessage());
