@@ -35,7 +35,7 @@ public abstract class AbstractFastImportView extends AbstractPageView {
     private final Checkbox generateExamplesWithAI = new Checkbox("Generate Examples using AI", false);
     private final Checkbox generateImages = new Checkbox("Generate Images", true);
     private final Checkbox markAllAsToLearn = new Checkbox("Activate and Mark for Learning", true);
-    private final TextArea text = new TextArea("';' Separated Words/Sentences");
+    private final TextArea text = new TextArea("';' Separated Words/Sentences (spaces will be removed)");
     private final TranslationRecordService translationRecordService;
     private final TextToSpeechService textToSpeechService;
     private final SearchService searchService;
