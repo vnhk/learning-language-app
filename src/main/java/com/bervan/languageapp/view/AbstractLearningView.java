@@ -1,16 +1,21 @@
 package com.bervan.languageapp.view;
 
 import com.bervan.common.MenuNavigationComponent;
+import com.bervan.common.component.BervanButton;
 import com.bervan.common.view.AbstractPageView;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.Flashcard;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +35,9 @@ public abstract class AbstractLearningView extends AbstractPageView {
     // Service for accessing and updating TranslationRecord entities
     private final TranslationRecordService translationRecordService;
     private final String language;
+    // List of deleted and deactivated cards to prevent double-deletion and filter-out flashcards
+    private final List<UUID> deleted = new ArrayList<>();
+    private final List<UUID> deactivated = new ArrayList<>();
 
     // Flashcard knowledge buttons
     private final Button againButton = new Button("Again (q)");
@@ -58,6 +66,8 @@ public abstract class AbstractLearningView extends AbstractPageView {
     private UUID currentCardId = UUID.randomUUID();
     // Label to show how many flashcards left
     private H2 flashcardLeftCounter;
+    // Layout for the flashcard actions (delete, deactivate)
+    private HorizontalLayout flashcardActions;
 
     // Constructor
     public AbstractLearningView(TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigationLayout, String language) {
@@ -137,6 +147,68 @@ public abstract class AbstractLearningView extends AbstractPageView {
         setNextToLearn();
     }
 
+    private void removeFlashcard() {
+        ConfirmDialog confirmDialog = new ConfirmDialog();
+        confirmDialog.setHeader("Confirm Deletion");
+        confirmDialog.setText("Are you sure you want to delete the flashcard from the database?");
+
+        confirmDialog.setConfirmText("Delete");
+        confirmDialog.setConfirmButtonTheme("error primary");
+        confirmDialog.addConfirmListener(event -> {
+            if (currentFlashCard != null) {
+                SecurityContext context = SecurityContextHolder.getContext();
+                Thread t = new Thread(() -> {
+                    SecurityContextHolder.setContext(context);
+                    translationRecordService.delete(currentCardId);
+                });
+                t.start();
+                deleted.add(currentCardId);
+                all.removeIf(next -> next.getId().equals(currentCardId));
+                prepareViewForNextFlashcard();
+                setNextToLearn();
+            }
+        });
+
+        confirmDialog.setCancelText("Cancel");
+        confirmDialog.setCancelable(true);
+        confirmDialog.addCancelListener(event -> {
+        });
+
+        confirmDialog.open();
+    }
+
+    private void deactivateFlashcard() {
+        ConfirmDialog confirmDialog = new ConfirmDialog();
+        confirmDialog.setHeader("Confirm Deactivation");
+        confirmDialog.setText("Are you sure you want to deactivate the flashcard?");
+
+        confirmDialog.setConfirmText("Deactivate");
+        confirmDialog.setConfirmButtonTheme("error primary");
+        confirmDialog.addConfirmListener(event -> {
+            if (currentFlashCard != null) {
+                SecurityContext context = SecurityContextHolder.getContext();
+                Thread t = new Thread(() -> {
+                    SecurityContextHolder.setContext(context);
+                    TranslationRecord translationRecord = translationRecordService.loadById(currentCardId).get();
+                    translationRecord.setMarkedForLearning(false);
+                    translationRecordService.save(translationRecord);
+                });
+                t.start();
+                deactivated.add(currentCardId);
+                all.removeIf(next -> next.getId().equals(currentCardId));
+                prepareViewForNextFlashcard();
+                setNextToLearn();
+            }
+        });
+
+        confirmDialog.setCancelText("Cancel");
+        confirmDialog.setCancelable(true);
+        confirmDialog.addCancelListener(event -> {
+        });
+
+        confirmDialog.open();
+    }
+
     /**
      * Reloads the data when level checkboxes are changed.
      * Removes the current card display and fetches fresh data from the DB.
@@ -149,7 +221,9 @@ public abstract class AbstractLearningView extends AbstractPageView {
         if (flashcardLeftCounter != null) {
             remove(flashcardLeftCounter);
         }
-
+        if (flashcardActions != null) {
+            remove(flashcardActions);
+        }
         // Load new data based on the selected levels
         loadLearningRecords();
 
@@ -198,16 +272,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
         // Update next learning date for the current card
         translationRecordService.updateNextLearningDate(currentCardId, button);
 
-        // Hide the buttons
-        buttonsLayout.setVisible(false);
-
-        // Remove the current flashcard and counter
-        if (currentFlashCard != null) {
-            remove(currentFlashCard);
-        }
-        if (flashcardLeftCounter != null) {
-            remove(flashcardLeftCounter);
-        }
+        prepareViewForNextFlashcard();
 
         // If the list wasn't passed in, reload data from DB
         if (all == null) {
@@ -221,6 +286,22 @@ public abstract class AbstractLearningView extends AbstractPageView {
         setNextToLearn();
     }
 
+    private void prepareViewForNextFlashcard() {
+        // Hide the buttons
+        buttonsLayout.setVisible(false);
+
+        // Remove the current flashcard and counter
+        if (currentFlashCard != null) {
+            remove(currentFlashCard);
+        }
+        if (flashcardLeftCounter != null) {
+            remove(flashcardLeftCounter);
+        }
+        if (flashcardActions != null) {
+            remove(flashcardActions);
+        }
+    }
+
     /**
      * Displays the next flashcard to learn or shows a notification if no more remain.
      * If there are no flashcards left, tries reloading them one more time.
@@ -231,23 +312,36 @@ public abstract class AbstractLearningView extends AbstractPageView {
             loadLearningRecords();
             // If still no cards, show a notification
             if (all.isEmpty()) {
-                showPrimaryNotification("No flashcards for that moment. Come back later!");
-                flashcardLeftCounter = new H2("Flashcards left: 0");
-                add(flashcardLeftCounter);
+                noFlashcardsInfo();
                 return;
             }
         }
 
-        // Grab the next flashcard
-        TranslationRecord translationRecord = all.iterator().next();
-        currentCardId = translationRecord.getId();
+        TranslationRecord translationRecord;
+        while (true) {
+            if (!all.iterator().hasNext()) {
+                noFlashcardsInfo();
+                return;
+            }
+            translationRecord = all.iterator().next();
+            currentCardId = translationRecord.getId();
+
+            if (deleted.contains(currentCardId) || deactivated.contains(currentCardId)) {
+                continue;
+            } else {
+                break;
+            }
+        }
 
         // Show how many flashcards are left
         flashcardLeftCounter = new H2("Flashcards left: " + all.size());
 
+        // Create a layout for the flashcard actions (delete, deactivate)
+        flashcardActions = new HorizontalLayout(new BervanButton("Delete", event -> removeFlashcard()), new BervanButton("Deactivate", event -> deactivateFlashcard()));
+
         // Create a new Flashcard component
         currentFlashCard = new Flashcard(translationRecord, buttonsLayout, reversedSwitch.getValue());
-        add(reversedSwitch, flashcardLeftCounter, currentFlashCard);
+        add(reversedSwitch, flashcardLeftCounter, currentFlashCard, flashcardActions);
 
         // If the reversed switch is toggled, we remove everything and reload
         reversedSwitch.addValueChangeListener(checkboxBooleanComponentValueChangeEvent -> {
@@ -274,5 +368,11 @@ public abstract class AbstractLearningView extends AbstractPageView {
                 + TranslationRecordService.getHoursUntilNextRepeatTime(
                 TranslationRecordService.getNextFactor("EASY",
                         translationRecordService.getFactor(currentCardId)), "EASY") + "h");
+    }
+
+    private void noFlashcardsInfo() {
+        showPrimaryNotification("No flashcards for that moment. Come back later!");
+        flashcardLeftCounter = new H2("Flashcards left: 0");
+        add(flashcardLeftCounter);
     }
 }
