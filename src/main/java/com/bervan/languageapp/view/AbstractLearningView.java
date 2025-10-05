@@ -56,6 +56,7 @@ public abstract class AbstractLearningView extends AbstractPageView {
     private final Checkbox levelB2 = new Checkbox("B2");
     private final Checkbox levelC1 = new Checkbox("C1");
     private final Checkbox levelC2 = new Checkbox("C2");
+    private final Button reloadFlashcards = new BervanButton("Reload");
 
     // Checkbox for reversed flashcards
     private final Checkbox reversedSwitch = new Checkbox("Reversed flashcards?");
@@ -112,29 +113,13 @@ public abstract class AbstractLearningView extends AbstractPageView {
         levelC1.setValue(true);
         levelC2.setValue(true);
 
-        loadLearningRecords();
-
         // Put all level checkboxes in a single container
-        Div levelCheckBoxesLayout = new Div(levelNotClass, levelA1, levelA2, levelB1, levelB2, levelC1, levelC2);
+        Div levelCheckBoxesLayout = new Div(levelNotClass, levelA1, levelA2, levelB1, levelB2, levelC1, levelC2, reloadFlashcards);
 
         // Add the level checkboxes to the top of the page
         add(levelCheckBoxesLayout);
 
-        // ============================
-        // 2. SETUP CHECKBOX LISTENERS
-        // ============================
-        // Each checkbox triggers data reload on change
-        levelNotClass.addValueChangeListener(event -> reloadData());
-        levelA1.addValueChangeListener(event -> reloadData());
-        levelA2.addValueChangeListener(event -> reloadData());
-        levelB1.addValueChangeListener(event -> reloadData());
-        levelB2.addValueChangeListener(event -> reloadData());
-        levelC1.addValueChangeListener(event -> reloadData());
-        levelC2.addValueChangeListener(event -> reloadData());
-
-        // ==============
-        // 3. BUTTON LOGIC
-        // ==============
+        reloadFlashcards.addClickListener(event -> reloadData());
         againButton.addClickListener(buttonClickEvent ->
                 postButtonClickActions(translationRecordService, "AGAIN"));
         hardButton.addClickListener(buttonClickEvent ->
@@ -143,8 +128,6 @@ public abstract class AbstractLearningView extends AbstractPageView {
                 postButtonClickActions(translationRecordService, "GOOD"));
         easyButton.addClickListener(buttonClickEvent ->
                 postButtonClickActions(translationRecordService, "EASY"));
-
-        setNextToLearn();
     }
 
     private void removeFlashcard() {
