@@ -13,5 +13,6 @@ public class AbstractSpanishFastImportView extends AbstractFastImportView {
 
     public AbstractSpanishFastImportView(TranslationRecordService translationRecordService, TextToSpeechService textToSpeechService, SearchService searchService, ExampleOfUsageService exampleOfUsageService, TranslatorService translatorService, AsyncTaskService asyncTaskService) {
         super(translationRecordService, new LearningSpanishLayout(ROUTE_NAME), "ES", textToSpeechService, searchService, asyncTaskService, translatorService, exampleOfUsageService);
+        generateImages.setValue(false);
     }
 }

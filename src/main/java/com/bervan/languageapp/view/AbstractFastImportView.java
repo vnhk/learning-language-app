@@ -29,12 +29,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class AbstractFastImportView extends AbstractPageView {
-    private final String language;
-    private final Checkbox generateSound = new Checkbox("Generate sound", true);
-    private final Checkbox generateExamples = new Checkbox("Generate Examples", true);
-    private final Checkbox generateExamplesWithAI = new Checkbox("Generate Examples using AI", false);
-    private final Checkbox generateImages = new Checkbox("Generate Images", true);
-    private final Checkbox markAllAsToLearn = new Checkbox("Activate and Mark for Learning", true);
+    protected final String language;
+    protected final Checkbox generateSound = new Checkbox("Generate sound", true);
+    protected final Checkbox generateExamples = new Checkbox("Generate Examples", true);
+    protected final Checkbox generateExamplesWithAI = new Checkbox("Generate Examples using AI", false);
+    protected final Checkbox generateImages = new Checkbox("Generate Images", true);
+    protected final Checkbox markAllAsToLearn = new Checkbox("Activate and Mark for Learning", true);
     private final TextArea text = new TextArea("';' Separated Words/Sentences (spaces will be removed)");
     private final TranslationRecordService translationRecordService;
     private final TextToSpeechService textToSpeechService;
@@ -66,7 +66,8 @@ public abstract class AbstractFastImportView extends AbstractPageView {
 
         AsyncTask newAsyncTask = asyncTaskService.createAndStoreAsyncTask();
         new Thread(() -> {
-            AsyncTask asyncTask = asyncTaskService.setInProgress(newAsyncTask);
+            SecurityContextHolder.setContext(context);
+            AsyncTask asyncTask = asyncTaskService.setInProgress(newAsyncTask, "Importing words...");
             try {
                 SecurityContextHolder.setContext(context);
                 Set<String> alreadyExisting = getAlreadyPresentWords();
