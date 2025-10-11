@@ -119,7 +119,10 @@ public abstract class AbstractLearningView extends AbstractPageView {
         // Add the level checkboxes to the top of the page
         add(levelCheckBoxesLayout);
 
-        reloadFlashcards.addClickListener(event -> reloadData());
+        reloadFlashcards.addClickListener(event -> {
+            reloadData();
+            reloadFlashcards.blur();
+        });
         againButton.addClickListener(buttonClickEvent ->
                 postButtonClickActions(translationRecordService, "AGAIN"));
         hardButton.addClickListener(buttonClickEvent ->
