@@ -1,0 +1,84 @@
+columns:
+  - field: sourceText
+    displayName: "Text"
+    internalNameField: "TranslationRecord_sourceText_columnName"
+    inSaveForm: true
+    inEditForm: true
+    inTable: true
+    required: true
+    min: 3
+    max: 255
+
+  - field: level
+    displayName: "Level"
+    internalNameField: "TranslationRecord_level_columnName"
+    strValues: ["N/A", "A1", "A2", "B1", "B2", "C1", "C2"]
+    inSaveForm: true
+    inEditForm: true
+    inTable: true
+    required: false
+    
+  - field: textTranslation
+    displayName: "Translation"
+    internalNameField: "TranslationRecord_textTranslation_columnName"
+    inSaveForm: true
+    inEditForm: true
+    inTable: true
+    required: true
+    min: 3
+    max: 255
+    
+  - field: inSentence
+    displayName: "Examples"
+    internalNameField: "TranslationRecord_inSentence_columnName"
+    inSaveForm: true
+    inEditForm: true
+    inTable: true
+    required: false
+    min: 20
+    max: 512
+    
+  - field: inSentenceTranslation
+    displayName: "Translation"
+    internalNameField: "TranslationRecord_inSentenceTranslation_columnName"
+    inSaveForm: true
+    inEditForm: true
+    inTable: true
+    required: false
+    min: 20
+    max: 512
+    
+  - field: factor
+    displayName: "Factor"
+    internalNameField: "TranslationRecord_factor_columnName"
+    inSaveForm: false
+    inEditForm: true
+    inTable: true
+    required: false
+    min: 0
+    
+  - field: nextRepeatTime
+    displayName: "Repeat"
+    internalNameField: "TranslationRecord_nextRepeatTime_columnName"
+    inSaveForm: false
+    inEditForm: true
+    inTable: true
+    required: false
+    
+  - field: markedForLearning
+    displayName: "Learn"
+    internalNameField: "TranslationRecord_markedForLearning_columnName"
+    inSaveForm: false
+    inEditForm: true
+    inTable: true
+    required: false
+    
+  - field: images
+    displayName: "Images"
+    internalNameField: "TranslationRecord_images_columnName"
+    extension: "VaadinImageBervanColumn"
+    inSaveForm: false
+    inEditForm: true
+    inTable: true
+    required: false
+    
