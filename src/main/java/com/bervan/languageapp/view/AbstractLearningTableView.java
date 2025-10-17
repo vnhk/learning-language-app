@@ -2,6 +2,7 @@ package com.bervan.languageapp.view;
 
 import com.bervan.common.MenuNavigationComponent;
 import com.bervan.common.component.AutoConfigurableField;
+import com.bervan.common.config.BervanViewConfig;
 import com.bervan.common.search.SearchRequest;
 import com.bervan.common.search.model.SearchOperation;
 import com.bervan.common.view.AbstractBervanTableView;
@@ -42,8 +43,8 @@ public abstract class AbstractLearningTableView extends AbstractBervanTableView<
                                      TextToSpeechService textToSpeechService,
                                      TranslatorService translationService, BervanLogger log,
                                      String language,
-                                     MenuNavigationComponent pageNavigationComponent) {
-        super(pageNavigationComponent, translatorRecordService, log, TranslationRecord.class);
+                                     MenuNavigationComponent pageNavigationComponent, BervanViewConfig bervanViewConfig) {
+        super(pageNavigationComponent, translatorRecordService, log, bervanViewConfig, TranslationRecord.class);
         this.exampleOfUsageService = exampleOfUsageService;
         this.textToSpeechService = textToSpeechService;
         this.translationService = translationService;
@@ -54,7 +55,7 @@ public abstract class AbstractLearningTableView extends AbstractBervanTableView<
     @Override
     protected void buildToolbarActionBar() {
         tableToolbarActions = new LearningLanguageTableToolbar(gridActionService,
-                checkboxes, data, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange, service)
+                checkboxes, data, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange, service, bervanViewConfig)
                 .withMarkToLearn()
                 .withMarkNotToLearn()
                 .withEditButton(service, bervanLogger)

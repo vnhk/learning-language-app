@@ -2,8 +2,6 @@ package com.bervan.languageapp;
 
 import com.bervan.common.model.BervanBaseEntity;
 import com.bervan.common.model.PersistableTableData;
-import com.bervan.common.model.VaadinImageBervanColumn;
-import com.bervan.common.model.VaadinBervanColumn;
 import com.bervan.ieentities.ExcelIEEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -31,37 +29,42 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
     private UUID id;
     private Boolean deleted;
     @Size(max = 2000)
-    @VaadinBervanColumn(displayName = "Text", internalName = TranslationRecord_sourceText_columnName)
     private String sourceText;
     @Size(min = 2, max = 3)
-    @VaadinBervanColumn(displayName = "Level", internalName = TranslationRecord_level_columnName, strValues = {"N/A", "A1", "A2", "B1", "B2", "C1", "C2"})
     private String level;
     @Size(max = 2000)
-    @VaadinBervanColumn(displayName = "Translation", internalName = TranslationRecord_textTranslation_columnName)
     private String textTranslation;
     private String type;
     @Size(max = 2000)
-    @VaadinBervanColumn(displayName = "Examples", internalName = TranslationRecord_inSentence_columnName)
     private String inSentence;
     @Size(max = 2000)
-    @VaadinBervanColumn(displayName = "Translation", internalName = TranslationRecord_inSentenceTranslation_columnName)
     private String inSentenceTranslation;
     @Size(max = 1000000000)
     private String textSound;
     @Size(max = 1000000000)
     private String inSentenceSound;
-    @VaadinBervanColumn(displayName = "Factor", internalName = TranslationRecord_factor_columnName, inSaveForm = false)
     private Integer factor;
-    @VaadinBervanColumn(displayName = "Repeat", internalName = TranslationRecord_nextRepeatTime_columnName, inSaveForm = false)
     private LocalDateTime nextRepeatTime;
-    @VaadinBervanColumn(displayName = "Learn", internalName = TranslationRecord_markedForLearning_columnName, inSaveForm = false)
     private boolean markedForLearning = true;
     private String language = "EN";
     @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "images", joinColumns = @JoinColumn(name = "library_id"))
     @Column(name = "image", nullable = false, length = 1000000000)
-    @VaadinBervanColumn(extension = VaadinImageBervanColumn.class, displayName = "Images", internalName = TranslationRecord_images_columnName, inSaveForm = false)
     private List<String> images = new ArrayList<>();
+
+    public TranslationRecord() {
+    }
+
+    public TranslationRecord(TranslationRecord old) {
+        this.sourceText = old.getSourceText();
+        this.textTranslation = old.getTextTranslation();
+        this.type = old.getType();
+        this.level = old.getLevel();
+        this.inSentence = old.getInSentence();
+        this.inSentenceTranslation = old.getInSentenceTranslation();
+        this.id = old.getId();
+        this.deleted = old.isDeleted();
+    }
 
     public LocalDateTime getNextRepeatTime() {
         return nextRepeatTime;
@@ -69,9 +72,6 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
 
     public void setNextRepeatTime(LocalDateTime nextRepeatTime) {
         this.nextRepeatTime = nextRepeatTime;
-    }
-
-    public TranslationRecord() {
     }
 
     public Boolean isDeleted() {
@@ -139,17 +139,6 @@ public class TranslationRecord extends BervanBaseEntity<UUID> implements Persist
 
     public void setInSentenceSound(String inSentenceSound) {
         this.inSentenceSound = inSentenceSound;
-    }
-
-    public TranslationRecord(TranslationRecord old) {
-        this.sourceText = old.getSourceText();
-        this.textTranslation = old.getTextTranslation();
-        this.type = old.getType();
-        this.level = old.getLevel();
-        this.inSentence = old.getInSentence();
-        this.inSentenceTranslation = old.getInSentenceTranslation();
-        this.id = old.getId();
-        this.deleted = old.isDeleted();
     }
 
     @Override

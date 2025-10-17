@@ -1,6 +1,7 @@
 package com.bervan.languageapp.view;
 
 import com.bervan.common.MenuNavigationComponent;
+import com.bervan.common.config.BervanViewConfig;
 import com.bervan.common.search.SearchRequest;
 import com.bervan.common.search.model.SearchOperation;
 import com.bervan.common.view.AbstractDataIEView;
@@ -16,9 +17,10 @@ import java.util.UUID;
 public abstract class AbstractImportExportView extends AbstractDataIEView<UUID, TranslationRecord> {
     private final String language;
 
-    public AbstractImportExportView(BervanLogger logger, TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigation, String language) {
+    public AbstractImportExportView(BervanLogger logger, TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigation, String language, BervanViewConfig bervanViewConfig) {
         super(translationRecordService,
                 menuNavigation,
+                bervanViewConfig,
                 logger,
                 TranslationRecord.class);
         this.language = language;
