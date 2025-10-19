@@ -1,7 +1,10 @@
 package com.bervan.languageapp.view;
 
-import com.bervan.common.MenuNavigationComponent;
+import com.bervan.common.search.SearchRequest;
+import com.bervan.common.search.model.SearchOperation;
 import com.bervan.common.view.AbstractPageView;
+import com.bervan.languageapp.TranslationRecord;
+import com.bervan.languageapp.service.TranslationRecordService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
@@ -12,7 +15,25 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public abstract class AbstractLearningAppHomeView extends AbstractPageView {
 
-    public AbstractLearningAppHomeView(MenuNavigationComponent menuNavigationLayout) {
+    private final String WORD_LIST_ROUTE;
+    private final String FLASHCARD_ROUTE;
+    private final String QUIZ_ROUTE;
+    private final String FAST_IMPORT_ROUTE;
+    private final String IMPORT_EXPORT_ROUTE;
+    private final String language;
+    private final TranslationRecordService translationRecordService;
+
+    public AbstractLearningAppHomeView(TranslationRecordService translationRecordService,
+                                       String wordListRoute, String flashcardRoute,
+                                       String quizRoute, String fastImportRoute,
+                                       String importExportRoute, String language) {
+        this.translationRecordService = translationRecordService;
+        this.language = language;
+        this.WORD_LIST_ROUTE = wordListRoute;
+        this.FLASHCARD_ROUTE = flashcardRoute;
+        this.QUIZ_ROUTE = quizRoute;
+        this.FAST_IMPORT_ROUTE = fastImportRoute;
+        this.IMPORT_EXPORT_ROUTE = importExportRoute;
 //        add(menuNavigationLayout);
         // Set the main background style (as in the image)
         addClassName("home-view");
@@ -52,31 +73,36 @@ public abstract class AbstractLearningAppHomeView extends AbstractPageView {
         quickAccessLayout.add(createCardButton(
                 VaadinIcon.GRID.create(),
                 "Word List",
-                "Browse and edit your word lists."
+                "Browse and edit your word lists.",
+                WORD_LIST_ROUTE
         ));
 
         quickAccessLayout.add(createCardButton(
                 VaadinIcon.BOOKMARK.create(), // Flashcards
                 "Flashcards",
-                "Time for a review!"
+                "Time for a review!",
+                FLASHCARD_ROUTE
         ));
 
         quickAccessLayout.add(createCardButton(
                 VaadinIcon.QUESTION_CIRCLE.create(), // Quiz
                 "Quiz",
-                "Test your knowledge."
+                "Test your knowledge.",
+                QUIZ_ROUTE
         ));
 
         quickAccessLayout.add(createCardButton(
                 VaadinIcon.INPUT.create(), // Fast Import
                 "Fast Import",
-                "Quickly import new words."
+                "Quickly import new words.",
+                FAST_IMPORT_ROUTE
         ));
 
         quickAccessLayout.add(createCardButton(
                 VaadinIcon.FILE_SEARCH.create(), // Data Import/Export
                 "Import/Export",
-                "Manage your data."
+                "Manage your data.",
+                IMPORT_EXPORT_ROUTE
         ));
 
         return quickAccessLayout;
@@ -89,16 +115,32 @@ public abstract class AbstractLearningAppHomeView extends AbstractPageView {
         H3 progressTitle = new H3("Your Progress");
         progressTitle.addClassName("stats-title");
 
-        // Example statistics (will be loaded from a service in the future)
+        long masteredWords = getMasteredWords();
+        long allWords = getAllWords();
+
         statsPanel.add(progressTitle);
-        statsPanel.add(new Span("Mastered words: 450 / 1200"));
-        statsPanel.add(new Span("Last quiz: 85%"));
+        statsPanel.add(new Span("Mastered words: " + masteredWords + " / " + allWords));
 
         return statsPanel;
     }
 
+    private long getAllWords() {
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.addDeletedFalseCriteria(TranslationRecord.class);
+        searchRequest.addCriterion("LANGUAGE_CRITERIA", TranslationRecord.class, "language", SearchOperation.EQUALS_OPERATION, language);
+        return translationRecordService.loadCount(searchRequest);
+    }
+
+    private long getMasteredWords() {
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.addDeletedFalseCriteria(TranslationRecord.class);
+        searchRequest.addCriterion("LANGUAGE_CRITERIA", TranslationRecord.class, "language", SearchOperation.EQUALS_OPERATION, language);
+        searchRequest.addCriterion("FACTOR_CRITERIA", TranslationRecord.class, "factor", SearchOperation.GREATER_EQUAL_OPERATION, 512);
+        return translationRecordService.loadCount(searchRequest);
+    }
+
     // Helper method for creating clickable card buttons
-    private Div createCardButton(Icon icon, String title, String description) {
+    private Div createCardButton(Icon icon, String title, String description, String route) {
         Div cardButtonDiv = new Div();
         cardButtonDiv.addClassName("card-button");
 
@@ -123,6 +165,10 @@ public abstract class AbstractLearningAppHomeView extends AbstractPageView {
         cardButtonDiv.setWidth("180px");
         cardButtonDiv.setHeight("180px");
         cardButtonDiv.getStyle().set("padding", "10px");
+
+        cardButtonDiv.addClickListener(e -> {
+            getUI().ifPresent(ui -> ui.navigateToClient(route));
+        });
 
         return cardButtonDiv;
     }
