@@ -146,7 +146,7 @@ public abstract class AbstractLearningTableView extends AbstractBervanTableView<
     }
 
     @Override
-    protected TranslationRecord customizeSavingInCreateForm(TranslationRecord newTranslationRecord) {
+    protected TranslationRecord preSaveActions(TranslationRecord newTranslationRecord) {
         if (saveSpeech.getValue()) {
             newTranslationRecord.setTextSound(this.textToSpeechService.getTextSpeech(newTranslationRecord.getSourceText(), language));
             if (StringUtils.isNotBlank(newTranslationRecord.getInSentence())) {
