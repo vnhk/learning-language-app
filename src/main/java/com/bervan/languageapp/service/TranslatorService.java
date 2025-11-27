@@ -1,6 +1,5 @@
 package com.bervan.languageapp.service;
 
-import com.bervan.core.model.BervanLogger;
 import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
@@ -9,13 +8,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TranslatorService {
-    private final BervanLogger logger;
     @Value("${translation.api.key}")
     private String API_KEY;
     private Translate translate;
 
-    public TranslatorService(BervanLogger logger) {
-        this.logger = logger;
+    public TranslatorService() {
 
         translate = TranslateOptions.newBuilder()
                 .setApiKey(API_KEY)

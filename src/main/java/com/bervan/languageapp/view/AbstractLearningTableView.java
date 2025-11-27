@@ -6,7 +6,6 @@ import com.bervan.common.config.BervanViewConfig;
 import com.bervan.common.search.SearchRequest;
 import com.bervan.common.search.model.SearchOperation;
 import com.bervan.common.view.AbstractBervanTableView;
-import com.bervan.core.model.BervanLogger;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.component.LearningLanguageTableToolbar;
 import com.bervan.languageapp.service.ExampleOfUsageService;
@@ -41,10 +40,10 @@ public abstract class AbstractLearningTableView extends AbstractBervanTableView<
     public AbstractLearningTableView(TranslationRecordService translatorRecordService,
                                      ExampleOfUsageService exampleOfUsageService,
                                      TextToSpeechService textToSpeechService,
-                                     TranslatorService translationService, BervanLogger log,
+                                     TranslatorService translationService,
                                      String language,
                                      MenuNavigationComponent pageNavigationComponent, BervanViewConfig bervanViewConfig) {
-        super(pageNavigationComponent, translatorRecordService, log, bervanViewConfig, TranslationRecord.class);
+        super(pageNavigationComponent, translatorRecordService, bervanViewConfig, TranslationRecord.class);
         this.exampleOfUsageService = exampleOfUsageService;
         this.textToSpeechService = textToSpeechService;
         this.translationService = translationService;
@@ -58,9 +57,9 @@ public abstract class AbstractLearningTableView extends AbstractBervanTableView<
                 checkboxes, data, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange, service, bervanViewConfig)
                 .withMarkToLearn()
                 .withMarkNotToLearn()
-                .withEditButton(service, bervanLogger)
+                .withEditButton(service)
                 .withDeleteButton()
-                .withExportButton(isExportable(), service, bervanLogger, pathToFileStorage, globalTmpDir)
+                .withExportButton(isExportable(), service, pathToFileStorage, globalTmpDir)
                 .build();
     }
 

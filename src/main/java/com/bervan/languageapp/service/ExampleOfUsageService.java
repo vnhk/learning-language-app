@@ -2,7 +2,7 @@ package com.bervan.languageapp.service;
 
 import com.bervan.common.service.AIService;
 import com.bervan.common.service.OpenAIService;
-import com.bervan.core.model.BervanLogger;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,17 +17,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+@Slf4j
 public class ExampleOfUsageService {
     private final String urlEn = "https://www.diki.pl/slownik-angielskiego?q=";
     private final String urlEs = "https://www.diki.pl/slownik-hiszpanskiego?q=";
-    private final BervanLogger logger;
     private final AIService exampleOfUsageEnglishAI;
     private final AIService exampleOfUsageSpanishAI;
     @Value("${openai.api.key}")
     private String apiKey;
 
-    public ExampleOfUsageService(BervanLogger logger) {
-        this.logger = logger;
+    public ExampleOfUsageService() {
         String promptFormat = """
                         Your task is to generate example sentences (n sentences) with the given word / words (in correct order, with small changes if needed).
                         Purpose of your task is to prepare a data for quiz for language learner.
@@ -60,7 +59,7 @@ public class ExampleOfUsageService {
         try {
             return find(sourceText, language, 5);
         } catch (Exception e) {
-            logger.error("Could not create example of usage!");
+            log.error("Could not create example of usage!");
         }
         return new ArrayList<>();
     }
@@ -70,7 +69,7 @@ public class ExampleOfUsageService {
             Map<String, List<String>> res = new HashMap<>();
             res.put(sourceText, find(sourceText, language, MAX_EXAMPLES));
         } catch (Exception e) {
-            logger.error("Could not create example of usage!");
+            log.error("Could not create example of usage!");
         }
         return new HashMap<>();
     }
@@ -82,7 +81,7 @@ public class ExampleOfUsageService {
             }
             return findWithAI(sourceText, language, MAX_EXAMPLES);
         } catch (Exception e) {
-            logger.error("Could not create example of usage!");
+            log.error("Could not create example of usage!");
             return createExampleOfUsage(sourceText, language, MAX_EXAMPLES);
         }
     }
@@ -141,7 +140,7 @@ public class ExampleOfUsageService {
                     String val = exampleSentence.text().replace(exampleSentenceTranslationToBeRemoved, "").trim();
                     examples.add(val);
                 } catch (Exception e) {
-                    logger.error("Could not create example of usage!");
+                    log.error("Could not create example of usage!");
                 }
             }
         } else {

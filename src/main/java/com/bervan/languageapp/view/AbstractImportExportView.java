@@ -5,23 +5,23 @@ import com.bervan.common.config.BervanViewConfig;
 import com.bervan.common.search.SearchRequest;
 import com.bervan.common.search.model.SearchOperation;
 import com.bervan.common.view.AbstractDataIEView;
-import com.bervan.core.model.BervanLogger;
 import com.bervan.ieentities.ExcelIEEntity;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.TranslationRecordService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 public abstract class AbstractImportExportView extends AbstractDataIEView<UUID, TranslationRecord> {
     private final String language;
 
-    public AbstractImportExportView(BervanLogger logger, TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigation, String language, BervanViewConfig bervanViewConfig) {
+    public AbstractImportExportView(TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigation, String language, BervanViewConfig bervanViewConfig) {
         super(translationRecordService,
                 menuNavigation,
                 bervanViewConfig,
-                logger,
                 TranslationRecord.class);
         this.language = language;
     }
@@ -43,7 +43,7 @@ public abstract class AbstractImportExportView extends AbstractDataIEView<UUID, 
                 if (translationRecord.getLanguage() == null) {
                     translationRecord.setLanguage(this.language);
                 } else if (!translationRecord.getLanguage().equals(this.language)) {
-                    logger.warn("Language of record " + translationRecord.getId() + " does not match the language of the view (" + this.language + "). It will not be imported");
+                    log.warn("Language of record " + translationRecord.getId() + " does not match the language of the view (" + this.language + "). It will not be imported");
                     iterator.remove();
                 }
             } else {

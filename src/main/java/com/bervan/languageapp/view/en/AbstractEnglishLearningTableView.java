@@ -1,7 +1,6 @@
 package com.bervan.languageapp.view.en;
 
 import com.bervan.common.config.BervanViewConfig;
-import com.bervan.core.model.BervanLogger;
 import com.bervan.languageapp.service.ExampleOfUsageService;
 import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
@@ -19,8 +18,8 @@ public abstract class AbstractEnglishLearningTableView extends AbstractLearningT
     public AbstractEnglishLearningTableView(TranslationRecordService translatorRecordService,
                                             ExampleOfUsageService exampleOfUsageService,
                                             TextToSpeechService textToSpeechService,
-                                            TranslatorService translationService, BervanLogger log, BervanViewConfig bervanViewConfig) {
-        super(translatorRecordService, exampleOfUsageService, textToSpeechService, translationService, log, "EN", new LearningEnglishLayout(ROUTE_NAME), bervanViewConfig);
+                                            TranslatorService translationService, BervanViewConfig bervanViewConfig) {
+        super(translatorRecordService, exampleOfUsageService, textToSpeechService, translationService, "EN", new LearningEnglishLayout(ROUTE_NAME), bervanViewConfig);
         buildHelpfulPagesLinks();
     }
 
