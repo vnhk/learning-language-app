@@ -2,7 +2,7 @@ package com.bervan.languageapp.service;
 
 import com.bervan.common.service.AIService;
 import com.bervan.common.service.OpenAIService;
-import lombok.extern.slf4j.Slf4j;
+import com.bervan.logging.JsonLogger;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,8 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-@Slf4j
 public class ExampleOfUsageService {
+    private final JsonLogger log = JsonLogger.getLogger(getClass());
     private final String urlEn = "https://www.diki.pl/slownik-angielskiego?q=";
     private final String urlEs = "https://www.diki.pl/slownik-hiszpanskiego?q=";
     private final AIService exampleOfUsageEnglishAI;

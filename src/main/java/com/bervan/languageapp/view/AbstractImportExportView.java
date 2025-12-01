@@ -14,9 +14,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
+import com.bervan.logging.JsonLogger;
 public abstract class AbstractImportExportView extends AbstractDataIEView<UUID, TranslationRecord> {
     private final String language;
+    private final JsonLogger log = JsonLogger.getLogger(getClass());
 
     public AbstractImportExportView(TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigation, String language, BervanViewConfig bervanViewConfig) {
         super(translationRecordService,

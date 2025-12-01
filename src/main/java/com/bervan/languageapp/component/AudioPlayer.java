@@ -1,5 +1,6 @@
 package com.bervan.languageapp.component;
 
+import com.bervan.logging.JsonLogger;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -8,14 +9,13 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
 
 @Tag("Div")
-@Slf4j
 public class AudioPlayer extends Component {
+    private static final JsonLogger log = JsonLogger.getLogger(AudioPlayer.class);
 
     private AudioElement audioElement;
 
@@ -29,6 +29,15 @@ public class AudioPlayer extends Component {
         speakerIcon.addClickListener(event -> toggleAudio());
 
         getElement().appendChild(speakerIcon.getElement());
+    }
+
+    private static byte[] getDecode(String audioInBase64) {
+        try {
+            return Base64.getDecoder().decode(audioInBase64);
+        } catch (IllegalArgumentException e) {
+            log.error("Incorrect base64 audio.");
+            return new byte[0];
+        }
     }
 
     public void executeAutoPlay() {
@@ -52,15 +61,6 @@ public class AudioPlayer extends Component {
 
         }
 
-    }
-
-    private static byte[] getDecode(String audioInBase64) {
-        try {
-            return Base64.getDecoder().decode(audioInBase64);
-        } catch (IllegalArgumentException e) {
-            log.error("Incorrect base64 audio.");
-            return new byte[0];
-        }
     }
 
     public void toggleAudio() {

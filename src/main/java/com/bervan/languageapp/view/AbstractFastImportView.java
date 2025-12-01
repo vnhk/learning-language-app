@@ -15,19 +15,18 @@ import com.bervan.languageapp.service.ExampleOfUsageService;
 import com.bervan.languageapp.service.TextToSpeechService;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
+import com.bervan.logging.JsonLogger;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import io.micrometer.common.util.StringUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Slf4j
 public abstract class AbstractFastImportView extends AbstractPageView {
     protected final String language;
     protected final Checkbox generateSound = new Checkbox("Generate sound", true);
@@ -35,6 +34,7 @@ public abstract class AbstractFastImportView extends AbstractPageView {
     protected final Checkbox generateExamplesWithAI = new Checkbox("Generate Examples using AI", false);
     protected final Checkbox generateImages = new Checkbox("Generate Images", true);
     protected final Checkbox markAllAsToLearn = new Checkbox("Activate and Mark for Learning", true);
+    private final JsonLogger log = JsonLogger.getLogger(getClass());
     private final TextArea text = new TextArea("';' Separated Words/Sentences (spaces will be removed)");
     private final TranslationRecordService translationRecordService;
     private final TextToSpeechService textToSpeechService;
