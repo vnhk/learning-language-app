@@ -15,7 +15,7 @@ import java.util.Base64;
 
 @Tag("Div")
 public class AudioPlayer extends Component {
-    private static final JsonLogger log = JsonLogger.getLogger(AudioPlayer.class);
+    private static final JsonLogger log = JsonLogger.getLogger(AudioPlayer.class, "learning-language");
 
     private AudioElement audioElement;
 

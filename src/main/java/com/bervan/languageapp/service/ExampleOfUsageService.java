@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 @Service
 public class ExampleOfUsageService {
-    private final JsonLogger log = JsonLogger.getLogger(getClass());
+    private final JsonLogger log = JsonLogger.getLogger(getClass(), "learning-language");
     private final String urlEn = "https://www.diki.pl/slownik-angielskiego?q=";
     private final String urlEs = "https://www.diki.pl/slownik-hiszpanskiego?q=";
     private final AIService exampleOfUsageEnglishAI;

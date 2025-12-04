@@ -34,7 +34,7 @@ public abstract class AbstractFastImportView extends AbstractPageView {
     protected final Checkbox generateExamplesWithAI = new Checkbox("Generate Examples using AI", false);
     protected final Checkbox generateImages = new Checkbox("Generate Images", true);
     protected final Checkbox markAllAsToLearn = new Checkbox("Activate and Mark for Learning", true);
-    private final JsonLogger log = JsonLogger.getLogger(getClass());
+    private final JsonLogger log = JsonLogger.getLogger(getClass(), "learning-language");
     private final TextArea text = new TextArea("';' Separated Words/Sentences (spaces will be removed)");
     private final TranslationRecordService translationRecordService;
     private final TextToSpeechService textToSpeechService;

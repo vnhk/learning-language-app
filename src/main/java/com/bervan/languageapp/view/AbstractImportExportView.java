@@ -17,7 +17,7 @@ import java.util.UUID;
 import com.bervan.logging.JsonLogger;
 public abstract class AbstractImportExportView extends AbstractDataIEView<UUID, TranslationRecord> {
     private final String language;
-    private final JsonLogger log = JsonLogger.getLogger(getClass());
+    private final JsonLogger log = JsonLogger.getLogger(getClass(), "learning-language");
 
     public AbstractImportExportView(TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigation, String language, BervanViewConfig bervanViewConfig) {
         super(translationRecordService,
