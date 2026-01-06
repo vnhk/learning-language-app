@@ -43,23 +43,16 @@ public class Flashcard extends VerticalLayout {
         add(buttonsLayout, new HorizontalLayout(flashcardDiv, additionalDetailsDiv));
 
         getElement().executeJs(
-                " document.addEventListener('keydown', function(event) {" +
-                        "    if (event.key === ' ' || event.key === 'Spacebar') {" +
-                        "        $0.$server.flashcardClick() " +
-                        "    } else if (event.key === 'q') {" +
-                        "        $0.$server.againButtonClick() " +
-                        "    } else if (event.key === 'w') {" +
-                        "        $0.$server.hardButtonClick() " +
-                        "    } else if (event.key === 'e') {" +
-                        "        $0.$server.goodButtonClick() " +
-                        "    } else if (event.key === 'r') {" +
-                        "        $0.$server.easyButtonClick() " +
-                        "    } else if (event.key === 'p') {" +
-                        "        $0.$server.playSound() " +
-                        "    } else {return;}" +
-                        " }); "
-                ,
-                getElement()    // $0
+                "window.flashcardListener = function(event) {" +
+                        "  if (event.key === ' ' || event.key === 'Spacebar') { $0.$server.flashcardClick(); }" +
+                        "  else if (event.key === 'q') { $0.$server.againButtonClick(); }" +
+                        "  else if (event.key === 'w') { $0.$server.hardButtonClick(); }" +
+                        "  else if (event.key === 'e') { $0.$server.goodButtonClick(); }" +
+                        "  else if (event.key === 'r') { $0.$server.easyButtonClick(); }" +
+                        "  else if (event.key === 'p') { $0.$server.playSound(); }" +
+                        "};" +
+                        "document.addEventListener('keydown', window.flashcardListener);",
+                getElement()
         );
     }
 
