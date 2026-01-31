@@ -13,7 +13,7 @@ public final class LearningEnglishLayout extends MenuNavigationComponent {
         addButtonIfVisible(menuButtonsRow, AbstractEnglishQuizView.ROUTE_NAME, "Quiz", VaadinIcon.QUESTION.create());
         addButtonIfVisible(menuButtonsRow, AbstractEnglishCrosswordView.ROUTE_NAME, "Crossword", VaadinIcon.PUZZLE_PIECE.create());
         addButtonIfVisible(menuButtonsRow, AbstractEnglishImportExportView.ROUTE_NAME, "Data IE", VaadinIcon.EXCHANGE.create());
-        addButtonIfVisible(menuButtonsRow, AbstractEnglishFastImportView.ROUTE_NAME, "Fast Import", VaadinIcon.INPUT.create());
+//        addButtonIfVisible(menuButtonsRow, AbstractEnglishFastImportView.ROUTE_NAME, "Fast Import", VaadinIcon.INPUT.create());
 
         add(menuButtonsRow);
     }
