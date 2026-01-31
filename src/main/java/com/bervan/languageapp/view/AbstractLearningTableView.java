@@ -53,8 +53,19 @@ public abstract class AbstractLearningTableView extends AbstractBervanTableView<
 
     @Override
     protected void buildToolbarActionBar() {
-        tableToolbarActions = new LearningLanguageTableToolbar(gridActionService,
-                checkboxes, data, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange, service, bervanViewConfig)
+        LearningLanguageTableToolbar toolbar = new LearningLanguageTableToolbar(
+                checkboxes, data, selectAllCheckbox, buttonsForCheckboxesForVisibilityChange, service, bervanViewConfig,
+                (v) -> {
+                    refreshData();
+                    return v;
+                });
+
+        // Pass floating toolbar for custom actions (if enabled)
+        if (floatingToolbar != null) {
+            toolbar.withFloatingToolbar(floatingToolbar);
+        }
+
+        tableToolbarActions = toolbar
                 .withMarkToLearn()
                 .withMarkNotToLearn()
                 .withEditButton(service)
@@ -164,9 +175,9 @@ public abstract class AbstractLearningTableView extends AbstractBervanTableView<
 
     @Override
     protected void postSearchUpdate(List<TranslationRecord> collect) {
-        super.postSearchUpdate(collect);
+//        super.postSearchUpdate(collect);
 
-        ((TranslationRecordService) service).loadImages(collect);
+//        ((TranslationRecordService) service).loadImages(collect);
     }
 
     private Checkbox getSaveSpeech() {
