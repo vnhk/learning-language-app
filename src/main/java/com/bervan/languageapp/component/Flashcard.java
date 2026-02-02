@@ -2,7 +2,9 @@ package com.bervan.languageapp.component;
 
 import com.bervan.common.component.BervanImageViewer;
 import com.bervan.languageapp.TranslationRecord;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClientCallable;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
@@ -17,6 +19,7 @@ public class Flashcard extends VerticalLayout {
     private Div buttonsLayout;
     private Div flashcardDiv;
     private Div additionalDetailsDiv;
+    private Div flashcardContainer;
 
     public Flashcard(TranslationRecord translationRecord, Div buttonsLayout, boolean isReversed) {
         this.cardTopPlayer = new AudioPlayer();
@@ -24,6 +27,11 @@ public class Flashcard extends VerticalLayout {
         this.buttonsLayout = buttonsLayout;
 
         this.addClassName("flashcard-layout");
+
+        // Main flashcard container with flip animation support
+        flashcardContainer = new Div();
+        flashcardContainer.addClassName("flashcard-container");
+
         flashcardDiv = new Div();
         additionalDetailsDiv = getAdditionalDetailsDiv(translationRecord);
         additionalDetailsDiv.setVisible(false);
@@ -40,19 +48,58 @@ public class Flashcard extends VerticalLayout {
             normalCard(translationRecord);
         }
 
-        add(buttonsLayout, new HorizontalLayout(flashcardDiv, additionalDetailsDiv));
+        // Layout: card on top, images below
+        VerticalLayout cardWithImages = new VerticalLayout();
+        cardWithImages.setPadding(false);
+        cardWithImages.setSpacing(true);
+        cardWithImages.addClassName("flashcard-card-with-images");
 
+        flashcardContainer.add(flashcardDiv);
+        cardWithImages.add(flashcardContainer, additionalDetailsDiv);
+
+        add(buttonsLayout, cardWithImages);
+
+        // Add keyboard shortcuts info
+        Div shortcutsInfo = new Div();
+        shortcutsInfo.addClassName("flashcard-shortcuts-info");
+        shortcutsInfo.getElement().setProperty("innerHTML",
+            "<span class='shortcut-key'>Space</span> flip &nbsp; " +
+            "<span class='shortcut-key'>Q</span> again &nbsp; " +
+            "<span class='shortcut-key'>W</span> hard &nbsp; " +
+            "<span class='shortcut-key'>E</span> good &nbsp; " +
+            "<span class='shortcut-key'>R</span> easy &nbsp; " +
+            "<span class='shortcut-key'>P</span> play");
+        add(shortcutsInfo);
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        // Register keyboard listener
         getElement().executeJs(
                 "window.flashcardListener = function(event) {" +
-                        "  if (event.key === ' ' || event.key === 'Spacebar') { $0.$server.flashcardClick(); }" +
-                        "  else if (event.key === 'q') { $0.$server.againButtonClick(); }" +
-                        "  else if (event.key === 'w') { $0.$server.hardButtonClick(); }" +
-                        "  else if (event.key === 'e') { $0.$server.goodButtonClick(); }" +
-                        "  else if (event.key === 'r') { $0.$server.easyButtonClick(); }" +
-                        "  else if (event.key === 'p') { $0.$server.playSound(); }" +
+                        "  if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') return;" +
+                        "  if (event.key === ' ' || event.key === 'Spacebar') { event.preventDefault(); $0.$server.flashcardClick(); }" +
+                        "  else if (event.key === 'q' || event.key === 'Q') { $0.$server.againButtonClick(); }" +
+                        "  else if (event.key === 'w' || event.key === 'W') { $0.$server.hardButtonClick(); }" +
+                        "  else if (event.key === 'e' || event.key === 'E') { $0.$server.goodButtonClick(); }" +
+                        "  else if (event.key === 'r' || event.key === 'R') { $0.$server.easyButtonClick(); }" +
+                        "  else if (event.key === 'p' || event.key === 'P') { $0.$server.playSound(); }" +
                         "};" +
                         "document.addEventListener('keydown', window.flashcardListener);",
                 getElement()
+        );
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        // Cleanup keyboard listener
+        getElement().executeJs(
+                "if (window.flashcardListener) {" +
+                        "  document.removeEventListener('keydown', window.flashcardListener);" +
+                        "  window.flashcardListener = null;" +
+                        "}"
         );
     }
 
@@ -151,6 +198,7 @@ public class Flashcard extends VerticalLayout {
 
         flashcardDiv.addClickListener(event -> {
             if (!isAnswerVisible) {
+                flashcardContainer.addClassName("flipped");
                 textTop.setText(translationRecord.getSourceText());
                 textBottom.setText(translationRecord.getInSentence());
                 cardTopPlayer.setVisible(true);
@@ -160,6 +208,7 @@ public class Flashcard extends VerticalLayout {
                 additionalDetailsDiv.setVisible(true);
                 isAnswerVisible = true;
             } else {
+                flashcardContainer.removeClassName("flipped");
                 textTop.setText(translationRecord.getTextTranslation());
                 textBottom.setText(translationRecord.getInSentenceTranslation());
                 cardTopPlayer.setVisible(false);
@@ -204,6 +253,7 @@ public class Flashcard extends VerticalLayout {
 
         flashcardDiv.addClickListener(event -> {
             if (!isAnswerVisible) {
+                flashcardContainer.addClassName("flipped");
                 textTop.setText(translationRecord.getTextTranslation());
                 textBottom.setText(translationRecord.getInSentenceTranslation());
                 cardTopPlayer.setVisible(false);
@@ -213,6 +263,7 @@ public class Flashcard extends VerticalLayout {
                 isAnswerVisible = true;
                 additionalDetailsDiv.setVisible(true);
             } else {
+                flashcardContainer.removeClassName("flipped");
                 textTop.setText(translationRecord.getSourceText());
                 textBottom.setText(translationRecord.getInSentence());
                 cardTopPlayer.setVisible(true);

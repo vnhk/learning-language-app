@@ -9,9 +9,13 @@ import com.bervan.languageapp.service.TranslationRecordService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextField;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContext;
@@ -74,6 +78,8 @@ public abstract class AbstractLearningView extends AbstractPageView {
     public AbstractLearningView(TranslationRecordService translationRecordService, MenuNavigationComponent menuNavigationLayout, String language) {
         super();
 
+        addClassName("quiz-view");
+
         this.translationRecordService = translationRecordService;
         this.language = language;
 
@@ -113,11 +119,19 @@ public abstract class AbstractLearningView extends AbstractPageView {
         levelC1.setValue(true);
         levelC2.setValue(true);
 
-        // Put all level checkboxes in a single container
-        Div levelCheckBoxesLayout = new Div(levelNotClass, levelA1, levelA2, levelB1, levelB2, levelC1, levelC2, reloadFlashcards);
+        // Level filters in a styled container
+        Div levelFiltersContainer = new Div();
+        levelFiltersContainer.addClassName("language-level-filters");
 
-        // Add the level checkboxes to the top of the page
-        add(levelCheckBoxesLayout);
+        Span filterLabel = new Span("Filter by level:");
+        filterLabel.addClassName("language-filter-label");
+
+        HorizontalLayout checkboxes = new HorizontalLayout(levelNotClass, levelA1, levelA2, levelB1, levelB2, levelC1, levelC2, reloadFlashcards);
+        checkboxes.setSpacing(true);
+        checkboxes.setAlignItems(FlexComponent.Alignment.CENTER);
+
+        levelFiltersContainer.add(filterLabel, checkboxes);
+        add(levelFiltersContainer);
 
         reloadFlashcards.addClickListener(event -> {
             reloadData();

@@ -110,9 +110,8 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         }
 
         return switch (score) {
-            //again means that you forgot or its new word, when you spent 3 months learning this word
-            //you don't want to reset your progress to 1.
-            case "AGAIN" -> Math.min(1, (int) (factor / 2.0));
+            //again means that you forgot - reset to 1 but keep card in current session
+            case "AGAIN" -> 1;
             case "HARD" -> (int) Math.max(1, factor * 0.6);
             case "GOOD" -> factor * 2;
             case "EASY" -> factor * 4;

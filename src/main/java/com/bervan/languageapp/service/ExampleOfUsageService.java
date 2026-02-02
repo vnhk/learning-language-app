@@ -68,6 +68,7 @@ public class ExampleOfUsageService {
         try {
             Map<String, List<String>> res = new HashMap<>();
             res.put(sourceText, find(sourceText, language, MAX_EXAMPLES));
+            return res;
         } catch (Exception e) {
             log.error("Could not create example of usage!");
         }
