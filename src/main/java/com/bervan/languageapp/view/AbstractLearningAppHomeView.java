@@ -28,9 +28,9 @@ public abstract class AbstractLearningAppHomeView extends AbstractHomePageView {
                 , "Let’s start learning. What are you doing today?"));
 
         add(createQuickAccessSection(
-                List.of("Word List", "Flashcards", "Quiz", "Fast Import", "Import/Export"),
-                List.of("Browse and edit your word lists.", "Time for a review!", "Test you knowledge!", "Quickly import new words.", "Manage data."),
-                List.of(VaadinIcon.GRID.create(), VaadinIcon.BOOKMARK.create(), VaadinIcon.QUESTION_CIRCLE.create(), VaadinIcon.INPUT.create(), VaadinIcon.FILE_SEARCH.create()),
+                List.of("Word List", "Flashcards", "Quiz", "Import/Export"),
+                List.of("Browse and edit your word lists.", "Time for a review!", "Test you knowledge!", "Manage data."),
+                List.of(VaadinIcon.GRID.create(), VaadinIcon.BOOKMARK.create(), VaadinIcon.QUESTION_CIRCLE.create(), VaadinIcon.FILE_SEARCH.create()),
                 List.of(wordListRoute, flashcardRoute, quizRoute, fastImportRoute, importExportRoute)
 
         ));
