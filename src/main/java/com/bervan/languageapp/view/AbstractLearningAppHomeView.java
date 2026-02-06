@@ -18,7 +18,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractHomePageView {
 
     public AbstractLearningAppHomeView(TranslationRecordService translationRecordService,
                                        String wordListRoute, String flashcardRoute,
-                                       String quizRoute, String fastImportRoute,
+                                       String quizRoute,
                                        String importExportRoute, String language) {
         this.translationRecordService = translationRecordService;
         this.language = language;
@@ -31,7 +31,7 @@ public abstract class AbstractLearningAppHomeView extends AbstractHomePageView {
                 List.of("Word List", "Flashcards", "Quiz", "Import/Export"),
                 List.of("Browse and edit your word lists.", "Time for a review!", "Test you knowledge!", "Manage data."),
                 List.of(VaadinIcon.GRID.create(), VaadinIcon.BOOKMARK.create(), VaadinIcon.QUESTION_CIRCLE.create(), VaadinIcon.FILE_SEARCH.create()),
-                List.of(wordListRoute, flashcardRoute, quizRoute, fastImportRoute, importExportRoute)
+                List.of(wordListRoute, flashcardRoute, quizRoute, importExportRoute)
 
         ));
 

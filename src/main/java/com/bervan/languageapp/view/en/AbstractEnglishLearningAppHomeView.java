@@ -11,7 +11,6 @@ public abstract class AbstractEnglishLearningAppHomeView extends AbstractLearnin
                 AbstractEnglishLearningTableView.ROUTE_NAME,
                 AbstractEnglishLearningView.ROUTE_NAME,
                 AbstractEnglishQuizView.ROUTE_NAME,
-                AbstractEnglishFastImportView.ROUTE_NAME,
                 AbstractEnglishImportExportView.ROUTE_NAME, "EN");
     }
 }
