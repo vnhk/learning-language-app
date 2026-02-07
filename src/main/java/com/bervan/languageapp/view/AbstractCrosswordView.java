@@ -1,414 +1,554 @@
 package com.bervan.languageapp.view;
 
+import com.bervan.common.MenuNavigationComponent;
+import com.bervan.common.component.BervanButton;
+import com.bervan.common.component.BervanButtonStyle;
 import com.bervan.languageapp.TranslationRecord;
-import com.bervan.languageapp.service.CrosswordService;
-import com.vaadin.flow.component.ClickEvent;
+import com.bervan.languageapp.service.TranslationRecordService;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextField;
+import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
 public abstract class AbstractCrosswordView extends VerticalLayout {
-    private final CrosswordService crosswordService;
+
+    private static final int GRID_SIZE = 15;
+    private static final int MAX_WORDS = 12;
+    private static final char EMPTY = '\0';
+
+    private final TranslationRecordService translationRecordService;
     private final String language;
-    private final char EMPTY_CELL_CHAR = '-';
 
+    // Level filters
+    private final Checkbox levelNA = new Checkbox("N/A", true);
+    private final Checkbox levelA1 = new Checkbox("A1", true);
+    private final Checkbox levelA2 = new Checkbox("A2", true);
+    private final Checkbox levelB1 = new Checkbox("B1", true);
+    private final Checkbox levelB2 = new Checkbox("B2", true);
+    private final Checkbox levelC1 = new Checkbox("C1", true);
+    private final Checkbox levelC2 = new Checkbox("C2", true);
+
+    // Game state
     private char[][] grid;
-    private List<Word> words;
-    private Grid<Word> wordGrid;
-    private Div crosswordContainer;
-    private int gridSize = 30;
-    private Span messageLabel;
-    private Map<String, TextField> inputFields = new HashMap<>();
-    private Map<Integer, Integer> wordNumbers = new HashMap<>();
+    private List<CrosswordWord> placedWords;
+    private Map<String, TextField> cellInputs;
+    private Div gridContainer;
+    private VerticalLayout cluesContainer;
+    private Div resultsDiv;
 
-    public AbstractCrosswordView(CrosswordService crosswordService, String language) {
-        this.crosswordService = crosswordService;
+    public AbstractCrosswordView(TranslationRecordService translationRecordService,
+                                  String language,
+                                  MenuNavigationComponent menuNavigationLayout) {
+        this.translationRecordService = translationRecordService;
         this.language = language;
-        setAlignItems(Alignment.CENTER);
-        setJustifyContentMode(JustifyContentMode.CENTER);
-        getStyle().set("background-color", "#121212");
 
-        messageLabel = new Span();
-        messageLabel.getStyle().set("color", "#ffdb58");
+        addClassName("crossword-view");
+        setPadding(true);
+        setSpacing(true);
 
-        crosswordContainer = new Div();
-        crosswordContainer.getStyle().set("margin-top", "20px");
-        crosswordContainer.getStyle().set("border", "2px solid #3b82f6");
-        crosswordContainer.getStyle().set("padding", "10px");
-        crosswordContainer.getStyle().set("border-radius", "12px");
+        add(menuNavigationLayout);
 
-        wordGrid = new Grid<>(Word.class);
-        wordGrid.setColumns("index", "word", "definition", "placed");
-        wordGrid.getStyle().set("max-width", "400px");
-        wordGrid.getStyle().set("margin-top", "20px");
-        wordGrid.getStyle().set("background-color", "#1f2937");
-        wordGrid.getStyle().set("color", "#ffffff");
+        // Level filters
+        Div levelFiltersContainer = new Div();
+        levelFiltersContainer.addClassName("language-level-filters");
 
+        Span filterLabel = new Span("Filter by level:");
+        filterLabel.addClassName("language-filter-label");
 
-        Button generateButton = new Button("Generate Crossword Puzzle", this::generateCrossword);
-        generateButton.getStyle().set("margin-top", "20px");
-        generateButton.getStyle().set("background-color", "#4caf50");
-        generateButton.getStyle().set("color", "#ffffff");
-        generateButton.getStyle().set("font-size", "16px");
-        generateButton.getStyle().set("padding", "10px 20px");
-        generateButton.getStyle().set("border-radius", "8px");
-        generateButton.getStyle().set("box-shadow", "0 2px 5px rgba(0,0,0,0.2)");
-        generateButton.addThemeVariants();
+        HorizontalLayout checkboxes = new HorizontalLayout(levelNA, levelA1, levelA2, levelB1, levelB2, levelC1, levelC2);
+        checkboxes.setSpacing(true);
+        checkboxes.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Button checkButton = new Button("Check", this::checkAnswers);
-        checkButton.getStyle().set("margin-top", "20px");
-        checkButton.getStyle().set("background-color", "#007bff");
-        checkButton.getStyle().set("color", "#ffffff");
-        checkButton.getStyle().set("font-size", "16px");
-        checkButton.getStyle().set("padding", "10px 20px");
-        checkButton.getStyle().set("border-radius", "8px");
-        checkButton.getStyle().set("box-shadow", "0 2px 5px rgba(0,0,0,0.2)");
-        checkButton.addThemeVariants();
+        levelFiltersContainer.add(filterLabel, checkboxes);
+        add(levelFiltersContainer);
 
-        add(messageLabel, crosswordContainer, wordGrid, generateButton, checkButton);
+        // Action buttons
+        HorizontalLayout actionButtons = new HorizontalLayout();
+        actionButtons.setSpacing(true);
+        actionButtons.addClassName("crossword-action-buttons");
+
+        Button generateButton = new BervanButton("Generate Crossword", e -> generateCrossword());
+        generateButton.addClassName("primary");
+
+        Button checkButton = new BervanButton("Check Answers", e -> checkAnswers());
+        Button revealButton = new BervanButton("Reveal All", e -> revealAnswers(), BervanButtonStyle.WARNING);
+        Button resetButton = new BervanButton("Reset", e -> resetGame(), BervanButtonStyle.SECONDARY);
+
+        actionButtons.add(generateButton, checkButton, revealButton, resetButton);
+        add(actionButtons);
+
+        // Results container
+        resultsDiv = new Div();
+        resultsDiv.addClassName("crossword-results");
+        resultsDiv.setVisible(false);
+        add(resultsDiv);
+
+        // Main game container
+        HorizontalLayout gameContainer = new HorizontalLayout();
+        gameContainer.addClassName("crossword-game-container");
+        gameContainer.setWidthFull();
+        gameContainer.setSpacing(true);
+
+        // Grid container
+        gridContainer = new Div();
+        gridContainer.addClassName("crossword-grid-wrapper");
+
+        // Clues container
+        cluesContainer = new VerticalLayout();
+        cluesContainer.addClassName("crossword-clues-container");
+        cluesContainer.setPadding(true);
+        cluesContainer.setSpacing(true);
+
+        gameContainer.add(gridContainer, cluesContainer);
+        add(gameContainer);
+
+        // Initialize
+        resetGame();
     }
 
-    private void generateCrossword(ClickEvent event) {
-        words = getWords();
+    private void resetGame() {
+        grid = new char[GRID_SIZE][GRID_SIZE];
+        placedWords = new ArrayList<>();
+        cellInputs = new HashMap<>();
+        gridContainer.removeAll();
+        cluesContainer.removeAll();
+        resultsDiv.setVisible(false);
 
-        grid = new char[gridSize][gridSize];
-        for (char[] row : grid) {
-            Arrays.fill(row, EMPTY_CELL_CHAR);
+        Div placeholder = new Div();
+        placeholder.setText("Click 'Generate Crossword' to start!");
+        placeholder.addClassName("crossword-placeholder");
+        gridContainer.add(placeholder);
+    }
+
+    private void generateCrossword() {
+        resetGame();
+        gridContainer.removeAll();
+
+        // Get words from database
+        List<TranslationRecord> records = translationRecordService.getRecordsForQuiz(
+                language, getSelectedLevels(), Pageable.ofSize(200)
+        ).stream().toList();
+
+        if (records.isEmpty()) {
+            showError("No flashcards found for selected levels!");
+            return;
         }
 
-        wordNumbers.clear();
-        if (solveCrossword()) {
-            displayCrossword();
-            for (int i = 0; i < words.size(); i++) {
-                words.get(i).setIndex(i + 1);
+        // Filter and prepare words
+        List<CrosswordWord> candidates = new ArrayList<>();
+        for (TranslationRecord record : records) {
+            String word = cleanWord(record.getSourceText());
+            if (word.length() >= 3 && word.length() <= GRID_SIZE - 2) {
+                candidates.add(new CrosswordWord(word, record.getTextTranslation()));
             }
-            wordGrid.setItems(words);
-            messageLabel.setText("Crossword has been generated!");
-        } else {
-            messageLabel.setText("Crossword could not been generated.....");
-            crosswordContainer.removeAll();
-            wordGrid.setItems();
         }
+
+        if (candidates.size() < 3) {
+            showError("Not enough valid words found. Add more flashcards!");
+            return;
+        }
+
+        // Shuffle and try to place words
+        Collections.shuffle(candidates);
+
+        // Sort by length (longer first) for better placement
+        candidates.sort((a, b) -> b.word.length() - a.word.length());
+
+        // Place first word in center horizontally
+        CrosswordWord firstWord = candidates.get(0);
+        int startRow = GRID_SIZE / 2;
+        int startCol = (GRID_SIZE - firstWord.word.length()) / 2;
+        placeWord(firstWord, startRow, startCol, true);
+        placedWords.add(firstWord);
+
+        // Try to place remaining words
+        for (int i = 1; i < candidates.size() && placedWords.size() < MAX_WORDS; i++) {
+            CrosswordWord word = candidates.get(i);
+            if (tryPlaceWord(word)) {
+                placedWords.add(word);
+            }
+        }
+
+        if (placedWords.size() < 3) {
+            showError("Could not generate crossword. Try again!");
+            return;
+        }
+
+        // Assign numbers to words
+        assignWordNumbers();
+
+        // Build UI
+        buildGridUI();
+        buildCluesUI();
     }
 
-    private List<Word> getWords() {
-        List<Word> res = new ArrayList<>();
-        List<TranslationRecord> translationRecords = crosswordService.getCrosswordWords(gridSize, gridSize, language);
-        for (TranslationRecord translationRecord : translationRecords) {
-            res.add(new Word(translationRecord.getSourceText(), translationRecord.getTextTranslation()));
-        }
-        return res;
+    private String cleanWord(String text) {
+        return text.replaceAll("[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻáéíóúüñÁÉÍÓÚÜÑ]", "")
+                   .toUpperCase()
+                   .trim();
     }
 
-    private boolean solveCrossword() {
-        Collections.shuffle(words);
-        words = smartSortWords(words);
-        List<Word> notPlacedWords = new ArrayList<>();
-        int wordNumber = 1;
+    private boolean tryPlaceWord(CrosswordWord word) {
+        // Find intersections with placed words
+        for (CrosswordWord placed : placedWords) {
+            for (int i = 0; i < word.word.length(); i++) {
+                for (int j = 0; j < placed.word.length(); j++) {
+                    if (word.word.charAt(i) == placed.word.charAt(j)) {
+                        // Try to place perpendicular
+                        int newRow, newCol;
+                        boolean horizontal = !placed.horizontal;
 
-        for (int i = 0; i < words.size(); i++) {
-            Word currentWord = words.get(i);
-            boolean placed = false;
-            int row = 0;
-            int col = 0;
-
-            for (; row < gridSize && !placed; row++) {
-                for (; col < gridSize && !placed; col++) {
-                    if (grid[row][col] == EMPTY_CELL_CHAR || grid[row][col] == currentWord.word.charAt(0)) {
-                        if (isLastCellInRowOrInColumnAndPreviousCellIsUsed(row, col)) {
-                            //don't place words if only one (last) cell is empty, leave this empty
-                            continue;
+                        if (placed.horizontal) {
+                            // Placed is horizontal, new word vertical
+                            newRow = placed.row - i;
+                            newCol = placed.col + j;
+                        } else {
+                            // Placed is vertical, new word horizontal
+                            newRow = placed.row + j;
+                            newCol = placed.col - i;
                         }
 
-                        if (canPlaceWord(currentWord, row, col, true)) {
-                            placeWord(currentWord, row, col, true);
-                            placed = true;
-                            wordNumbers.put(wordNumber, row * gridSize + col);
-                            wordNumber++;
-                            break;
-                        } else if (canPlaceWord(currentWord, row, col, false)) {
-                            placeWord(currentWord, row, col, false);
-                            placed = true;
-                            wordNumbers.put(wordNumber, row * gridSize + col);
-                            wordNumber++;
-                            break;
+                        if (canPlace(word, newRow, newCol, horizontal)) {
+                            placeWord(word, newRow, newCol, horizontal);
+                            return true;
                         }
                     }
                 }
             }
-            if (!placed) {
-                notPlacedWords.add(currentWord);
+        }
+        return false;
+    }
+
+    private boolean canPlace(CrosswordWord word, int row, int col, boolean horizontal) {
+        int len = word.word.length();
+
+        // Check bounds
+        if (row < 0 || col < 0) return false;
+        if (horizontal && col + len > GRID_SIZE) return false;
+        if (!horizontal && row + len > GRID_SIZE) return false;
+
+        // Check each cell
+        for (int i = 0; i < len; i++) {
+            int r = horizontal ? row : row + i;
+            int c = horizontal ? col + i : col;
+
+            char existing = grid[r][c];
+            char needed = word.word.charAt(i);
+
+            if (existing != EMPTY && existing != needed) {
+                return false;
+            }
+
+            // Check adjacent cells (no parallel words touching)
+            if (existing == EMPTY) {
+                if (horizontal) {
+                    // Check above and below
+                    if (r > 0 && grid[r - 1][c] != EMPTY && !isPartOfIntersection(r - 1, c, r, c)) return false;
+                    if (r < GRID_SIZE - 1 && grid[r + 1][c] != EMPTY && !isPartOfIntersection(r + 1, c, r, c)) return false;
+                } else {
+                    // Check left and right
+                    if (c > 0 && grid[r][c - 1] != EMPTY && !isPartOfIntersection(r, c - 1, r, c)) return false;
+                    if (c < GRID_SIZE - 1 && grid[r][c + 1] != EMPTY && !isPartOfIntersection(r, c + 1, r, c)) return false;
+                }
             }
         }
-        for (Word notPlacedWord : notPlacedWords) {
-            words.remove(notPlacedWord);
-        }
+
+        // Check cell before word
+        if (horizontal && col > 0 && grid[row][col - 1] != EMPTY) return false;
+        if (!horizontal && row > 0 && grid[row - 1][col] != EMPTY) return false;
+
+        // Check cell after word
+        if (horizontal && col + len < GRID_SIZE && grid[row][col + len] != EMPTY) return false;
+        if (!horizontal && row + len < GRID_SIZE && grid[row + len][col] != EMPTY) return false;
+
         return true;
     }
 
-    private boolean isLastCellInRowOrInColumnAndPreviousCellIsUsed(int row, int col) {
-        return (col > 0 && grid[row][col] == EMPTY_CELL_CHAR && grid[row][col - 1] != EMPTY_CELL_CHAR) || (row > 0 && grid[row][col] == EMPTY_CELL_CHAR && grid[row - 1][col] != EMPTY_CELL_CHAR);
+    private boolean isPartOfIntersection(int r1, int c1, int r2, int c2) {
+        // Check if both cells are part of an intersection
+        return grid[r1][c1] != EMPTY && grid[r2][c2] != EMPTY;
     }
 
-    private boolean canPlaceWord(Word word, int row, int col, boolean horizontal) {
-        int i = 0;
-        if (horizontal) {
-            if (col + word.word.length() > gridSize) return false;
-            for (; i < word.word.length(); i++) {
-                if (grid[row][col + i] != EMPTY_CELL_CHAR && grid[row][col + i] != word.word.charAt(i)) {
-                    return false;
-                }
-            }
-        } else {
-            if (row + word.word.length() > gridSize) return false;
-            for (; i < word.word.length(); i++) {
-                if (grid[row + i][col] != EMPTY_CELL_CHAR && grid[row + i][col] != word.word.charAt(i)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    private void placeWord(CrosswordWord word, int row, int col, boolean horizontal) {
+        word.row = row;
+        word.col = col;
+        word.horizontal = horizontal;
 
-    private void placeWord(Word word, int row, int col, boolean horizontal) {
-        if (horizontal) {
-            for (int i = 0; i < word.word.length(); i++) {
-                grid[row][col + i] = word.word.charAt(i);
-            }
-            word.x = col;
-            word.y = row;
-            word.isHorizontal = true;
-        } else {
-            for (int i = 0; i < word.word.length(); i++) {
-                grid[row + i][col] = word.word.charAt(i);
-            }
-            word.x = col;
-            word.y = row;
-            word.isHorizontal = false;
+        for (int i = 0; i < word.word.length(); i++) {
+            int r = horizontal ? row : row + i;
+            int c = horizontal ? col + i : col;
+            grid[r][c] = word.word.charAt(i);
         }
     }
 
-    private void removeWord(Word word) {
-        if (word.isHorizontal) {
-            for (int i = 0; i < word.word.length(); i++) {
-                grid[word.y][word.x + i] = EMPTY_CELL_CHAR;
+    private void assignWordNumbers() {
+        // Sort words by position (top-to-bottom, left-to-right)
+        placedWords.sort((a, b) -> {
+            if (a.row != b.row) return a.row - b.row;
+            return a.col - b.col;
+        });
+
+        Map<String, Integer> positionNumbers = new HashMap<>();
+        int number = 1;
+
+        for (CrosswordWord word : placedWords) {
+            String posKey = word.row + "-" + word.col;
+            if (!positionNumbers.containsKey(posKey)) {
+                positionNumbers.put(posKey, number++);
             }
-        } else {
-            for (int i = 0; i < word.word.length(); i++) {
-                grid[word.y + i][word.x] = EMPTY_CELL_CHAR;
-            }
+            word.number = positionNumbers.get(posKey);
         }
     }
 
-    private void displayCrossword() {
-        crosswordContainer.removeAll();
-        inputFields.clear();
-        Div gridContainer = new Div();
-        gridContainer.getStyle().set("display", "grid");
-        gridContainer.getStyle().set("grid-template-columns", "repeat(" + gridSize + ", 30px)");
-        gridContainer.getStyle().set("gap", "2px");
-        gridContainer.getStyle().set("padding", "10px");
-        gridContainer.getStyle().set("border", "2px solid #3b82f6");
-        gridContainer.getStyle().set("border-radius", "12px");
-        gridContainer.getStyle().set("background-color", "#0f172a");
+    private void buildGridUI() {
+        Div gridDiv = new Div();
+        gridDiv.addClassName("crossword-grid");
+        gridDiv.getStyle().set("display", "grid");
+        gridDiv.getStyle().set("grid-template-columns", "repeat(" + GRID_SIZE + ", 1fr)");
+        gridDiv.getStyle().set("gap", "2px");
 
-        for (int row = 0; row < gridSize; row++) {
-            for (int col = 0; col < gridSize; col++) {
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int col = 0; col < GRID_SIZE; col++) {
                 Div cell = new Div();
-                cell.getStyle().set("position", "relative");
+                cell.addClassName("crossword-cell");
 
-                String cellId = row + "-" + col;
+                if (grid[row][col] != EMPTY) {
+                    cell.addClassName("crossword-cell-active");
 
-                if (grid[row][col] != EMPTY_CELL_CHAR) {
-                    TextField inputField = new TextField();
-                    inputField.setValue("");
-                    inputField.setMaxLength(1);
-                    inputField.setWidth("30px");
-                    inputField.setHeight("30px");
-                    inputField.getStyle().set("font-size", "16px");
-                    inputField.getStyle().set("text-transform", "uppercase");
-                    inputField.getStyle().set("text-align", "center");
-                    inputField.getStyle().set("padding", "0");
-                    inputField.getStyle().set("border-radius", "4px");
-                    inputField.getStyle().set("background-color", "#ffffff");
-                    inputField.getStyle().set("color", "#000000");
-
-                    int position = row * gridSize + col;
-                    for (Map.Entry<Integer, Integer> entry : wordNumbers.entrySet()) {
-                        if (entry.getValue() == position) {
-                            Span numberLabel = new Span(String.valueOf(entry.getKey()));
-                            numberLabel.getStyle().set("position", "absolute");
-                            numberLabel.getStyle().set("top", "2px");
-                            numberLabel.getStyle().set("left", "2px");
-                            numberLabel.getStyle().set("z-index", "500");
-                            numberLabel.getStyle().set("font-size", "10px");
-                            numberLabel.getStyle().set("color", "#ffdb58");
-                            cell.add(numberLabel);
-                            break;
-                        }
+                    // Check if this is start of a word
+                    Integer wordNumber = getWordNumberAt(row, col);
+                    if (wordNumber != null) {
+                        Span numSpan = new Span(String.valueOf(wordNumber));
+                        numSpan.addClassName("crossword-cell-number");
+                        cell.add(numSpan);
                     }
 
-                    inputFields.put(cellId, inputField);
-                    cell.add(inputField);
+                    // Input field
+                    TextField input = new TextField();
+                    input.setMaxLength(1);
+                    input.addClassName("crossword-input");
+                    final int currentRow = row;
+                    final int currentCol = col;
+                    input.addKeyPressListener(Key.ENTER, e -> focusNextInput(currentRow, currentCol));
+
+                    String cellId = row + "-" + col;
+                    cellInputs.put(cellId, input);
+                    cell.add(input);
                 } else {
-                    cell.setText("");
-                    cell.getStyle().set("width", "30px");
-                    cell.getStyle().set("height", "30px");
-                    cell.getStyle().set("display", "flex");
-                    cell.getStyle().set("align-items", "center");
-                    cell.getStyle().set("justify-content", "center");
-                    cell.getStyle().set("border", "1px solid #4b5563");
-                    cell.getStyle().set("font-size", "16px");
-                    cell.getStyle().set("color", "#ffffff");
-                    cell.getStyle().set("background-color", "#1f2937");
-                    cell.getStyle().set("border-radius", "4px");
+                    cell.addClassName("crossword-cell-empty");
                 }
-                gridContainer.add(cell);
+
+                gridDiv.add(cell);
             }
         }
-        crosswordContainer.add(gridContainer);
+
+        gridContainer.add(gridDiv);
     }
 
-    private void checkAnswers(ClickEvent event) {
-        int correctAnswers = 0;
+    private Integer getWordNumberAt(int row, int col) {
+        for (CrosswordWord word : placedWords) {
+            if (word.row == row && word.col == col) {
+                return word.number;
+            }
+        }
+        return null;
+    }
+
+    private void focusNextInput(int currentRow, int currentCol) {
+        // Try to find next input in row, then next row
+        for (int r = currentRow; r < GRID_SIZE; r++) {
+            int startCol = (r == currentRow) ? currentCol + 1 : 0;
+            for (int c = startCol; c < GRID_SIZE; c++) {
+                String cellId = r + "-" + c;
+                TextField next = cellInputs.get(cellId);
+                if (next != null) {
+                    next.focus();
+                    return;
+                }
+            }
+        }
+    }
+
+    private void buildCluesUI() {
+        cluesContainer.removeAll();
+
+        // Across clues
+        H3 acrossTitle = new H3("Across →");
+        acrossTitle.addClassName("crossword-clues-title");
+        cluesContainer.add(acrossTitle);
+
+        VerticalLayout acrossClues = new VerticalLayout();
+        acrossClues.setPadding(false);
+        acrossClues.setSpacing(false);
+
+        for (CrosswordWord word : placedWords) {
+            if (word.horizontal) {
+                Div clue = createClueItem(word);
+                acrossClues.add(clue);
+            }
+        }
+        cluesContainer.add(acrossClues);
+
+        // Down clues
+        H3 downTitle = new H3("Down ↓");
+        downTitle.addClassName("crossword-clues-title");
+        cluesContainer.add(downTitle);
+
+        VerticalLayout downClues = new VerticalLayout();
+        downClues.setPadding(false);
+        downClues.setSpacing(false);
+
+        for (CrosswordWord word : placedWords) {
+            if (!word.horizontal) {
+                Div clue = createClueItem(word);
+                downClues.add(clue);
+            }
+        }
+        cluesContainer.add(downClues);
+    }
+
+    private Div createClueItem(CrosswordWord word) {
+        Div clueDiv = new Div();
+        clueDiv.addClassName("crossword-clue-item");
+
+        Span numSpan = new Span(word.number + ". ");
+        numSpan.addClassName("crossword-clue-number");
+
+        Span textSpan = new Span(word.clue + " (" + word.word.length() + ")");
+        textSpan.addClassName("crossword-clue-text");
+
+        clueDiv.add(numSpan, textSpan);
+        return clueDiv;
+    }
+
+    private void checkAnswers() {
+        if (placedWords.isEmpty()) {
+            showError("Generate a crossword first!");
+            return;
+        }
+
+        int correctLetters = 0;
         int totalLetters = 0;
-        StringBuilder resultMessage = new StringBuilder();
 
-        for (Word word : words) {
-            totalLetters += word.word.length();
+        for (CrosswordWord word : placedWords) {
             for (int i = 0; i < word.word.length(); i++) {
-                int row = word.y;
-                int col = word.x;
-                if (word.isHorizontal) {
-                    col += i;
-                } else {
-                    row += i;
-                }
-                String cellId = row + "-" + col;
-                TextField inputField = inputFields.get(cellId);
-                if (inputField != null && inputField.getValue() != null && inputField.getValue().length() == 1 && inputField.getValue().toUpperCase().charAt(0) == grid[row][col]) {
-                    correctAnswers++;
-                } else if (inputField != null && inputField.getValue() != null && inputField.getValue().length() == 0 && grid[row][col] == ' ') { //space
-                    correctAnswers++;
+                int r = word.horizontal ? word.row : word.row + i;
+                int c = word.horizontal ? word.col + i : word.col;
+                String cellId = r + "-" + c;
+
+                TextField input = cellInputs.get(cellId);
+                char expected = word.word.charAt(i);
+                totalLetters++;
+
+                if (input != null) {
+                    String value = input.getValue().toUpperCase().trim();
+                    if (value.length() == 1 && value.charAt(0) == expected) {
+                        correctLetters++;
+                        input.removeClassName("crossword-input-incorrect");
+                        input.addClassName("crossword-input-correct");
+                    } else if (!value.isEmpty()) {
+                        input.removeClassName("crossword-input-correct");
+                        input.addClassName("crossword-input-incorrect");
+                    }
                 }
             }
         }
 
-        resultMessage.append("Correct answers: ").append(correctAnswers).append(" - ").append(totalLetters).append(" letters.\n");
-        if (correctAnswers == totalLetters) {
-            resultMessage.append("GZ! You won the game!");
-            messageLabel.setText(resultMessage.toString());
+        showResults(correctLetters, totalLetters);
+    }
+
+    private void showResults(int correct, int total) {
+        resultsDiv.removeAll();
+        resultsDiv.setVisible(true);
+
+        double percentage = total > 0 ? (correct * 100.0 / total) : 0;
+
+        H3 scoreTitle = new H3("Score: " + correct + "/" + total + " (" + String.format("%.0f", percentage) + "%)");
+        scoreTitle.addClassName("crossword-score-title");
+
+        ProgressBar progressBar = new ProgressBar(0, total, correct);
+        progressBar.addClassName("crossword-score-progress");
+
+        String message;
+        String messageClass;
+        if (percentage == 100) {
+            message = "Perfect! You solved the crossword!";
+            messageClass = "crossword-message-perfect";
+        } else if (percentage >= 80) {
+            message = "Almost there! Great job!";
+            messageClass = "crossword-message-great";
+        } else if (percentage >= 50) {
+            message = "Good progress! Keep going!";
+            messageClass = "crossword-message-good";
         } else {
-            resultMessage.append("Check again.");
-            messageLabel.setText(resultMessage.toString());
+            message = "Keep trying! Check the clues again.";
+            messageClass = "crossword-message-practice";
         }
+
+        Span messageSpan = new Span(message);
+        messageSpan.addClassName(messageClass);
+
+        resultsDiv.add(scoreTitle, progressBar, messageSpan);
     }
 
-    public List<Word> smartSortWords(List<Word> words) {
-        if (words.isEmpty()) return words;
+    private void revealAnswers() {
+        for (CrosswordWord word : placedWords) {
+            for (int i = 0; i < word.word.length(); i++) {
+                int r = word.horizontal ? word.row : word.row + i;
+                int c = word.horizontal ? word.col + i : word.col;
+                String cellId = r + "-" + c;
 
-        List<Word> sortedList = new ArrayList<>();
-        Set<Word> remainingWords = new HashSet<>(words);
-
-        Word firstWord = words.get(0);
-        sortedList.add(firstWord);
-        remainingWords.remove(firstWord);
-
-        while (!remainingWords.isEmpty()) {
-            Word lastAdded = sortedList.get(sortedList.size() - 1);
-            Word bestMatch = null;
-            int maxCommonLetters = -1;
-
-            for (Word candidate : remainingWords) {
-                int commonLetters = countCommonLetters(lastAdded.getWord(), candidate.getWord());
-                if (commonLetters > maxCommonLetters) {
-                    maxCommonLetters = commonLetters;
-                    bestMatch = candidate;
+                TextField input = cellInputs.get(cellId);
+                if (input != null) {
+                    input.setValue(String.valueOf(word.word.charAt(i)));
+                    input.addClassName("crossword-input-revealed");
                 }
             }
-
-            if (bestMatch != null) {
-                sortedList.add(bestMatch);
-                remainingWords.remove(bestMatch);
-            }
         }
-
-        return sortedList;
     }
 
-    private int countCommonLetters(String word1, String word2) {
-        Map<Character, Integer> freq1 = getLetterFrequencies(word1);
-        Map<Character, Integer> freq2 = getLetterFrequencies(word2);
-
-        int commonCount = 0;
-        for (char c : freq1.keySet()) {
-            if (freq2.containsKey(c)) {
-                commonCount += Math.min(freq1.get(c), freq2.get(c));
-            }
-        }
-        return commonCount;
+    private void showError(String message) {
+        gridContainer.removeAll();
+        Div error = new Div();
+        error.setText(message);
+        error.addClassName("crossword-error");
+        gridContainer.add(error);
     }
 
-    private Map<Character, Integer> getLetterFrequencies(String word) {
-        Map<Character, Integer> frequency = new HashMap<>();
-        for (char c : word.toCharArray()) {
-            frequency.put(c, frequency.getOrDefault(c, 0) + 1);
-        }
-        return frequency;
+    private List<String> getSelectedLevels() {
+        List<String> levels = new ArrayList<>();
+        if (levelNA.getValue()) levels.add("N/A");
+        if (levelA1.getValue()) levels.add("A1");
+        if (levelA2.getValue()) levels.add("A2");
+        if (levelB1.getValue()) levels.add("B1");
+        if (levelB2.getValue()) levels.add("B2");
+        if (levelC1.getValue()) levels.add("C1");
+        if (levelC2.getValue()) levels.add("C2");
+        return levels;
     }
 
-    public static class Word {
-        int index;
+    // Inner class for crossword word
+    private static class CrosswordWord {
         String word;
-        String definition;
-        int x;
-        int y;
-        boolean isHorizontal;
+        String clue;
+        int row;
+        int col;
+        boolean horizontal;
+        int number;
 
-        public Word(String word, String definition) {
+        CrosswordWord(String word, String clue) {
             this.word = word;
-            this.definition = definition;
-        }
-
-        public String getPlaced() {
-            if (isHorizontal) {
-                return "Horizontal";
-            } else {
-                return "Vertical";
-            }
-        }
-
-        public int getIndex() {
-            return index;
-        }
-
-        public void setIndex(int index) {
-            this.index = index;
-        }
-
-        public String getWord() {
-            return word;
-        }
-
-        public String getDefinition() {
-            return definition;
-        }
-
-        public int getX() {
-            return x;
-        }
-
-        public int getY() {
-            return y;
-        }
-
-        public boolean isHorizontal() {
-            return isHorizontal;
+            this.clue = clue;
         }
     }
 }
