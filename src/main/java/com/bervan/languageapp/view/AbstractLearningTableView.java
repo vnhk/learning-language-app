@@ -232,7 +232,7 @@ public abstract class AbstractLearningTableView extends AbstractBervanTableView<
                 .withMarkNotToLearn()
                 .withEditButton(service)
                 .withDeleteButton()
-                .withExportButton(isExportable(), service, pathToFileStorage, globalTmpDir)
+                .withExportButton(isExportable(), service, () -> pathToFileStorage, () -> globalTmpDir)
                 .build();
     }
 
