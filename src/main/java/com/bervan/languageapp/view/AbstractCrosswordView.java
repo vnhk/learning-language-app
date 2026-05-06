@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
+@Deprecated
 public abstract class AbstractCrosswordView extends VerticalLayout {
 
     private static final int GRID_SIZE = 15;

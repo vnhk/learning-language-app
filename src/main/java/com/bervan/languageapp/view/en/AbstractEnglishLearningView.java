@@ -4,6 +4,7 @@ import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.view.AbstractLearningView;
 
 
+@Deprecated
 public abstract class AbstractEnglishLearningView extends AbstractLearningView {
     public static final String ROUTE_NAME = "learning-language-app/en/learning-view";
 

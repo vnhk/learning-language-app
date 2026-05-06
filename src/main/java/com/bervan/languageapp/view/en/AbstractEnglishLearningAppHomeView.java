@@ -3,6 +3,7 @@ package com.bervan.languageapp.view.en;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.view.AbstractLearningAppHomeView;
 
+@Deprecated
 public abstract class AbstractEnglishLearningAppHomeView extends AbstractLearningAppHomeView {
     public static final String ROUTE_NAME = "learning-language-app/en/home";
 

@@ -27,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Deprecated
 public abstract class AbstractFastImportView extends AbstractPageView {
     protected final String language;
     protected final Checkbox generateSound = new Checkbox("Generate sound", true);

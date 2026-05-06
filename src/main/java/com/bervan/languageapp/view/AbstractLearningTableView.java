@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 import static com.bervan.languageapp.component.ComponentCommonUtils.optimizedAddAudioIfExist;
 
+@Deprecated
 public abstract class AbstractLearningTableView extends AbstractBervanTableView<UUID, TranslationRecord> {
     protected final String language;
     private final ExampleOfUsageService exampleOfUsageService;

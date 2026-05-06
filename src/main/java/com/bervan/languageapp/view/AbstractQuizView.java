@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 
+@Deprecated
 public abstract class AbstractQuizView extends VerticalLayout {
     private final int amountOfQuestions = 10;
     private final Checkbox levelNotClass = new Checkbox("N/A", true);

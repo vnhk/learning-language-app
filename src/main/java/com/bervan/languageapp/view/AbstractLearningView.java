@@ -35,6 +35,7 @@ import java.util.UUID;
  * to filter the data by level. By default, A1, A2, B1, and B2 are selected.
  * Any change to the checkbox selection triggers a data reload.
  */
+@Deprecated
 public abstract class AbstractLearningView extends AbstractPageView {
     // Service for accessing and updating TranslationRecord entities
     private final TranslationRecordService translationRecordService;

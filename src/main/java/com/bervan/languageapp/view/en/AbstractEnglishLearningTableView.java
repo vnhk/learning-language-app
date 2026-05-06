@@ -13,6 +13,7 @@ import com.vaadin.flow.component.html.Anchor;
 
 import java.util.Map;
 
+@Deprecated
 public abstract class AbstractEnglishLearningTableView extends AbstractLearningTableView {
     public static final String ROUTE_NAME = "learning-language-app/en/list";
     private final Map<String, String> helpfulLinks = ImmutableMap.of("https://youglish.com", "The page that finds words in youtube videos");

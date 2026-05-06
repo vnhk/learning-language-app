@@ -9,6 +9,7 @@ import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.bervan.languageapp.view.AbstractFastImportView;
 
+@Deprecated
 public class AbstractSpanishFastImportView extends AbstractFastImportView {
 
     public AbstractSpanishFastImportView(TranslationRecordService translationRecordService, TextToSpeechService textToSpeechService, SearchService searchService, ExampleOfUsageService exampleOfUsageService, TranslatorService translatorService, AsyncTaskService asyncTaskService) {

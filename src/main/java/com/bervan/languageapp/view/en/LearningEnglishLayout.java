@@ -3,6 +3,7 @@ package com.bervan.languageapp.view.en;
 import com.bervan.common.MenuNavigationComponent;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
+@Deprecated
 public final class LearningEnglishLayout extends MenuNavigationComponent {
     public LearningEnglishLayout(String routeName) {
         super(routeName);

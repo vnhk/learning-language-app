@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.bervan.logging.JsonLogger;
+@Deprecated
 public abstract class AbstractImportExportView extends AbstractDataIEView<UUID, TranslationRecord> {
     private final String language;
     private final JsonLogger log = JsonLogger.getLogger(getClass(), "learning-language");

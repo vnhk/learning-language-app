@@ -3,6 +3,7 @@ package com.bervan.languageapp.view.es;
 import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.view.AbstractCrosswordView;
 
+@Deprecated
 public abstract class AbstractSpanishCrosswordView extends AbstractCrosswordView {
     public static final String ROUTE_NAME = "learning-language-app/es/crossword";
 

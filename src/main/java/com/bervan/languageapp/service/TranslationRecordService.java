@@ -219,6 +219,10 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         return repository.getRecordsForQuiz(AuthService.getLoggedUserId(), levels, language, pageable);
     }
 
+    public org.springframework.data.domain.Page<TranslationRecord> loadByLanguage(String language, Pageable pageable) {
+        return repository.findByLanguagePaged(language.toUpperCase(), AuthService.getLoggedUserId(), pageable);
+    }
+
     private String convertImageToBase64(String img) {
         if (img.startsWith("http")) {
             try (InputStream inputStream = new URL(img).openStream();

@@ -11,6 +11,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 
 import java.util.List;
 
+@Deprecated
 public abstract class AbstractLearningAppHomeView extends AbstractHomePageView {
 
     private final String language;

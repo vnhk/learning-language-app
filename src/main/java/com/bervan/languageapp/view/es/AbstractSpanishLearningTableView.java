@@ -9,6 +9,7 @@ import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.bervan.languageapp.view.AbstractLearningTableView;
 
+@Deprecated
 public abstract class AbstractSpanishLearningTableView extends AbstractLearningTableView {
     public static final String ROUTE_NAME = "learning-language-app/es/list";
 

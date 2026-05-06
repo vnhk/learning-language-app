@@ -8,6 +8,7 @@ import com.bervan.languageapp.service.TranslationRecordService;
 import com.bervan.languageapp.service.TranslatorService;
 import com.bervan.languageapp.view.AbstractFastImportView;
 
+@Deprecated
 public class AbstractEnglishFastImportView extends AbstractFastImportView {
     public static final String ROUTE_NAME = "learning-language-app/en/fast-import";
 
