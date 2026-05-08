@@ -45,21 +45,15 @@ public interface TranslationRecordRepository extends BaseRepository<TranslationR
             Pageable pageable);
 
 
-    @Query(value = "SELECT t FROM TranslationRecord t " +
+    @Query("SELECT t FROM TranslationRecord t " +
             "JOIN t.owners o " +
-            "WHERE (t.deleted = false OR t.deleted IS NULL) " +
+            "WHERE (t.deleted IS FALSE OR t.deleted IS NULL) " +
             "AND t.language = :language " +
             "AND o.id = :ownerId " +
-            "ORDER BY t.sourceText ASC",
-           countQuery = "SELECT COUNT(t) FROM TranslationRecord t " +
-            "JOIN t.owners o " +
-            "WHERE (t.deleted = false OR t.deleted IS NULL) " +
-            "AND t.language = :language " +
-            "AND o.id = :ownerId")
-    org.springframework.data.domain.Page<TranslationRecord> findByLanguagePaged(
+            "ORDER BY t.sourceText ASC")
+    List<TranslationRecord> findAllByLanguageAndOwner(
             @Param("language") String language,
-            @Param("ownerId") UUID ownerId,
-            Pageable pageable);
+            @Param("ownerId") UUID ownerId);
 
     @Query("SELECT tr.id, tr.images FROM TranslationRecord tr WHERE tr.id IN (:ids)")
     List<Object[]> getImages(@Param("ids") List<UUID> ids);

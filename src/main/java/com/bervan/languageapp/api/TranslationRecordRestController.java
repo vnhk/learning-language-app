@@ -7,6 +7,7 @@ import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.CrosswordService;
 import com.bervan.languageapp.service.TranslationRecordService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -40,10 +41,14 @@ public class TranslationRecordRestController extends BaseOwnedController<Transla
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String language) {
         if (language != null && !language.isBlank()) {
-            Page<TranslationRecordDto> dto = translationRecordService
-                    .loadByLanguage(language, PageRequest.of(page, size))
-                    .map(r -> mapper.map(r, TranslationRecordDto.class));
-            return ResponseEntity.ok(dto);
+            String lang = language.toUpperCase();
+            List<TranslationRecord> all = translationRecordService.findAllByLanguage(lang);
+            int start = page * size;
+            int end = Math.min(start + size, all.size());
+            List<TranslationRecordDto> content = all.subList(start, end).stream()
+                    .map(r -> mapper.map(r, TranslationRecordDto.class))
+                    .toList();
+            return ResponseEntity.ok(new PageImpl<>(content, PageRequest.of(page, size), all.size()));
         }
         return super.load(page, size, TranslationRecordDto.class);
     }
@@ -152,7 +157,7 @@ public class TranslationRecordRestController extends BaseOwnedController<Transla
     public ResponseEntity<LanguageLearningStatsDto> stats(@RequestParam String language) {
         String lang = language.toUpperCase();
         LocalDateTime now = LocalDateTime.now();
-        List<TranslationRecord> all = translationRecordService.load(Pageable.unpaged()).stream()
+        List<TranslationRecord> all = translationRecordService.load(PageRequest.of(0, 100_000)).stream()
                 .filter(r -> lang.equals(r.getLanguage())).toList();
         long total = all.size();
         long mastered = all.stream().filter(r -> r.getFactor() != null && r.getFactor() >= 512).count();

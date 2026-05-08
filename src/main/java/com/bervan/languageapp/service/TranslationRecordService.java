@@ -210,6 +210,11 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
 //    }
 
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
+    public List<TranslationRecord> findAllByLanguage(String language) {
+        return repository.findAllByLanguageAndOwner(language.toUpperCase(), AuthService.getLoggedUserId());
+    }
+
+    @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public List<TranslationRecord> getAllForLearning(String language, List<String> levels, Pageable pageable) {
         return repository.getRecordsForLearning(LocalDateTime.now(), AuthService.getLoggedUserId(), levels, language, pageable);
     }
@@ -217,10 +222,6 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public List<TranslationRecord> getRecordsForQuiz(String language, List<String> levels, Pageable pageable) {
         return repository.getRecordsForQuiz(AuthService.getLoggedUserId(), levels, language, pageable);
-    }
-
-    public org.springframework.data.domain.Page<TranslationRecord> loadByLanguage(String language, Pageable pageable) {
-        return repository.findByLanguagePaged(language.toUpperCase(), AuthService.getLoggedUserId(), pageable);
     }
 
     private String convertImageToBase64(String img) {
