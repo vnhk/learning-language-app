@@ -185,6 +185,9 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
     }
 
     private String autoDetermineLevel(String sourceText, String language) {
+        if (language == null) {
+            return null;
+        }
         if (language.equals("EN")) {
             return englishLanguageLevelAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.2, apiKey);
         } else if (language.equals("ES")) {
