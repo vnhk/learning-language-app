@@ -12,6 +12,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+@Deprecated
 public class Flashcard extends VerticalLayout {
     private AudioPlayer cardTopPlayer;
     private AudioPlayer cardBottomPlayer;

@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Base64;
 
 @Tag("Div")
+@Deprecated
 public class AudioPlayer extends Component {
     private static final JsonLogger log = JsonLogger.getLogger(AudioPlayer.class, "learning-language");
 

@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
+@Deprecated
 public class LearningLanguageTableToolbar extends BervanTableToolbar<UUID, TranslationRecord> {
     private BervanButton markToLearnButton;
     private BervanButton markNotToLearnButton;

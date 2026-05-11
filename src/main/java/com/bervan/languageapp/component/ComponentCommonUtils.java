@@ -3,6 +3,7 @@ package com.bervan.languageapp.component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 
+@Deprecated
 public class ComponentCommonUtils {
     private static void addAudio(Span span, String audioInBase64) {
         AudioPlayer textAudioPlayer = new AudioPlayer();
