@@ -123,7 +123,7 @@ protected void onDetach(DetachEvent detachEvent) {
 - `service/ExampleOfUsageService.java` - Example sentences
 
 ### Frontend
-- CSS styles are in `my-tools-vaadin-app/src/main/frontend/themes/my-theme/main-layout.css`
+- CSS styles are in `my-tools-app/src/main/frontend/themes/my-theme/main-layout.css`
 - Sections: "FLASHCARD STYLES" and "QUIZ STYLES"
 
 ## CSS Classes
