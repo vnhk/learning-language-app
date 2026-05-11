@@ -3,6 +3,8 @@ package com.bervan.languageapp.api;
 import com.bervan.common.config.EntityConfigValidator;
 import com.bervan.common.controller.BaseOwnedController;
 import com.bervan.common.mapper.BervanDTOMapper;
+import com.bervan.common.search.SearchRequest;
+import com.bervan.common.search.model.SearchOperation;
 import com.bervan.languageapp.TranslationRecord;
 import com.bervan.languageapp.service.CrosswordService;
 import com.bervan.languageapp.service.TranslationRecordService;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -37,20 +40,16 @@ public class TranslationRecordRestController extends BaseOwnedController<Transla
 
     @GetMapping
     public ResponseEntity<Page<TranslationRecordDto>> list(
+            @RequestParam MultiValueMap<String, String> allParams,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String language) {
+        SearchRequest baseRequest = new SearchRequest();
         if (language != null && !language.isBlank()) {
-            String lang = language.toUpperCase();
-            List<TranslationRecord> all = translationRecordService.findAllByLanguage(lang);
-            int start = page * size;
-            int end = Math.min(start + size, all.size());
-            List<TranslationRecordDto> content = all.subList(start, end).stream()
-                    .map(r -> mapper.map(r, TranslationRecordDto.class))
-                    .toList();
-            return ResponseEntity.ok(new PageImpl<>(content, PageRequest.of(page, size), all.size()));
+            baseRequest.addCriterion("LANGUAGE", TranslationRecord.class, "language",
+                    SearchOperation.EQUALS_OPERATION, language.toUpperCase());
         }
-        return super.load(page, size, TranslationRecordDto.class);
+        return super.search(baseRequest, allParams, page, size, TranslationRecordDto.class, TranslationRecord.class);
     }
 
     @GetMapping("/{id}")
