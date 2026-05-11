@@ -2,6 +2,7 @@ package com.bervan.languageapp.api;
 
 import com.bervan.common.config.EntityConfigValidator;
 import com.bervan.common.controller.BaseOwnedController;
+import com.bervan.common.controller.BaseOwnedController.ImportResult;
 import com.bervan.common.mapper.BervanDTOMapper;
 import com.bervan.common.search.SearchRequest;
 import com.bervan.common.search.model.SearchOperation;
@@ -12,9 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -170,5 +173,15 @@ public class TranslationRecordRestController extends BaseOwnedController<Transla
             return List.of("N/A", "A1", "A2", "B1", "B2", "C1", "C2");
         }
         return Arrays.asList(levels.split(","));
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> export() {
+        return super.exportAll(TranslationRecordDto.class, "words");
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ImportResult> importData(@RequestParam("file") MultipartFile file) {
+        return super.importAll(file, TranslationRecordDto.class);
     }
 }
