@@ -76,7 +76,6 @@ columns:
   - field: images
     displayName: "Images"
     internalNameField: "TranslationRecord_images_columnName"
-    extension: "VaadinImageBervanColumn"
     inSaveForm: false
     inEditForm: true
     inTable: true
