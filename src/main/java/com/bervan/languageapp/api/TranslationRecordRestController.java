@@ -2,7 +2,7 @@ package com.bervan.languageapp.api;
 
 import com.bervan.common.config.EntityConfigValidator;
 import com.bervan.common.controller.BaseOwnedController;
-import com.bervan.common.controller.BaseOwnedController.ImportResult;
+import com.bervan.common.controller.ImportResult;
 import com.bervan.common.mapper.BervanDTOMapper;
 import com.bervan.common.search.SearchRequest;
 import com.bervan.common.search.model.SearchOperation;
