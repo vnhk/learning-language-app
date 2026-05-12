@@ -12,49 +12,64 @@ import java.util.UUID;
 
 @Repository
 public interface TranslationRecordRepository extends BaseRepository<TranslationRecord, UUID> {
-    @Query("SELECT t FROM TranslationRecord t " +
-            "JOIN t.owners o " +
-            "WHERE (t.deleted IS FALSE OR t.deleted IS NULL) " +
-            "AND (t.nextRepeatTime IS NULL OR t.nextRepeatTime < :dateTime) " +
-            "AND t.markedForLearning IS TRUE " +
-            "AND t.language = :language " +
-            "AND o.id = :ownerId " +
-            "AND t.level IN :levels " +
-            "ORDER BY t.sourceText ASC")
+
+    @Query("""
+        SELECT t
+        FROM TranslationRecord t
+        JOIN t.owners o
+        WHERE (t.deleted = false OR t.deleted IS NULL)
+          AND (t.nextRepeatTime IS NULL OR t.nextRepeatTime < :dateTime)
+          AND t.markedForLearning = true
+          AND t.language = :language
+          AND o.id = :ownerId
+          AND t.level IN (:levels)
+        ORDER BY t.sourceText ASC
+    """)
     List<TranslationRecord> getRecordsForLearning(
             @Param("dateTime") LocalDateTime dateTime,
             @Param("ownerId") UUID ownerId,
             @Param("levels") List<String> levels,
             @Param("language") String language,
-            Pageable pageable);
+            Pageable pageable
+    );
 
     @Query(value = """
-                SELECT * FROM translation_record t
-                JOIN translation_record_owners o ON t.id = o.translation_record_id
-                WHERE (t.deleted IS FALSE OR t.deleted IS NULL)
-                  AND t.marked_for_learning IS TRUE
-                  AND t.language = :language
-                  AND o.owners_id = :ownerId
-                  AND t.level IN (:levels)
-                ORDER BY t.factor ASC
-            """, nativeQuery = true)
+        SELECT t.*
+        FROM translation_record t
+        JOIN translation_record_owners o
+            ON t.id = o.translation_record_id
+        WHERE (t.deleted IS FALSE OR t.deleted IS NULL)
+          AND t.marked_for_learning IS TRUE
+          AND t.language = :language
+          AND o.owners_id = :ownerId
+          AND t.level IN (:levels)
+        ORDER BY t.factor ASC
+    """, nativeQuery = true)
     List<TranslationRecord> getRecordsForQuiz(
             @Param("ownerId") UUID ownerId,
             @Param("levels") List<String> levels,
             @Param("language") String language,
-            Pageable pageable);
+            Pageable pageable
+    );
 
-
-    @Query("SELECT t FROM TranslationRecord t " +
-            "JOIN t.owners o " +
-            "WHERE (t.deleted IS FALSE OR t.deleted IS NULL) " +
-            "AND t.language = :language " +
-            "AND o.id = :ownerId " +
-            "ORDER BY t.sourceText ASC")
+    @Query("""
+        SELECT t
+        FROM TranslationRecord t
+        JOIN t.owners o
+        WHERE (t.deleted = false OR t.deleted IS NULL)
+          AND t.language = :language
+          AND o.id = :ownerId
+        ORDER BY t.sourceText ASC
+    """)
     List<TranslationRecord> findAllByLanguageAndOwner(
             @Param("language") String language,
-            @Param("ownerId") UUID ownerId);
+            @Param("ownerId") UUID ownerId
+    );
 
-    @Query("SELECT tr.id, tr.images FROM TranslationRecord tr WHERE tr.id IN (:ids)")
+    @Query("""
+        SELECT tr.id, tr.images
+        FROM TranslationRecord tr
+        WHERE tr.id IN (:ids)
+    """)
     List<Object[]> getImages(@Param("ids") List<UUID> ids);
 }
