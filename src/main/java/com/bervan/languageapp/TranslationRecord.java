@@ -48,7 +48,7 @@ public class TranslationRecord extends BervanOwnedBaseEntity<UUID> implements Pe
     private LocalDateTime nextRepeatTime;
     private boolean markedForLearning = true;
     private String language;
-    @ElementCollection(targetClass = String.class, fetch = FetchType.LAZY)
+    @ElementCollection(targetClass = String.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "images", joinColumns = @JoinColumn(name = "library_id"))
     @Column(name = "image", nullable = false, length = 1000000000)
     private List<String> images = new ArrayList<>();
