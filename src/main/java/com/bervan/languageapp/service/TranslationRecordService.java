@@ -158,7 +158,7 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
                 Elements images = link.select("img");
                 for (Element img : images) {
                     String imageUrl = img.absUrl("src");
-                    if (imageUrls.size() > 10) {
+                    if (imageUrls.size() > 3) {
                         break;
                     }
                     imageUrls.add(imageUrl);
