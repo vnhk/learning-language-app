@@ -39,16 +39,16 @@ public class ImageCompressorRunner implements ApplicationRunner {
 
     private void compressAllImages() {
         log.info("Compressing all images");
+        SearchRequest request = new SearchRequest();
+        request.setAddOwnerCriterion(false);
         int page = 0;
         int size = 50;
-        long count = translationRecordService.loadCount();
+        long count = translationRecordService.loadCount(request);
         int iterations = (int) Math.ceil((double) count / size);
         List<TranslationRecord> batch;
         log.info("Compressing images for {} records", count);
         while (iterations > 0) {
             iterations--;
-            SearchRequest request = new SearchRequest();
-            request.setAddOwnerCriterion(false);
             batch = translationRecordService.load(request, PageRequest.of(page, size), "id", SortDirection.ASC);
             List<TranslationRecord> updated = new ArrayList<>();
             for (TranslationRecord translationRecord : batch) {
