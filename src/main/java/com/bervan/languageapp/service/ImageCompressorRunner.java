@@ -47,7 +47,9 @@ public class ImageCompressorRunner implements ApplicationRunner {
         log.info("Compressing images for {} records", count);
         while (iterations > 0) {
             iterations--;
-            batch = translationRecordService.load(new SearchRequest(), PageRequest.of(page, size), "id", SortDirection.ASC);
+            SearchRequest request = new SearchRequest();
+            request.setAddOwnerCriterion(false);
+            batch = translationRecordService.load(request, PageRequest.of(page, size), "id", SortDirection.ASC);
             List<TranslationRecord> updated = new ArrayList<>();
             for (TranslationRecord translationRecord : batch) {
                 List<String> compressed = translationRecord.getImages().stream()
