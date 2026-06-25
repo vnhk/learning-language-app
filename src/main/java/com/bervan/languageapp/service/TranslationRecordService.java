@@ -207,21 +207,6 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         }
     }
 
-//    public List<TranslationRecord> createUsefulPhrasesForInputText(String sourceText) {
-//        try {
-//            String jsonResponse = englishUsefulPhrasesAI.askAI(sourceText, OpenAIService.GPT_3_5_TURBO, 0.1, apiKey);
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            return objectMapper.readValue(
-//                    jsonResponse,
-//                    new TypeReference<List<TranslationRecord>>() {
-//                    }
-//            );
-//        } catch (Exception e) {
-//            log.error("Failed to createUsefulPhrasesForInputText!", e);
-//            throw new RuntimeException("Failed to create useful phrases!");
-//        }
-//    }
-
     @PostFilter("(T(com.bervan.common.service.AuthService).hasAccess(filterObject.owners))")
     public List<TranslationRecord> findAllByLanguage(String language) {
         return repository.findAllByLanguageAndOwner(language.toUpperCase(), AuthService.getLoggedUserId());
@@ -320,10 +305,6 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
     public void delete(TranslationRecord record) {
         record.setDeleted(true);
         save(record);
-    }
-
-    public void saveAll(List<TranslationRecord> records) {
-        repository.saveAll(records);
     }
 
     @Override
