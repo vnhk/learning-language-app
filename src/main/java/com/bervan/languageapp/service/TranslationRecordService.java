@@ -1,5 +1,6 @@
 package com.bervan.languageapp.service;
 
+import com.bervan.common.ImageScaleUtility;
 import com.bervan.common.search.SearchService;
 import com.bervan.common.service.AIService;
 import com.bervan.common.service.AuthService;
@@ -18,14 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -234,7 +229,7 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
                 }
 
                 // Scale image
-                return scaleImage(original);
+                return Base64.getEncoder().encodeToString(ImageScaleUtility.scaleImage(original, 300, 0.6f).toByteArray());
 
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -244,48 +239,6 @@ public class TranslationRecordService extends BaseService<UUID, TranslationRecor
         return img;
     }
 
-    private String scaleImage(BufferedImage original) throws IOException {
-        BufferedImage scaled = scaleProportional(original, 300);
-
-        // Write to JPEG with compression
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        ImageWriter jpgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
-        ImageWriteParam jpgWriteParam = jpgWriter.getDefaultWriteParam();
-
-        jpgWriteParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-        jpgWriteParam.setCompressionQuality(0.6f); // 0.0 - 1.0
-
-        try (ImageOutputStream ios = ImageIO.createImageOutputStream(baos)) {
-            jpgWriter.setOutput(ios);
-            jpgWriter.write(null, new IIOImage(scaled, null, null), jpgWriteParam);
-        }
-
-        jpgWriter.dispose();
-
-        return Base64.getEncoder().encodeToString(baos.toByteArray());
-    }
-
-    private BufferedImage scaleProportional(BufferedImage original, int maxSize) {
-        int w = original.getWidth();
-        int h = original.getHeight();
-
-        double scale = Math.min((double) maxSize / w, (double) maxSize / h);
-
-        int newW = Math.max(1, (int) (w * scale));
-        int newH = Math.max(1, (int) (h * scale));
-
-        BufferedImage scaled = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_RGB);
-
-        Graphics2D g2d = scaled.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-        g2d.drawImage(original, 0, 0, newW, newH, null);
-        g2d.dispose();
-
-        return scaled;
-    }
 
     public void updateNextLearningDate(UUID uuid, String score) {
         TranslationRecord translationRecord = repository.findById(uuid).get();
